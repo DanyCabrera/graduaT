@@ -12,8 +12,12 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+<<<<<<< HEAD
     "@mui/icons-material": "^7.3.1",
     "@mui/lab": "^7.0.0-beta.17",
+=======
+    "@mui/icons-material": "^7.3.2",
+>>>>>>> 56eb41f3493371c8a80e01ed6319fc1348b33924
     "@mui/material": "^7.3.2",
     "@mui/styled-engine-sc": "^7.3.1",
     "build": "^0.1.4",
