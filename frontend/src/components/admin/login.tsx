@@ -22,9 +22,7 @@ import {
     Security,
     Assessment,
     Settings,
-    SupportAgent,
     Update,
-    PeopleAlt,
 } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -45,10 +43,8 @@ export default function LoginAdmin() {
     const IniciarSesion = () => {
         return (
             <Card
-                variant="outlined"
                 sx={{
-                    boxShadow: 1,
-                    width: { xs: "100%", sm: 500 },
+                    width: { xs: "100%", sm: 600},
                     borderRadius: 2,
                 }}
             >
@@ -97,16 +93,6 @@ export default function LoginAdmin() {
                         <Button variant="contained" color="primary">
                             Iniciar sesión
                         </Button>
-                        <a
-                            onClick={() => setIsRegistering(true)}
-                            style={{
-                                cursor: "pointer",
-                                color: "rgb(25, 118, 210)",
-                                textDecoration: "underline",
-                            }}
-                        >
-                            Registrarse
-                        </a>
                     </form>
                 </CardContent>
             </Card>
@@ -116,10 +102,8 @@ export default function LoginAdmin() {
     const Registro = () => {
         return (
             <Card
-                variant="outlined"
                 sx={{
-                    boxShadow: 1,
-                    width: { xs: "100%", sm: 500 },
+                    width: { xs: "100%", sm: 600, md: 700},
                     borderRadius: 2,
                 }}
             >
@@ -152,16 +136,6 @@ export default function LoginAdmin() {
                             type="password"
                         />
                         <Button variant="contained">Registrarse</Button>
-                        <a
-                            onClick={() => setIsRegistering(false)}
-                            style={{
-                                cursor: "pointer",
-                                color: "rgb(25, 118, 210)",
-                                textDecoration: "underline",
-                            }}
-                        >
-                            Iniciar sesión
-                        </a>
                     </form>
                 </CardContent>
             </Card>
@@ -170,25 +144,29 @@ export default function LoginAdmin() {
 
     return (
         <Container
+            disableGutters
             sx={{
-                p: 2,
-                minWidth: "100%",
-                minHeight: "100vh",
+                minWidth: "80vw",
+                minHeight: "80vh",
                 display: "flex",
                 flexDirection: { xs: "column", md: "row" }, // Cambia la dirección en pantallas pequeñas
                 justifyContent: "center", // Centra el contenido verticalmente
                 alignItems: "center", // Centra el contenido horizontalmente
-                gap: 2,
-                bgcolor: "rgba(166, 196, 253, 0.1)",
             }}
         >
             {/* Formulario de inicio de sesión o registro */}
             <Container
+                disableGutters
+                maxWidth={false}
                 sx={{
+                    p: 3,
                     placeItems: "center",
                     display: "grid",
                     justifyContent: "center", // Centra el formulario horizontalmente
                     alignItems: "center", // Centra el formulario verticalmente
+                    height: '100vh',
+                    width: '100%',
+                    
                 }}
             >
                 {isRegistering ? <Registro /> : <IniciarSesion />}
@@ -196,18 +174,20 @@ export default function LoginAdmin() {
 
             {/* Contenedor de descripción del administrador */}
             <Container
+                disableGutters
+                maxWidth={false}
                 sx={{
-                    placeItems: "center",
                     display: "grid",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    placeItems: "center",
+                    minHeight: '50vh',
+                    minWidth: '50%',
                 }}
             >
                 <Typography
-                    variant="h4"
+                    variant="button"
                     sx={{
                         fontWeight: "bold",
-                        color: "primary.main",
+                        fontSize: {xs:'2rem', md:'3rem'},
                     }}
                 >
                     Administrador
@@ -251,15 +231,6 @@ export default function LoginAdmin() {
                     </ListItem>
                     <ListItem>
                         <ListItemIcon>
-                            <SupportAgent />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Resolución de problemas"
-                            secondary="Resolver problemas técnicos o funcionales que enfrenten los usuarios."
-                        />
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
                             <Update />
                         </ListItemIcon>
                         <ListItemText
@@ -267,16 +238,21 @@ export default function LoginAdmin() {
                             secondary="Aplicar actualizaciones y realizar mantenimiento para garantizar el buen funcionamiento."
                         />
                     </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <PeopleAlt />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Capacitación y soporte"
-                            secondary="Capacitar a los usuarios y brindar soporte técnico cuando sea necesario."
-                        />
-                    </ListItem>
                 </List>
+                {isRegistering && 
+                    <Button 
+                        onClick={() => setIsRegistering(false)}
+                        variant='contained' 
+                        color='primary'>
+                            Iniciar sesión
+                </Button>}
+                {!isRegistering && 
+                    <Button 
+                        onClick={() => setIsRegistering(true)}
+                        variant='contained' 
+                        color='primary'>
+                            Registrarse
+                </Button>}
             </Container>
         </Container>
     );

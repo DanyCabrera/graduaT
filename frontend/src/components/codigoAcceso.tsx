@@ -1,64 +1,75 @@
-import { Box, TextField, Button, Container, Card, Alert } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { Box, TextField, Button, Container, Card, Typography} from '@mui/material';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './navbar';
 
 export default function CodigoAcceso() {
     const [codigo, setCodigo] = useState('');
-    const [error, setError] = useState(false); // Estado para manejar errores
-    const [success, setSuccess] = useState(false); // Estado para manejar éxito
+    const [error, setError] = useState(false);
+    const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
-    const codigoAcceso = "ASDFGH"; // Código de acceso válido
+    const codigoAcceso: string = "ASDFGH";
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value.toUpperCase().replace(/[^A-Z]/g, ''); // Solo letras mayúsculas
+        const value = event.target.value.toUpperCase().replace(/[^A-Z]/g, ''); 
         setCodigo(value);
-        setError(false); // Reinicia el error al cambiar el texto
+        setError(false);
     };
 
-    const handleSubmit = () => {
+    const handleOpen = () => {
+        setOpen(true); // abre el backdrop
         if (codigo === codigoAcceso) {
-            setSuccess(true); // Muestra el mensaje de éxito
             setTimeout(() => {
-                navigate('/panelRol', { replace: true }); // Redirige al componente PanelRol y reemplaza la entrada en el historial
-            }, 2000); // Espera 3 segundos antes de redirigir
+                setOpen(false); // cierra el backdrop antes de navegar
+                navigate('/panelRol', { replace: true });
+            }, 1000);
         } else {
-            setError(true); // Muestra un mensaje de error si el código es incorrecto
+            setError(true);
+            setOpen(false); // lo cierra si es error
+        }
+
+        if (codigo === '') {
+            setError(false);
+            setOpen(false); // lo cierra si está vacío
         }
     };
 
-    // Evita que el usuario regrese al componente CódigoAcceso si ya está en PanelRol
-    useEffect(() => {
-        navigate('/', { replace: true }); // Reemplaza la entrada inicial en el historial
-    }, [navigate]);
-
     return (
         <>
-            <Navbar />
             <Container
                 component="main"
                 maxWidth="xs"
                 sx={{
-                    minHeight: '90vh',
+                    minHeight: '100vh',
                     minWidth: '100vw',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
                     padding: 2,
+                    bgcolor: "rgba(113, 161, 250, 0.1)",
                 }}
             >
                 <Card
                     variant="outlined"
                     sx={{
-                        width: { xs: '90%', sm: '70%', md: '50%' }, // Ancho responsivo
-                        padding: { xs: 3, sm: 4, md: 5 }, // Padding responsivo
+                        width: { xs: '90%', sm: '70%', md: '50%' },
+                        padding: { xs: 3, sm: 4, md: 5 },
                         borderRadius: 5,
+                        boxShadow: 20,
+                        backgroundColor: '#f9f9f9',
+                        display: 'flex',
+                        flexDirection: { xs: "column", md: "row" },
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 2,
                     }}
                 >
                     <Box
                         sx={{
+                            width: { xs: '100%', sm: '70%', md: '70%' },
                             padding: 2,
                             display: 'flex',
                             flexDirection: 'column',
@@ -66,57 +77,63 @@ export default function CodigoAcceso() {
                             gap: 2,
                         }}
                     >
-                        <h1
-                            style={{
-                                fontSize: '2rem', // Tamaño de fuente responsivo
+                        <Typography
+                            variant="button"
+                            sx={{
+                                fontSize: { xs: '1.22rem', sm: '1.5rem', md: '2rem' },
+                                fontWeight: 'bold',
                                 textAlign: 'center',
-                            }}
-                        >
-                            Código de Acceso
-                        </h1>
-                        <p
-                            style={{
-                                fontSize: '1rem', // Tamaño de fuente responsivo
-                                textAlign: 'center',
-                                color: 'gray',
-                            }}
-                        >
-                            Introduce el código de acceso para continuar
-                        </p>
+                            }}>
+                            Codigo de Acceso
+                        </Typography>
                         <TextField
-                            label="Código de acceso"
+                            color='warning'
+                            label="Digite código de acceso"
                             variant="standard"
                             fullWidth
                             value={codigo}
-                            onChange={handleInputChange} // Maneja el cambio de entrada
-                            error={error} // Muestra el error en el campo
+                            onChange={handleInputChange}
+                            error={error}
                             helperText={error ? "Código incorrecto. Inténtalo de nuevo." : ""}
                         />
                         <Button
-                            variant="contained"
-                            color="info"
+                            variant="outlined"
+                            color="warning"
                             sx={{
                                 width: '100%',
                                 marginTop: 2,
-                                fontSize: { xs: '0.8rem', sm: '1rem' }, // Tamaño de fuente responsivo
+                                fontSize: { xs: '0.8rem', sm: '1rem' },
+                                transition: 'transform 0.5s all',
+                                '&:hover': {
+                                    bgcolor: 'rgba(252, 80, 0, 0.22)',
+                                }
                             }}
-                            onClick={handleSubmit} // Valida el código al hacer clic
+                            onClick={handleOpen}
                         >
                             Entrar
                         </Button>
-                        {error && (
-                            <Alert severity="error" sx={{ marginTop: 2 }}>
-                                Código incorrecto. Inténtalo de nuevo.
-                            </Alert>
-                        )}
-                        {success && (
-                            <Alert severity="success" sx={{ marginTop: 2 }}>
-                                Código correcto. Redirigiendo al panel...
-                            </Alert>
-                        )}
+                    </Box>
+                    <Box 
+                        sx={{
+                            width: '40%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            placeItems: 'center',
+                            flexDirection: 'column',
+                        }}>
+                        <img src="https://cdn-icons-png.flaticon.com/512/12466/12466012.png" width='200' height='200' alt="" />
                     </Box>
                 </Card>
             </Container>
+
+            {/* Backdrop con el círculo de carga */}
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={open}
+            >
+                <CircularProgress color="success" />
+            </Backdrop>
         </>
     );
 }
