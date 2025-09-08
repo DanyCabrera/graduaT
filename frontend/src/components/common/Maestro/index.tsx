@@ -1,37 +1,18 @@
 // maestro.tsx
 import React from "react";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
-import Footer  from '../footer';
+import Footer  from '../../layout/footer';
+import Navbar from "./navbar";
 
 const Maestro: React.FC = () => {
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" sx={{ backgroundColor: "white", color: "black", boxShadow: "none", borderBottom: "1px solid #e0e0e0" }}>
-                <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-
-                    <Typography variant="h6" component="div" sx={{ fontWeight: "bold", marginLeft: 3 }}>
-                        Maestro
-                    </Typography>
-
-
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                        <Button color="inherit" variant='outlined'>Inicio</Button>
-                        <Button color="inherit" variant='outlined'>Alumnos</Button>
-                        <Button color="inherit" variant='outlined'>Agenda</Button>
-                        <Button color="inherit" variant='outlined'>Historial</Button>
-                        <Button color="inherit" variant='outlined'>Tests</Button>
-                    </Box>
-                </Toolbar>
-            </AppBar>
-
+            <Navbar />
             <Box sx={{ p: 7 }}>
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold", marginLeft: 35 }}>
                     Mis Cursos

@@ -1,22 +1,24 @@
 import {
     Container,
-    Card,
-    CardContent,
-    Typography,
-    Button,
-    MenuItem,
-    Select,
-    Checkbox,
-    FormControlLabel,
-    FormGroup,
-    InputLabel,
-    FormControl,
+    //Card,
+    //CardContent,
+    //Typography,
+    //Button,
+    //MenuItem,
+    //Select,
+    //Checkbox,
+    //FormControlLabel,
+    //FormGroup,
+    //InputLabel,
+    //FormControl,
 } from "@mui/material";
 
-export default function Acceso() {
+// acceso alumno/maestro
+/*
+const accesoAlumnoMaestro = () => {
     return (
         <>
-            <Container
+                    <Container
                 sx={{
                     minHeight: '100vh',
                     display: 'flex',
@@ -41,7 +43,7 @@ export default function Acceso() {
                         }}
                     >
                         <Typography variant="h5" textAlign="center">
-                            Acceso
+                            Acceso Alumno/Maestro
                         </Typography>
                         <Typography variant="body1" textAlign="center">
                             Bienvenido a la página de acceso.
@@ -71,6 +73,38 @@ export default function Acceso() {
                     </CardContent>
                 </Card>
             </Container>
+        </>
+    )
+}
+*/
+
+// acceso supervisor/director
+const accesoSupervisorDirector = () => {
+    return (
+        <>
+            <Container>
+                <h1>Acceso Supervisor/Director</h1>
+                {/* 
+                    Contenedor para el acceso del supervisor y director
+                    Aca solo vas a diseñar otro Card con el de acceso alumno/maestro pero ahora va hacer para superviros y director
+                    los campos que se necesitan son: Instituciones y Código de Rol, y el botón de acceder va hacer para que el supervisor o director ingrese a la plataforma
+
+                    El diseño esta en figma ahi estan los dos campos que se necesitan crear
+                    para el campo de institucion lo puedes copiar de la otra funcion de acceso alumno/maestro
+                    ahi tengo el codigo para que se vea como un listado y para el campo de codigo del rol
+                    que sea que el user digite solo codigo en mayúscula y que sea minimo de 6 digitos.
+
+                    solo diseña eso, no hagas ningun tipo de funcionalidad, despues lo vamos  validar dependiendo de que rol entre le mostrara el panel
+                 */}
+            </Container>
+        </>
+    )
+}
+
+export default function Acceso() {
+    return (
+        <>
+            {accesoSupervisorDirector()}
         </>
     );
 }

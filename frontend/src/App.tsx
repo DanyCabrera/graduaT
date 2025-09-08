@@ -1,9 +1,9 @@
-import RouterMain from './router/router';
-
+import { AppRoutes } from './router';
+import './styles/App.css';
 
 function App() {
     return (
-          <RouterMain />
+          <AppRoutes />
     );
 }
 
