@@ -32,14 +32,24 @@ npm install
 2. **Configurar variables de entorno:**
 Crea un archivo `.env` en la raíz del backend con:
 ```env
-MONGODB_URI=mongodb+srv://<usuario>:<contraseña>@<cluster>.mongodb.net/?retryWrites=true&w=majority
-DB_NAME=SistemaEscolar
+MONGODB_URL=mongodb+srv://<usuario>:<contraseña>@<cluster>.mongodb.net/?retryWrites=true&w=majority
+DB_NAME=dbgraduat
 PORT=5000
 NODE_ENV=development
-JWT_SECRET=tu_jwt_secret_muy_seguro_aqui
-JWT_EXPIRES_IN=24h
+JWT_SECRET=mi_secreto_super_seguro
+EMAIL_USER=tu_correo@gmail.com
+EMAIL_PASS=app_password
 FRONTEND_URL=http://localhost:5173
 ```
+
+**Nota sobre configuración de email:**
+- `EMAIL_USER`: Tu dirección de Gmail
+- `EMAIL_PASS`: Contraseña de aplicación de Gmail (no tu contraseña normal)
+- Para generar una contraseña de aplicación:
+  1. Ve a tu cuenta de Google
+  2. Seguridad → Verificación en 2 pasos
+  3. Contraseñas de aplicaciones
+  4. Genera una nueva contraseña para "Correo"
 
 3. **Ejecutar el servidor:**
 ```bash
@@ -57,6 +67,15 @@ npm start
 - `POST /api/auth/register` - Registrar usuario
 - `GET /api/auth/verify` - Verificar token
 - `PUT /api/auth/change-password` - Cambiar contraseña
+
+### Administradores
+- `GET /api/useradmin` - Obtener todos los administradores
+- `GET /api/useradmin/:id` - Obtener administrador por ID
+- `POST /api/useradmin` - Crear nuevo administrador
+- `PUT /api/useradmin/:id` - Actualizar administrador
+- `DELETE /api/useradmin/:id` - Eliminar administrador
+- `POST /api/useradmin/login` - Login de administrador
+- `GET /api/useradmin/verify-email/:token` - Verificar email
 
 ### Alumnos
 - `GET /api/alumnos` - Obtener todos los alumnos

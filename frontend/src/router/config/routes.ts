@@ -3,8 +3,10 @@
 export const ROUTES = {
   // Rutas principales
   HOME: '/',
-  PANEL_ROL: '/panelRol',
   LOGIN: '/login',
+  CODIGO_ACCESO: '/codigo-acceso',
+  PANEL_ROL: '/panelRol',
+  REGISTROL: '/registrol',
   ACCESO: '/acceso',
   
   // Rutas de roles
@@ -47,5 +49,6 @@ export const ROUTE_GROUPS = {
     BASE: '/registro',
     LOGIN: '/registro/login',
     FORM: '/registro/formInst',
+    REGISTRO: '/registro/registro',
   },
 } as const;

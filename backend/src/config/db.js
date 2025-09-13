@@ -12,17 +12,28 @@ if (!uri) {
 }
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
+const clientOptions = {
     serverApi: {
         version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
+        strict: false,
+        deprecationErrors: false,
     },
     maxPoolSize: 10,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-    family: 4
-});
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 0,
+    connectTimeoutMS: 30000,
+    family: 4,
+    retryWrites: true,
+    retryReads: true,
+    heartbeatFrequencyMS: 30000,
+    maxIdleTimeMS: 60000,
+    // Configuraciones SSL específicas para Node.js 22.19.0 y OpenSSL
+    tls: true,
+    tlsAllowInvalidCertificates: true,
+    tlsAllowInvalidHostnames: true
+};
+
+const client = new MongoClient(uri, clientOptions);
 
 let db;
 
@@ -63,6 +74,12 @@ async function connectDB() {
             console.error("   1. Verifica tu conexión a internet");
             console.error("   2. Ve a Network Access en MongoDB Atlas");
             console.error("   3. Agrega tu IP actual o usa 0.0.0.0/0");
+        } else if (error.message.includes('SSL') || error.message.includes('TLS')) {
+            console.error("\n🔒 Error SSL/TLS - Soluciones:");
+            console.error("   1. Verifica que tu versión de Node.js sea compatible (tienes 22.19.0 ✅)");
+            console.error("   2. Verifica que tu conexión a internet no tenga restricciones SSL");
+            console.error("   3. Intenta usar una VPN si estás en una red corporativa");
+            console.error("   4. Verifica que el cluster de MongoDB Atlas esté activo");
         }
         
         throw error;
@@ -241,6 +258,29 @@ async function createCollections() {
                         ID_Colegio: { bsonType: "string" },
                         Nombre_Completo: { bsonType: "string" },
                         Teléfono: { bsonType: "string" }
+                    }
+                }
+            }
+        });
+
+        // 9. UserAdmin
+        await database.createCollection("UserAdmin", {
+            validator: {
+                $jsonSchema: {
+                    bsonType: "object",
+                    required: ["Nombre", "Apellido", "Usuario", "Correo", "Telefono", "Contraseña", "Confirmar_Contraseña"],
+                    properties: {
+                        Nombre: { bsonType: "string" },
+                        Apellido: { bsonType: "string" },
+                        Usuario: { bsonType: "string" },
+                        Correo: { bsonType: "string" },
+                        Telefono: { bsonType: "string" },
+                        Contraseña: { bsonType: "string" },
+                        Confirmar_Contraseña: { bsonType: "string" },
+                        emailVerificado: { bsonType: "bool" },
+                        tokenVerificacion: { bsonType: ["string", "null"] },
+                        fechaCreacion: { bsonType: "date" },
+                        fechaActualizacion: { bsonType: "date" }
                     }
                 }
             }

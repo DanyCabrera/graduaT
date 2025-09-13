@@ -1,139 +1,260 @@
-import { Box, TextField, Button, Container, Card, Typography} from '@mui/material';
-import Backdrop from '@mui/material/Backdrop';
-import CircularProgress from '@mui/material/CircularProgress';
+import { 
+    Box, 
+    TextField, 
+    Button, 
+    Container, 
+    Card, 
+    CardContent,
+    Typography,
+    Fade,
+    Alert,
+    CircularProgress,
+} from '@mui/material';
+import {
+    Key as KeyIcon,
+    Login as LoginIcon,
+    Error as ErrorIcon,
+    ArrowBack as ArrowBackIcon,
+} from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function CodigoAcceso() {
     const [codigo, setCodigo] = useState('');
     const [error, setError] = useState(false);
-    const [open, setOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    const codigoAcceso: string = "ASDFGH";
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.toUpperCase().replace(/[^A-Z]/g, ''); 
         setCodigo(value);
         setError(false);
+        setErrorMessage('');
     };
 
-    const handleOpen = () => {
-        setOpen(true); // abre el backdrop
-        if (codigo === codigoAcceso) {
-            setTimeout(() => {
-                setOpen(false); // cierra el backdrop antes de navegar
-                navigate('/panelRol', { replace: true });
-            }, 1000);
-        } else {
+    const handleBackToPanel = () => {
+        navigate('/');
+    }
+
+    const verificarCodigo = async () => {
+        if (!codigo.trim()) {
             setError(true);
-            setOpen(false); // lo cierra si es error
+            setErrorMessage('Por favor ingresa un código');
+            return;
         }
 
-        if (codigo === '') {
-            setError(false);
-            setOpen(false); // lo cierra si está vacío
+        setLoading(true);
+        setError(false);
+        setErrorMessage('');
+
+        try {
+            // Primero verificar en localStorage (códigos generados)
+            const codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
+            const codigoEncontrado = codigosValidos.find((c: any) => 
+                c.codigo === codigo.trim() && c.activo === true
+            );
+
+            if (codigoEncontrado) {
+                // Código encontrado en localStorage
+                setTimeout(() => {
+                    setLoading(false);
+                    if (codigoEncontrado.tipo === 'ROL') {
+                        navigate('/panelRol', { replace: true });
+                    } else {
+                        navigate('/registro', { replace: true });
+                    }
+                }, 1000);
+                return;
+            }
+
+            // Si no se encuentra en localStorage, intentar con la API (códigos del backend)
+            const response = await fetch('http://localhost:5000/api/codigos-acceso/verificar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ codigo: codigo.trim() }),
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Verificar si es un código de rol
+                if (result.data.tipo === 'ROL') {
+                    setTimeout(() => {
+                        setLoading(false);
+                        navigate('/panelRol', { replace: true });
+                    }, 1000);
+                } else {
+                    // Si es código de institución, redirigir a otra página
+                    setTimeout(() => {
+                        setLoading(false);
+                        navigate('/registro', { replace: true });
+                    }, 1000);
+                }
+            } else {
+                setError(true);
+                setErrorMessage(result.message || 'Código de acceso inválido');
+                setLoading(false);
+            }
+
+        } catch (error) {
+            setError(true);
+            setErrorMessage('Código de acceso inválido. Verifica que el código sea correcto.');
+            setLoading(false);
         }
     };
 
     return (
-        <>
-            <Container
-                component="main"
-                maxWidth="xs"
-                sx={{
-                    minHeight: '100vh',
-                    minWidth: '100vw',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: 2,
-                    bgcolor: "rgba(113, 161, 250, 0.1)",
-                }}
-            >
-                <Card
-                    variant="outlined"
-                    sx={{
-                        width: { xs: '90%', sm: '70%', md: '50%' },
-                        padding: { xs: 3, sm: 4, md: 5 },
-                        borderRadius: 5,
-                        boxShadow: 20,
-                        backgroundColor: '#f9f9f9',
-                        display: 'flex',
-                        flexDirection: { xs: "column", md: "row" },
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: 2,
-                    }}
-                >
-                    <Box
-                        sx={{
-                            width: { xs: '100%', sm: '70%', md: '70%' },
-                            padding: 2,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: 2,
-                        }}
-                    >
-                        <Typography
-                            variant="button"
+        <Box
+            sx={{
+                minHeight: "100vh",
+                backgroundColor: "#f8fafc",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 2,
+            }}
+        >
+            <Container maxWidth="sm">
+                <Fade in timeout={800}>
+                    <Box>
+                        {/* Header */}
+                        <Box sx={{ textAlign: "center", mb: 4 }}>
+                            <Box
+                                sx={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: 80,
+                                    height: 80,
+                                    borderRadius: "50%",
+                                    backgroundColor: "#e2e8f0",
+                                    mb: 2,
+                                }}
+                            >
+                                <KeyIcon sx={{ fontSize: 40, color: "#64748b" }} />
+                            </Box>
+                            <Typography
+                                variant="h3"
+                                sx={{
+                                    color: "#1e293b",
+                                    fontWeight: 700,
+                                    mb: 1,
+                                }}
+                            >
+                                Código de Acceso
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    color: "#64748b",
+                                    fontWeight: 400,
+                                }}
+                            >
+                                Ingresa tu código para acceder al sistema
+                            </Typography>
+                        </Box>
+
+                        {/* Formulario */}
+                        <Card
                             sx={{
-                                fontSize: { xs: '1.22rem', sm: '1.5rem', md: '2rem' },
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                            }}>
-                            Codigo de Acceso
-                        </Typography>
-                        <TextField
-                            color='warning'
-                            label="Digite código de acceso"
-                            variant="standard"
-                            fullWidth
-                            value={codigo}
-                            onChange={handleInputChange}
-                            error={error}
-                            helperText={error ? "Código incorrecto. Inténtalo de nuevo." : ""}
-                        />
-                        <Button
-                            variant="outlined"
-                            color="warning"
-                            sx={{
-                                width: '100%',
-                                marginTop: 2,
-                                fontSize: { xs: '0.8rem', sm: '1rem' },
-                                transition: 'transform 0.5s all',
-                                '&:hover': {
-                                    bgcolor: 'rgba(252, 80, 0, 0.22)',
-                                }
+                                borderRadius: 3,
+                                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+                                backgroundColor: "white",
+                                border: "1px solid #e2e8f0",
                             }}
-                            onClick={handleOpen}
                         >
-                            Entrar
+                            <CardContent sx={{ p: 4 }}>
+                                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                                    <TextField
+                                        label="Código de Acceso"
+                                        value={codigo}
+                                        onChange={handleInputChange}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                verificarCodigo();
+                                            }
+                                        }}
+                                        fullWidth
+                                        placeholder="Ej: ABC123"
+                                        InputProps={{
+                                            startAdornment: (
+                                                <KeyIcon sx={{ mr: 1, color: "#64748b" }} />
+                                            ),
+                                        }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                borderRadius: 2,
+                                                backgroundColor: "white",
+                                            },
+                                        }}
+                                        disabled={loading}
+                                    />
+
+                                    {error && (
+                                        <Alert 
+                                            severity="error" 
+                                            icon={<ErrorIcon />}
+                                            sx={{ 
+                                                backgroundColor: "#fef2f2", 
+                                                border: "1px solid #fecaca",
+                                                borderRadius: 2,
+                                            }}
+                                        >
+                                            {errorMessage}
+                                        </Alert>
+                                    )}
+
+                                    <Button
+                                        onClick={verificarCodigo}
+                                        variant="contained"
+                                        fullWidth
+                                        disabled={loading || !codigo.trim()}
+                                        startIcon={loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : <LoginIcon />}
+                                        sx={{
+                                            py: 1.5,
+                                            borderRadius: 2,
+                                            backgroundColor: "#374151",
+                                            textTransform: "none",
+                                            fontWeight: 500,
+                                            "&:hover": {
+                                                backgroundColor: "#1f2937",
+                                            },
+                                            "&:disabled": {
+                                                backgroundColor: "#9ca3af",
+                                            },
+                                        }}
+                                    >
+                                        {loading ? "Verificando..." : "Acceder"}
+                                    </Button>
+                                </Box>
+                            </CardContent>
+                        </Card>
+
+                        {/* Instrucciones */}
+                        <Alert 
+                            severity="info" 
+                            sx={{ 
+                                mt: 4,
+                                backgroundColor: "#eff6ff", 
+                                border: "1px solid #bfdbfe",
+                                borderRadius: 2,
+                            }}
+                        >
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                💡 <strong>Información:</strong> El código de acceso debe ser proporcionado por el Director. 
+                                Ingresa el código exacto para acceder al sistema.
+                            </Typography>
+                        </Alert>
+                        <Button onClick={handleBackToPanel} fullWidth sx={{mt: 2}}>
+                            <ArrowBackIcon />
+                            Volver
                         </Button>
                     </Box>
-                    <Box 
-                        sx={{
-                            width: '40%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            placeItems: 'center',
-                            flexDirection: 'column',
-                        }}>
-                        <img src="https://cdn-icons-png.flaticon.com/512/12466/12466012.png" width='200' height='200' alt="" />
-                    </Box>
-                </Card>
+                </Fade>
             </Container>
-
-            {/* Backdrop con el círculo de carga */}
-            <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={open}
-            >
-                <CircularProgress color="success" />
-            </Backdrop>
-        </>
+        </Box>
     );
 }

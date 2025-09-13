@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 // Importar páginas de institución
 import LoginInstituciones from '../../pages/institution/loginIntitucion/login';    
 import FormInst from '../../pages/institution/loginIntitucion/formInst';
+import CodigoAccesoInstitucion from '../../components/common/institucion/codigo_acceso';
 
 // Componente de error 404 para institución
 const InstitutionNotFound = () => (
@@ -15,8 +16,13 @@ const InstitutionNotFound = () => (
 export default function InstitutionRoutes() {
   return (
     <Routes>
-      {/* Rutas específicas para la institución */}
-      <Route path="/" element={<LoginInstituciones />} />
+      {/* Código de acceso - Primera pantalla */}
+      <Route path="/" element={<CodigoAccesoInstitucion />} />
+      
+      {/* Formulario de registro - Solo accesible con código válido */}
+      <Route path="/registro" element={<LoginInstituciones />} />
+      
+      {/* Formulario de institución - Ruta alternativa */}
       <Route path="/formInst" element={<FormInst />} />
       
       {/* Ruta de error 404 para institución */}
