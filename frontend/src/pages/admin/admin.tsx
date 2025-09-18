@@ -15,7 +15,15 @@ import {
     MenuItem,
     Divider,
     Paper,
-    Chip
+    Chip,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    CircularProgress,
+    Alert
 } from '@mui/material';
 import {
     Dashboard,
@@ -27,6 +35,10 @@ import {
     AdminPanelSettings,
     Person,
     Email,
+    Business,
+    LocationOn,
+    Phone,
+    Refresh
 } from '@mui/icons-material';
 import CodigoAcceso from '../../components/common/admin/codigo';
 
@@ -41,11 +53,30 @@ interface AdminUser {
     fechaCreacion: string;
 }
 
+interface Institucion {
+    _id: string;
+    Nombre_Completo: string;
+    Correo: string;
+    Dirección: string;
+    Teléfono: string;
+    DEPARTAMENTO: string;
+    Código_Institución: string;
+    Código_Alumno: string;
+    Código_Director: string;
+    Código_Maestro: string;
+    Código_Supervisor: string;
+    fechaCreacion: string;
+    emailVerificado: boolean;
+}
+
 export default function AdminPanel() {
     const navigate = useNavigate();
     const [user, setUser] = useState<AdminUser | null>(null);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [currentView, setCurrentView] = useState<'dashboard' | 'codigos'>('dashboard');
+    const [currentView, setCurrentView] = useState<'dashboard' | 'codigos' | 'instituciones'>('dashboard');
+    const [instituciones, setInstituciones] = useState<Institucion[]>([]);
+    const [loadingInstituciones, setLoadingInstituciones] = useState(false);
+    const [errorInstituciones, setErrorInstituciones] = useState<string | null>(null);
 
     useEffect(() => {
         // Verificar si el usuario está autenticado
@@ -83,9 +114,37 @@ export default function AdminPanel() {
         setAnchorEl(null);
     };
 
+    const cargarInstituciones = async () => {
+        setLoadingInstituciones(true);
+        setErrorInstituciones(null);
+        
+        try {
+            const response = await fetch('http://localhost:5000/api/colegios');
+            const result = await response.json();
+            
+            if (result.success) {
+                setInstituciones(result.data);
+            } else {
+                setErrorInstituciones('Error al cargar las instituciones');
+            }
+        } catch (error) {
+            console.error('Error al cargar instituciones:', error);
+            setErrorInstituciones('Error de conexión al cargar las instituciones');
+        } finally {
+            setLoadingInstituciones(false);
+        }
+    };
+
+    // Cargar instituciones cuando se cambie a la vista de instituciones
+    useEffect(() => {
+        if (currentView === 'instituciones') {
+            cargarInstituciones();
+        }
+    }, [currentView]);
+
     const stats = [
         { title: 'Total Usuarios', value: '1,234', icon: <People />, color: '#1976d2' },
-        { title: 'Instituciones', value: '45', icon: <School />, color: '#388e3c' },
+        { title: 'Instituciones Registradas', value: instituciones.length.toString(), icon: <School />, color: '#388e3c' },
         { title: 'Reportes', value: '12', icon: <Assessment />, color: '#f57c00' },
         { title: 'Activos Hoy', value: '89', icon: <Dashboard />, color: '#7b1fa2' }
     ];
@@ -188,6 +247,14 @@ export default function AdminPanel() {
                         Dashboard
                     </Button>
                     <Button
+                        variant={currentView === 'instituciones' ? 'contained' : 'outlined'}
+                        onClick={() => setCurrentView('instituciones')}
+                        sx={{ mr: 2 }}
+                        startIcon={<Business />}
+                    >
+                        Instituciones ({instituciones.length})
+                    </Button>
+                    <Button
                         variant={currentView === 'codigos' ? 'contained' : 'outlined'}
                         onClick={() => setCurrentView('codigos')}
                         startIcon={<AdminPanelSettings />}
@@ -262,6 +329,115 @@ export default function AdminPanel() {
                             </Card>
                         </Box>
                     </>
+                ) : currentView === 'instituciones' ? (
+                    <Card>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                    Instituciones Registradas
+                                </Typography>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Refresh />}
+                                    onClick={cargarInstituciones}
+                                    disabled={loadingInstituciones}
+                                >
+                                    Actualizar
+                                </Button>
+                            </Box>
+
+                            {errorInstituciones && (
+                                <Alert severity="error" sx={{ mb: 2 }}>
+                                    {errorInstituciones}
+                                </Alert>
+                            )}
+
+                            {loadingInstituciones ? (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                                    <CircularProgress />
+                                </Box>
+                            ) : instituciones.length === 0 ? (
+                                <Box sx={{ textAlign: 'center', py: 4 }}>
+                                    <Business sx={{ fontSize: 64, color: '#ccc', mb: 2 }} />
+                                    <Typography variant="h6" color="text.secondary">
+                                        No hay instituciones registradas
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Las instituciones aparecerán aquí una vez que se registren
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Institución</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Correo</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Departamento</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Código Institución</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Fecha Registro</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {instituciones.map((institucion) => (
+                                                <TableRow key={institucion._id} hover>
+                                                    <TableCell>
+                                                        <Box>
+                                                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                                                                {institucion.Nombre_Completo}
+                                                            </Typography>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                                                                <LocationOn sx={{ fontSize: 14, color: '#666', mr: 0.5 }} />
+                                                                <Typography variant="caption" color="text.secondary">
+                                                                    {institucion.Dirección}
+                                                                </Typography>
+                                                            </Box>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                                                                <Phone sx={{ fontSize: 14, color: '#666', mr: 0.5 }} />
+                                                                <Typography variant="caption" color="text.secondary">
+                                                                    {institucion.Teléfono}
+                                                                </Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {institucion.Correo}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip 
+                                                            label={institucion.DEPARTAMENTO} 
+                                                            size="small" 
+                                                            variant="outlined"
+                                                            color="primary"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography 
+                                                            variant="body2" 
+                                                            sx={{ 
+                                                                fontFamily: 'monospace', 
+                                                                fontWeight: 'bold',
+                                                                color: '#1976d2'
+                                                            }}
+                                                        >
+                                                            {institucion.Código_Institución}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {new Date(institucion.fechaCreacion).toLocaleDateString('es-GT')}
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            )}
+                        </CardContent>
+                    </Card>
                 ) : (
                     <CodigoAcceso />
                 )}

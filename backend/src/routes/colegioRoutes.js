@@ -5,7 +5,8 @@ const {
     createColegio, 
     updateColegio, 
     deleteColegio,
-    getColegiosByDepartamento
+    getColegiosByDepartamento,
+    getColegioByCode
 } = require('../controllers/colegioController');
 
 const router = express.Router();
@@ -27,5 +28,8 @@ router.delete('/:id', deleteColegio);
 
 // GET /api/colegios/departamento/:departamento
 router.get('/departamento/:departamento', getColegiosByDepartamento);
+
+// GET /api/colegios/codigo/:codigo
+router.get('/codigo/:codigo', getColegioByCode);
 
 module.exports = router;

@@ -1,35 +1,112 @@
 import {
     Container,
-    //Card,
-    //CardContent,
-    //Typography,
-    //Button,
-    //MenuItem,
-    //Select,
-    //Checkbox,
-    //FormControlLabel,
-    //FormGroup,
-    //InputLabel,
-    //FormControl,
+    Card,
+    CardContent,
+    Typography,
+    Button,
+    MenuItem,
+    Select,
+    Checkbox,
+    FormControlLabel,
+    FormGroup,
+    InputLabel,
+    FormControl,
+    Alert,
+    CircularProgress,
+    Box,
 } from "@mui/material";
+import { useState, useEffect } from "react";
+
+// Interfaces
+interface Institucion {
+    _id: string;
+    Nombre_Completo: string;
+    Código_Institución: string;
+    Código_Alumno: string;
+    Código_Director: string;
+    Código_Maestro: string;
+    Código_Supervisor: string;
+}
 
 // acceso alumno/maestro
-/*
-const accesoAlumnoMaestro = () => {
+
+const AccesoAlumnoMaestro = () => {
+    const [instituciones, setInstituciones] = useState<Institucion[]>([]);
+    const [institucionSeleccionada, setInstitucionSeleccionada] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    // Cargar instituciones al montar el componente
+    useEffect(() => {
+        cargarInstituciones();
+    }, []);
+
+    const cargarInstituciones = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://localhost:5000/api/colegios');
+            
+            if (response.ok) {
+                const responseData = await response.json();
+                // Extraer el array de instituciones del objeto de respuesta
+                setInstituciones(responseData.data || []);
+            } else {
+                setError('Error al cargar las instituciones');
+            }
+        } catch (error) {
+            setError('Error de conexión al cargar las instituciones');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const validarCodigo = async () => {
+        if (!institucionSeleccionada) {
+            setError('Por favor seleccione una institución e ingrese el código');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError('');
+            setSuccess('');
+
+            const response = await fetch(`http://localhost:5000/api/colegios/codigo/${institucionSeleccionada}`);
+            if (response.ok) {
+                const responseData = await response.json();
+                
+                // Verificar que el código pertenece a la institución seleccionada
+                if (responseData.institucion._id === institucionSeleccionada) {
+                    setSuccess('Código válido. Acceso autorizado.');
+                    // Aquí podrías redirigir al usuario o continuar con el flujo
+                } else {
+                    setError('El código no pertenece a la institución seleccionada');
+                }
+            } else {
+                setError('Código inválido o no encontrado');
+            }
+        } catch (error) {
+            setError('Error al validar el código');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
-                    <Container
+            <Container
                 sx={{
                     minHeight: '100vh',
                     display: 'flex',
-                    justifyContent: 'center', // Centra horizontalmente
-                    alignItems: 'center', // Centra verticalmente
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     padding: 2,
                 }}
             >
                 <Card
                     sx={{
-                        width: { xs: '90%', sm: '70%', md: '50%' }, // Ancho responsivo
+                        width: { xs: '90%', sm: '70%', md: '50%' },
                         padding: 3,
                         borderRadius: 5,
                         boxShadow: 3,
@@ -46,29 +123,61 @@ const accesoAlumnoMaestro = () => {
                             Acceso Alumno/Maestro
                         </Typography>
                         <Typography variant="body1" textAlign="center">
-                            Bienvenido a la página de acceso.
+                            Seleccione su institución e ingrese su código de acceso.
                         </Typography>
+
+                        {loading && instituciones.length === 0 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 2 }}>
+                                <CircularProgress size={24} sx={{ mr: 2 }} />
+                                <Typography>Cargando instituciones...</Typography>
+                            </Box>
+                        )}
+
+                        {error && (
+                            <Alert severity="error" onClose={() => setError('')}>
+                                {error}
+                            </Alert>
+                        )}
+
+                        {success && (
+                            <Alert severity="success" onClose={() => setSuccess('')}>
+                                {success}
+                            </Alert>
+                        )}
+
                         <FormControl fullWidth>
                             <InputLabel id="instituciones-label">Instituciones</InputLabel>
                             <Select
                                 labelId="instituciones-label"
                                 id="instituciones-select"
                                 label="Instituciones"
-                                defaultValue=""
+                                value={institucionSeleccionada}
+                                onChange={(e) => setInstitucionSeleccionada(e.target.value)}
+                                disabled={loading}
                             >
-                                <MenuItem value={1}>Colegio Paraíso</MenuItem>
-                                <MenuItem value={2}>Colegio Nacional</MenuItem>
-                                <MenuItem value={3}>Colegio Internacional</MenuItem>
-                                <MenuItem value={4}>Instituto Carlo Dubón</MenuItem>
+                                {instituciones.map((institucion) => (
+                                    <MenuItem key={institucion._id} value={institucion._id}>
+                                        {institucion.Nombre_Completo}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
+
                         <FormGroup>
                             <Typography>Seleccione su curso</Typography>
                             <FormControlLabel control={<Checkbox />} label="Matemáticas" />
                             <FormControlLabel control={<Checkbox />} label="Comunicación y Lenguaje" />
                         </FormGroup>
-                        <Button variant="contained" color="primary" fullWidth>
-                            Acceder
+
+                        <Button 
+                            variant="contained" 
+                            color="primary" 
+                            fullWidth
+                            onClick={validarCodigo}
+                            disabled={loading || !institucionSeleccionada}
+                            startIcon={loading ? <CircularProgress size={20} /> : null}
+                        >
+                            {loading ? 'Validando...' : 'Acceder'}
                         </Button>
                     </CardContent>
                 </Card>
@@ -76,10 +185,10 @@ const accesoAlumnoMaestro = () => {
         </>
     )
 }
-*/
+
 
 // acceso supervisor/director
-const accesoSupervisorDirector = () => {
+const AccesoSupervisorDirector = () => {
     return (
         <>
             <Container>
@@ -101,10 +210,13 @@ const accesoSupervisorDirector = () => {
     )
 }
 
+
+
 export default function Acceso() {
     return (
         <>
-            {accesoSupervisorDirector()}
+            <AccesoAlumnoMaestro />
+            <AccesoSupervisorDirector />
         </>
     );
 }

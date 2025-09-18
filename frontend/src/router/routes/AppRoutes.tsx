@@ -17,13 +17,10 @@ import VerifyEmail from '../../pages/auth/verify-email';
 import AdminRoutes from './AdminRoutes';
 import InstitutionRoutes from './InstitutionRoutes';
 
+//Importar not found
+import NotFound from '../../components/ui/notFound';
+
 // Componente de error 404
-const NotFound = () => (
-  <div style={{ textAlign: 'center', padding: '2rem' }}>
-    <h1>404 - Página no encontrada</h1>
-    <p>La página que buscas no existe.</p>
-  </div>
-);
 
 export default function AppRoutes() {
   return (

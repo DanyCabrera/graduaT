@@ -266,24 +266,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
             <form onSubmit={handleRegister}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <TextField
-                            fullWidth
-                            label="Nombre"
-                            variant="outlined"
-                            value={formData.firstName}
-                            onChange={handleInputChange('firstName')}
-                            sx={textFieldStyles}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Apellido"
-                            variant="outlined"
-                            value={formData.lastName}
-                            onChange={handleInputChange('lastName')}
-                            sx={textFieldStyles}
-                        />
-                    </Box>
+                    <TextField
+                        fullWidth
+                        label="Nombre"
+                        variant="outlined"
+                        value={formData.firstName}
+                        onChange={handleInputChange('firstName')}
+                        sx={textFieldStyles}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Apellido"
+                        variant="outlined"
+                        value={formData.lastName}
+                        onChange={handleInputChange('lastName')}
+                        sx={textFieldStyles}
+                    />
                     <TextField
                         fullWidth
                         label="Usuario"
@@ -510,13 +508,13 @@ export default function LoginAdmin() {
 
     const handleInputChange = useCallback((field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
-        
+
         setFormData(prev => {
             const newFormData = {
                 ...prev,
                 [field]: value
             };
-            
+
             // Validar el campo específico
             if (field === 'username') {
                 setErrors(prevErrors => ({ ...prevErrors, username: validateUsername(value) }));
@@ -526,20 +524,20 @@ export default function LoginAdmin() {
                 const passwordError = validatePassword(value);
                 const confirmPasswordError = validateConfirmPassword(prev.confirmPassword, value);
                 console.log('Validando contraseña:', { value, passwordError, confirmPasswordError, confirmPassword: prev.confirmPassword });
-                setErrors(prevErrors => ({ 
-                    ...prevErrors, 
+                setErrors(prevErrors => ({
+                    ...prevErrors,
                     password: passwordError,
                     confirmPassword: confirmPasswordError
                 }));
             } else if (field === 'confirmPassword') {
                 const confirmPasswordError = validateConfirmPassword(value, prev.password);
                 console.log('Validando confirmar contraseña:', { value, password: prev.password, confirmPasswordError });
-                setErrors(prevErrors => ({ 
-                    ...prevErrors, 
+                setErrors(prevErrors => ({
+                    ...prevErrors,
                     confirmPassword: confirmPasswordError
                 }));
             }
-            
+
             return newFormData;
         });
     }, []);
@@ -558,7 +556,7 @@ export default function LoginAdmin() {
             phone: '',
             confirmPassword: ''
         });
-        
+
         setErrors({
             username: '',
             password: '',
@@ -573,7 +571,7 @@ export default function LoginAdmin() {
     const handleLogin = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
+
         try {
             const response = await fetch('http://localhost:5000/api/useradmin/login', {
                 method: 'POST',
@@ -592,13 +590,13 @@ export default function LoginAdmin() {
                 // Guardar token y datos del usuario
                 localStorage.setItem('adminToken', data.token || 'admin_logged');
                 localStorage.setItem('adminUser', JSON.stringify(data.data));
-                
+
                 setSnackbar({
                     open: true,
                     message: 'Login exitoso! Redirigiendo...',
                     severity: 'success'
                 });
-                
+
                 // Redirigir al panel de admin
                 setTimeout(() => {
                     navigate('/admin/panel');
@@ -625,7 +623,7 @@ export default function LoginAdmin() {
     const handleRegister = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
+
         // Validar que las contraseñas coincidan antes de enviar
         if (formData.password !== formData.confirmPassword) {
             setSnackbar({
@@ -636,7 +634,7 @@ export default function LoginAdmin() {
             setIsLoading(false);
             return;
         }
-        
+
         try {
             const response = await fetch('http://localhost:5000/api/useradmin', {
                 method: 'POST',
@@ -663,7 +661,7 @@ export default function LoginAdmin() {
                     message: 'Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
                     severity: 'success'
                 });
-                
+
                 // Limpiar formulario y errores
                 setFormData({
                     username: '',
@@ -674,7 +672,7 @@ export default function LoginAdmin() {
                     phone: '',
                     confirmPassword: ''
                 });
-                
+
                 // Limpiar errores
                 setErrors({
                     username: '',
@@ -685,7 +683,7 @@ export default function LoginAdmin() {
                     phone: '',
                     confirmPassword: ''
                 });
-                
+
                 // Cambiar a login después de 3 segundos
                 setTimeout(() => {
                     setIsRegistering(false);
@@ -693,7 +691,7 @@ export default function LoginAdmin() {
             } else {
                 // Mostrar errores específicos si están disponibles
                 let errorMessage = data.message || 'Error en el registro';
-                
+
                 // Manejar diferentes tipos de errores
                 if (data.errors) {
                     if (Array.isArray(data.errors)) {
@@ -704,7 +702,7 @@ export default function LoginAdmin() {
                         errorMessage = JSON.stringify(data.errors);
                     }
                 }
-                
+
                 setSnackbar({
                     open: true,
                     message: errorMessage,
@@ -725,7 +723,7 @@ export default function LoginAdmin() {
 
     const toggleRegister = useCallback(() => {
         setIsRegistering(prev => !prev);
-        
+
         // Limpiar formulario y errores cuando se cambia de vista
         setFormData({
             username: '',
@@ -736,7 +734,7 @@ export default function LoginAdmin() {
             phone: '',
             confirmPassword: ''
         });
-        
+
         setErrors({
             username: '',
             password: '',
@@ -758,150 +756,150 @@ export default function LoginAdmin() {
 
     return (
         <>
-                <Box
-                    sx={{
-                        minHeight: '100vh',
-                        backgroundColor: '#fafafa',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        p: 2,
-                    }}
-                >
-                    <Container maxWidth="lg">
-                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 6, alignItems: 'center' }}>
-                            {/* Panel de características */}
-                            <Box sx={{ flex: 1 }}>
-                                <Box sx={{ textAlign: 'center', mb: 6 }}>
-                                    <Typography
-                                        variant="h3"
-                                        sx={{
-                                            fontWeight: 700,
-                                            color: '#333',
-                                            mb: 2,
-                                        }}
-                                    >
-                                        GraduaT
-                                    </Typography>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            color: '#666',
-                                            mb: 4,
-                                            fontWeight: 300,
-                                        }}
-                                    >
-                                        Sistema de Gestión Educativa
-                                    </Typography>
-                                </Box>
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    backgroundColor: '#fafafa',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 2,
+                }}
+            >
+                <Container maxWidth="lg">
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 6, alignItems: 'center' }}>
+                        {/* Panel de características */}
+                        <Box sx={{ flex: 1 }}>
+                            <Box sx={{ textAlign: 'center', mb: 6 }}>
+                                <Typography
+                                    variant="h3"
+                                    sx={{
+                                        fontWeight: 700,
+                                        color: '#333',
+                                        mb: 2,
+                                    }}
+                                >
+                                    GraduaT
+                                </Typography>
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        color: '#666',
+                                        mb: 4,
+                                        fontWeight: 300,
+                                    }}
+                                >
+                                    Sistema de Gestión Educativa
+                                </Typography>
+                            </Box>
 
-                                <Box sx={{
-                                    display: 'grid',
-                                    gridTemplateColumns: {
-                                        xs: '1fr',
-                                        sm: '1fr',
-                                        md: '1fr 1fr'
-                                    },
-                                    gap: 3
-                                }}>
-                                    {features.map((feature, index) => (
-                                        <Paper
-                                            key={index}
-                                            elevation={2}
-                                            sx={{
-                                                p: 3,
-                                                borderRadius: 2,
-                                                backgroundColor: '#ffffff',
-                                                border: '1px solid #e0e0e0',
-                                                transition: 'all 0.3s ease',
-                                                '&:hover': {
-                                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                                    transform: 'translateY(-2px)',
-                                                }
-                                            }}
-                                        >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                                <Avatar
-                                                    sx={{
-                                                        bgcolor: '#f5f5f5',
-                                                        mr: 2,
-                                                        width: 40,
-                                                        height: 40,
-                                                        color: '#666',
-                                                    }}
-                                                >
-                                                    {feature.icon}
-                                                </Avatar>
-                                                <Typography
-                                                    variant="h6"
-                                                    sx={{
-                                                        color: '#333',
-                                                        fontWeight: 600,
-                                                    }}
-                                                >
-                                                    {feature.title}
-                                                </Typography>
-                                            </Box>
-                                            <Typography
-                                                variant="body2"
+                            <Box sx={{
+                                display: 'grid',
+                                gridTemplateColumns: {
+                                    xs: '1fr',
+                                    sm: '1fr',
+                                    md: '1fr 1fr'
+                                },
+                                gap: 3
+                            }}>
+                                {features.map((feature, index) => (
+                                    <Paper
+                                        key={index}
+                                        elevation={2}
+                                        sx={{
+                                            p: 3,
+                                            borderRadius: 2,
+                                            backgroundColor: '#ffffff',
+                                            border: '1px solid #e0e0e0',
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                                transform: 'translateY(-2px)',
+                                            }
+                                        }}
+                                    >
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                            <Avatar
                                                 sx={{
+                                                    bgcolor: '#f5f5f5',
+                                                    mr: 2,
+                                                    width: 40,
+                                                    height: 40,
                                                     color: '#666',
-                                                    lineHeight: 1.6,
                                                 }}
                                             >
-                                                {feature.description}
+                                                {feature.icon}
+                                            </Avatar>
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    color: '#333',
+                                                    fontWeight: 600,
+                                                }}
+                                            >
+                                                {feature.title}
                                             </Typography>
-                                        </Paper>
-                                    ))}
-                                </Box>
-                            </Box>
-
-                            {/* Formulario de login/registro */}
-                            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                                {isRegistering ? (
-                                    <RegisterForm
-                                        formData={formData}
-                                        errors={errors}
-                                        showPassword={showPassword}
-                                        showConfirmPassword={showConfirmPassword}
-                                        isLoading={isLoading}
-                                        handleInputChange={handleInputChange}
-                                        handleClickShowPassword={handleClickShowPassword}
-                                        handleClickShowConfirmPassword={handleClickShowConfirmPassword}
-                                        handleRegister={handleRegister}
-                                        toggleRegister={toggleRegister}
-                                    />
-                                ) : (
-                                    <LoginForm
-                                        formData={formData}
-                                        showPassword={showPassword}
-                                        isLoading={isLoading}
-                                        handleInputChange={handleInputChange}
-                                        handleClickShowPassword={handleClickShowPassword}
-                                        handleLogin={handleLogin}
-                                        toggleRegister={toggleRegister}
-                                    />
-                                )}
+                                        </Box>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                color: '#666',
+                                                lineHeight: 1.6,
+                                            }}
+                                        >
+                                            {feature.description}
+                                        </Typography>
+                                    </Paper>
+                                ))}
                             </Box>
                         </Box>
-                    </Container>
-                </Box>
 
-                {/* Snackbar para notificaciones */}
-                <Snackbar
-                    open={snackbar.open}
-                    autoHideDuration={6000}
+                        {/* Formulario de login/registro */}
+                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                            {isRegistering ? (
+                                <RegisterForm
+                                    formData={formData}
+                                    errors={errors}
+                                    showPassword={showPassword}
+                                    showConfirmPassword={showConfirmPassword}
+                                    isLoading={isLoading}
+                                    handleInputChange={handleInputChange}
+                                    handleClickShowPassword={handleClickShowPassword}
+                                    handleClickShowConfirmPassword={handleClickShowConfirmPassword}
+                                    handleRegister={handleRegister}
+                                    toggleRegister={toggleRegister}
+                                />
+                            ) : (
+                                <LoginForm
+                                    formData={formData}
+                                    showPassword={showPassword}
+                                    isLoading={isLoading}
+                                    handleInputChange={handleInputChange}
+                                    handleClickShowPassword={handleClickShowPassword}
+                                    handleLogin={handleLogin}
+                                    toggleRegister={toggleRegister}
+                                />
+                            )}
+                        </Box>
+                    </Box>
+                </Container>
+            </Box>
+
+            {/* Snackbar para notificaciones */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
                 >
-                    <Alert 
-                        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} 
-                        severity={snackbar.severity}
-                        sx={{ width: '100%' }}
-                    >
-                        {snackbar.message}
-                    </Alert>
-                </Snackbar>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </>
     );
 }

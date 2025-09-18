@@ -1,4 +1,5 @@
 const Colegio = require('../models/Colegio');
+const emailService = require('../services/emailService');
 
 const getAllColegios = async (req, res) => {
     try {
@@ -25,18 +26,45 @@ const getColegioById = async (req, res) => {
 const createColegio = async (req, res) => {
     try {
         const colegioData = req.body;
-        const existingColegio = await Colegio.findByCodigoInstitucion(colegioData.Código_Institución);
-        if (existingColegio) return res.status(400).json({ error: 'El código de institución ya existe' });
         
         const result = await Colegio.create(colegioData);
-        if (result.insertedId) {
-            res.status(201).json({ success: true, message: 'Colegio creado exitosamente', data: { _id: result.insertedId, ...colegioData } });
+        if (result.success) {
+            // Enviar email de confirmación
+            try {
+                await emailService.sendInstitutionRegistrationEmail(
+                    result.data.Correo,
+                    result.data.Nombre_Completo,
+                    {
+                        Código_Institución: result.data.Código_Institución,
+                        Código_Supervisor: result.data.Código_Supervisor,
+                        Código_Director: result.data.Código_Director,
+                        Código_Maestro: result.data.Código_Maestro,
+                        Código_Alumno: result.data.Código_Alumno
+                    }
+                );
+                console.log('✅ Email de confirmación enviado exitosamente');
+            } catch (emailError) {
+                console.error('⚠️ Error al enviar email de confirmación:', emailError.message);
+                // No fallar el registro si el email falla
+            }
+
+            res.status(201).json({ 
+                success: true, 
+                message: 'Institución registrada exitosamente. Se ha enviado un email de confirmación.', 
+                data: result.data 
+            });
         } else {
-            res.status(500).json({ error: 'Error al crear el colegio' });
+            res.status(400).json({ 
+                success: false, 
+                error: result.error 
+            });
         }
     } catch (error) {
         console.error('Error al crear colegio:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
     }
 };
 
@@ -76,6 +104,48 @@ const getColegiosByDepartamento = async (req, res) => {
     }
 };
 
+const getColegioByCode = async (req, res) => {
+    try {
+        const { codigo } = req.params;
+        const colegio = await Colegio.findByAnyCode(codigo);
+        if (!colegio) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Institución no encontrada con el código proporcionado' 
+            });
+        }
+        res.json({ 
+            success: true, 
+            data: {
+                nombre: colegio.Nombre_Completo,
+                direccion: colegio.Dirección,
+                departamento: colegio.DEPARTAMENTO,
+                correo: colegio.Correo,
+                telefono: colegio.Teléfono,
+                codigos: {
+                    institucion: colegio.Código_Institución,
+                    supervisor: colegio.Código_Supervisor,
+                    director: colegio.Código_Director,
+                    maestro: colegio.Código_Maestro,
+                    alumno: colegio.Código_Alumno
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error al buscar colegio por código:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
+    }
+};
+
 module.exports = {
-    getAllColegios, getColegioById, createColegio, updateColegio, deleteColegio, getColegiosByDepartamento
+    getAllColegios, 
+    getColegioById, 
+    createColegio, 
+    updateColegio, 
+    deleteColegio, 
+    getColegiosByDepartamento,
+    getColegioByCode
 };

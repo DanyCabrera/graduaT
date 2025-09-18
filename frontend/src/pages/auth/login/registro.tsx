@@ -66,10 +66,10 @@ export default function Login() {
                         }}
                     >
                         <CardContent sx={{ padding: 4 }}>
-                            <Typography 
-                                variant="h4" 
-                                textAlign="center" 
-                                sx={{ 
+                            <Typography
+                                variant="h4"
+                                textAlign="center"
+                                sx={{
                                     marginBottom: 3,
                                     fontWeight: 300,
                                     color: "#333",
@@ -78,33 +78,11 @@ export default function Login() {
                             >
                                 Registro {selectedRol}
                             </Typography>
-                            
+
                             <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <Box sx={{ display: "flex", gap: 2 }}>
-                                    <TextField 
-                                        fullWidth
-                                        label="Nombre" 
-                                        variant="outlined"
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
-                                            },
-                                        }}
-                                    />
-                                    <TextField 
-                                        fullWidth
-                                        label="Apellido" 
-                                        variant="outlined"
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
-                                            },
-                                        }}
-                                    />
-                                </Box>
-                                <TextField 
+                                <TextField
                                     fullWidth
-                                    label="Teléfono" 
+                                    label="Nombre"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -112,9 +90,29 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
+                                <TextField
                                     fullWidth
-                                    label="Correo" 
+                                    label="Apellido"
+                                    variant="outlined"
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: 1,
+                                        },
+                                    }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="Teléfono"
+                                    variant="outlined"
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: 1,
+                                        },
+                                    }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="Correo"
                                     type="email"
                                     variant="outlined"
                                     sx={{
@@ -123,10 +121,10 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
+                                <TextField
                                     fullWidth
-                                    label="Contraseña" 
-                                    type="password" 
+                                    label="Contraseña"
+                                    type="password"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -134,10 +132,10 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
+                                <TextField
                                     fullWidth
-                                    label="Confirmar Contraseña" 
-                                    type="password" 
+                                    label="Confirmar Contraseña"
+                                    type="password"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -145,9 +143,9 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
+                                <TextField
                                     fullWidth
-                                    label="Código de Rol" 
+                                    label="Código de Rol"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -155,7 +153,7 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                
+
                                 <Button
                                     variant="contained"
                                     type="submit"
@@ -230,10 +228,10 @@ export default function Login() {
                         }}
                     >
                         <CardContent sx={{ padding: 4 }}>
-                            <Typography 
-                                variant="h4" 
-                                textAlign="center" 
-                                sx={{ 
+                            <Typography
+                                variant="h4"
+                                textAlign="center"
+                                sx={{
                                     marginBottom: 3,
                                     fontWeight: 300,
                                     color: "#333",
@@ -242,30 +240,10 @@ export default function Login() {
                             >
                                 Registro {selectedRol}
                             </Typography>
-                            
+
                             <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <Box sx={{ display: "flex", gap: 2 }}>    
-                                    <TextField 
-                                        label="Nombre" 
-                                        variant="outlined"
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
-                                            },
-                                        }}
-                                    />
-                                    <TextField 
-                                        label="Apellido" 
-                                        variant="outlined"
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
-                                            },
-                                        }}
-                                    />
-                                </Box>
-                                <TextField 
-                                    label="Teléfono" 
+                                <TextField
+                                    label="Nombre"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -273,8 +251,26 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
-                                    label="Correo" 
+                                <TextField
+                                    label="Apellido"
+                                    variant="outlined"
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: 1,
+                                        },
+                                    }}
+                                />
+                                <TextField
+                                    label="Teléfono"
+                                    variant="outlined"
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: 1,
+                                        },
+                                    }}
+                                />
+                                <TextField
+                                    label="Correo"
                                     type="email"
                                     variant="outlined"
                                     sx={{
@@ -283,9 +279,9 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
-                                    label="Contraseña" 
-                                    type="password" 
+                                <TextField
+                                    label="Contraseña"
+                                    type="password"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -293,9 +289,9 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                <TextField 
-                                    label="Confirmar Contraseña" 
-                                    type="password" 
+                                <TextField
+                                    label="Confirmar Contraseña"
+                                    type="password"
                                     variant="outlined"
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -303,7 +299,7 @@ export default function Login() {
                                         },
                                     }}
                                 />
-                                
+
                                 <Button
                                     variant="contained"
                                     type="submit"
@@ -334,9 +330,7 @@ export default function Login() {
         <>
             {/* Mostrar formulario dependiendo con qué rol esté entrando */}
             {/* formulario para Supervisor/Director */}
-            {selectedRol === "Supervisor" || selectedRol === "Director" ? (
-                <FormularioSupervisorDirector />
-            ) : null}
+            {selectedRol === "Supervisor" || selectedRol === "Director" ? <FormularioSupervisorDirector /> : null}
 
             {/* formulario para Maestro/Alumno */}
             {selectedRol === "Maestro" || selectedRol === "Alumno" ? <FormularioMaestroAlumno /> : null}

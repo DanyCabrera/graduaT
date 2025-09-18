@@ -246,18 +246,23 @@ async function createCollections() {
             validator: {
                 $jsonSchema: {
                     bsonType: "object",
-                    required: ["Código_Institución", "Código_Alumno", "Código_Director", "Código_Maestro", "Correo", "DEPARTAMENTO", "Dirección", "ID_Colegio", "Nombre_Completo", "Teléfono"],
+                    required: ["Código_Institución", "Código_Alumno", "Código_Director", "Código_Maestro", "Código_Supervisor", "Correo", "DEPARTAMENTO", "Dirección", "Nombre_Completo", "Teléfono"],
                     properties: {
                         Código_Institución: { bsonType: "string" },
                         Código_Alumno: { bsonType: "string" },
                         Código_Director: { bsonType: "string" },
                         Código_Maestro: { bsonType: "string" },
+                        Código_Supervisor: { bsonType: "string" },
                         Correo: { bsonType: "string" },
                         DEPARTAMENTO: { bsonType: "string" },
                         Dirección: { bsonType: "string" },
-                        ID_Colegio: { bsonType: "string" },
+                        ID_Colegio: { bsonType: ["string", "null"] },
                         Nombre_Completo: { bsonType: "string" },
-                        Teléfono: { bsonType: "string" }
+                        Teléfono: { bsonType: "string" },
+                        emailVerificado: { bsonType: "bool" },
+                        tokenVerificacion: { bsonType: ["string", "null"] },
+                        fechaCreacion: { bsonType: "date" },
+                        fechaActualizacion: { bsonType: "date" }
                     }
                 }
             }

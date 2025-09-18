@@ -13,7 +13,6 @@ import {
     Card,
     CardContent,
     Box,
-    Alert,
     CircularProgress,
     Chip,
     Fade,
@@ -29,8 +28,10 @@ import {
     Phone as PhoneIcon,
     Refresh as RefreshIcon,
     Visibility as VisibilityIcon,
+    AppRegistration as AppRegistrationIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import ElegantAlert from "../../../components/ui/ElegantAlert";
 
 interface InstitucionData {
     nombre: string;
@@ -52,9 +53,14 @@ export default function FormInst() {
     const [codigo, setCodigo] = useState("");
     const [mostrarTablas, setMostrarTablas] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const [institucionData, setInstitucionData] = useState<InstitucionData | null>(null);
     const [codigoGenerado, setCodigoGenerado] = useState<string>("");
+    const [alertState, setAlertState] = useState({
+        open: false,
+        severity: 'success' as 'success' | 'error' | 'warning' | 'info',
+        title: '',
+        message: ''
+    });
 
     // Función para generar código aleatorio de 6 dígitos
     const generarCodigoAleatorio = (): string => {
@@ -83,53 +89,56 @@ export default function FormInst() {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         setCodigo(value);
-        setError("");
         if (mostrarTablas) {
             setMostrarTablas(false);
         }
     };
 
+    const showAlert = (severity: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
+        setAlertState({
+            open: true,
+            severity,
+            title,
+            message
+        });
+    };
+
+    const handleCloseAlert = () => {
+        setAlertState(prev => ({ ...prev, open: false }));
+    };
+
     const handleVerClick = async () => {
         if (codigo.length !== 6) {
-            setError("El código debe tener exactamente 6 caracteres");
+            showAlert('warning', 'Código Inválido', 'El código debe tener exactamente 6 caracteres');
             return;
         }
 
         setLoading(true);
-        setError("");
 
         try {
-            // Simular llamada a API
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await fetch(`http://localhost:5000/api/colegios/codigo/${codigo}`);
+            const result = await response.json();
 
-            // Datos de ejemplo (en producción vendría de la API)
-            const data = {
-                nombre: "COLEGIO BILINGUE PARAISO",
-                direccion: "Zona 1, Retalhuleu",
-                departamento: "Retalhuleu",
-                correo: "paraiso@gmail.com",
-                telefono: "12345678",
-                codigos: {
-                    institucion: "ABCASD",
-                    supervisor: "SUPFSD",
-                    director: "DIRGFD",
-                    maestro: "MAEGRE",
-                    alumno: "ALUBDF"
-                }
-            };
+            if (result.success) {
+                setInstitucionData(result.data);
 
-            setInstitucionData(data);
+                // Generar código aleatorio de 6 dígitos para acceso al panel
+                const nuevoCodigo = generarCodigoAleatorio();
+                setCodigoGenerado(nuevoCodigo);
 
-            // Generar código aleatorio de 6 dígitos
-            const nuevoCodigo = generarCodigoAleatorio();
-            setCodigoGenerado(nuevoCodigo);
+                // Guardar código en localStorage para validación posterior
+                guardarCodigoEnStorage(nuevoCodigo);
 
-            // Guardar código en localStorage para validación posterior
-            guardarCodigoEnStorage(nuevoCodigo);
-
-            setMostrarTablas(true);
+                setMostrarTablas(true);
+                showAlert('success', '¡Institución Encontrada!', `Se encontró la institución: ${result.data.nombre}`);
+            } else {
+                const errorMessage = result.error || "Institución no encontrada con el código proporcionado";
+                showAlert('error', 'Institución No Encontrada', errorMessage);
+            }
         } catch (err) {
-            setError("Error al buscar la institución. Inténtalo de nuevo.");
+            console.error('Error al buscar institución:', err);
+            const errorMessage = "Error al conectar con el servidor. Inténtalo de nuevo.";
+            showAlert('error', 'Error de Conexión', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -142,7 +151,6 @@ export default function FormInst() {
     const handleRefresh = () => {
         setCodigo("");
         setMostrarTablas(false);
-        setError("");
         setInstitucionData(null);
         setCodigoGenerado("");
     };
@@ -165,124 +173,128 @@ export default function FormInst() {
             }}
         >
             <Container maxWidth="lg">
-                <Button variant='outlined' onClick={handleBackToPanel} fullWidth sx={{mb: 2}}>
-                    Regresar
-                </Button>
                 <Fade in timeout={800}>
                     <Box>
-                        {/* Header */}
-                        <Box sx={{ textAlign: "center", mb: 4 }}>
-                            <Box
-                                sx={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: 80,
-                                    height: 80,
-                                    borderRadius: "50%",
-                                    backgroundColor: "#e2e8f0",
-                                    mb: 2,
-                                }}
-                            >
-                                <SchoolIcon sx={{ fontSize: 40, color: "#64748b" }} />
-                            </Box>
-                            <Typography
-                                variant="h3"
-                                sx={{
-                                    color: "#1e293b",
-                                    fontWeight: 700,
-                                    mb: 1,
-                                }}
-                            >
-                                Consulta de Institución
-                            </Typography>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: "#64748b",
-                                    fontWeight: 400,
-                                }}
-                            >
-                                Ingresa el código de 6 dígitos para ver la información
-                            </Typography>
-                        </Box>
-
-                        {/* Formulario de búsqueda */}
-                        <Card
+                        <Box
                             sx={{
-                                maxWidth: 600,
-                                mx: "auto",
-                                mb: 4,
-                                borderRadius: 2,
-                                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-                                backgroundColor: "white",
-                                border: "1px solid #e2e8f0",
-                            }}
-                        >
+                                p: 2
+                            }}>
 
-                            <CardContent sx={{ p: 4 }}>
-                                <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
-                                    <TextField
-                                        fullWidth
-                                        label="Código de Institución"
-                                        value={codigo}
-                                        onChange={handleInputChange}
-                                        onKeyPress={handleKeyPress}
-                                        inputProps={{ maxLength: 6 }}
-                                        placeholder="Ej: ABC123"
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <SearchIcon sx={{ color: "#64748b" }} />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        sx={{
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 2,
-                                                backgroundColor: "white",
-                                            },
-                                        }}
-                                    />
-                                    <Button
-                                        variant="contained"
-                                        onClick={handleVerClick}
-                                        disabled={loading || codigo.length !== 6}
-                                        startIcon={loading ? <CircularProgress size={20} /> : <VisibilityIcon />}
-                                        sx={{
-                                            minWidth: 120,
-                                            height: 56,
-                                            borderRadius: 2,
-                                            backgroundColor: "#374151",
-                                            "&:hover": {
-                                                backgroundColor: "#1f2937",
-                                            },
-                                        }}
-                                    >
-                                        {loading ? "Buscando..." : "Buscar"}
-                                    </Button>
-                                    {mostrarTablas && (
-                                        <IconButton
-                                            onClick={handleRefresh}
+                            {/* Header */}
+                            <Box sx={{ textAlign: "center", mb: 4 }}>
+                                <Typography
+                                    variant="h3"
+                                    sx={{
+                                        color: "#1e293b",
+                                        fontWeight: 700,
+                                        mb: 1,
+                                    }}
+                                >
+                                    Consulta de Institución
+                                </Typography>
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        color: "#64748b",
+                                        fontWeight: 400,
+                                    }}
+                                >
+                                    Ingresa el código de 6 dígitos para ver la información
+                                </Typography>
+                            </Box>
+
+                            {/* Formulario de búsqueda */}
+                            <Card
+                                sx={{
+                                    maxWidth: 600,
+                                    mx: "auto",
+                                    mb: 4,
+                                    borderRadius: 2,
+                                    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+                                    backgroundColor: "white",
+                                    border: "1px solid #e2e8f0",
+                                }}
+                            >
+
+                                <CardContent sx={{ p: 4 }}>
+                                    <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start", flexWrap: "wrap" }}>
+                                        <TextField
+                                            fullWidth
+                                            label="Código de Institución"
+                                            value={codigo}
+                                            onChange={handleInputChange}
+                                            onKeyPress={handleKeyPress}
+                                            inputProps={{ maxLength: 6 }}
+                                            placeholder="Ej: ABC123"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <SearchIcon sx={{ color: "#64748b" }} />
+                                                    </InputAdornment>
+                                                ),
+                                            }}
                                             sx={{
-                                                backgroundColor: "#f1f5f9",
+                                                "& .MuiOutlinedInput-root": {
+                                                    borderRadius: 2,
+                                                    backgroundColor: "white",
+                                                },
+                                            }}
+                                        />
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            onClick={handleVerClick}
+                                            disabled={loading || codigo.length !== 6}
+                                            startIcon={loading ? <CircularProgress size={20} /> : <VisibilityIcon />}
+                                            sx={{
+                                                minWidth: 120,
+                                                height: 56,
+                                                borderRadius: 2,
+                                                backgroundColor: "#374151",
                                                 "&:hover": {
-                                                    backgroundColor: "#e2e8f0",
+                                                    backgroundColor: "#1f2937",
                                                 },
                                             }}
                                         >
-                                            <RefreshIcon sx={{ color: "#64748b" }} />
-                                        </IconButton>
-                                    )}
-                                </Box>
+                                            {loading ? "Buscando..." : "Buscar"}
+                                        </Button>
 
-                                {error && (
-                                    <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
-                                        {error}
-                                    </Alert>
-                                )}
-                            </CardContent>
-                        </Card>
+                                        <Box
+                                            sx={{
+                                                width: "100%",
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                gap: 2
+                                            }}>
+                                            {/* BTN para regresar al Formulario */}
+                                            <Button 
+                                                variant='outlined' 
+                                                onClick={handleBackToPanel} 
+                                                fullWidth 
+                                                sx={{
+                                                    borderRadius: 2
+                                                }}>
+                                                <AppRegistrationIcon/> Registro
+                                            </Button>
+                                            {mostrarTablas && (
+                                                <IconButton
+                                                    onClick={handleRefresh}
+                                                    sx={{
+                                                        backgroundColor: "#f1f5f9",
+                                                        "&:hover": {
+                                                            backgroundColor: "#e2e8f0",
+                                                        },
+                                                    }}
+                                                >
+                                                    <RefreshIcon sx={{ color: "#64748b" }} />
+                                                </IconButton>
+                                            )}
+                                        </Box>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Box>
 
                         {/* Resultados */}
                         <Slide direction="up" in={mostrarTablas} timeout={600}>
@@ -590,6 +602,17 @@ export default function FormInst() {
                     </Box>
                 </Fade>
             </Container>
+
+            {/* Elegant Alert */}
+            <ElegantAlert
+                open={alertState.open}
+                onClose={handleCloseAlert}
+                severity={alertState.severity}
+                title={alertState.title}
+                message={alertState.message}
+                autoHideDuration={5000}
+                position="top-center"
+            />
         </Box>
     );
 }

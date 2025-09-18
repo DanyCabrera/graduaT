@@ -12,7 +12,7 @@ class EmailService {
         });
     }
 
-    // Enviar email de verificación
+    // Enviar email de verificación de registro de Administrador
     async sendVerificationEmail(email, token, nombre) {
         try {
             const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
@@ -81,6 +81,107 @@ class EmailService {
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('❌ Error al enviar email de verificación:', error);
+            throw new Error(`Error al enviar email: ${error.message}`);
+        }
+    }
+
+    // Enviar email de confirmación de registro de institución
+    async sendInstitutionRegistrationEmail(email, nombreInstitucion, codigos) {
+        try {
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: '🎓 Registro de Institución Exitoso - GraduaT',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+                            <h1 style="margin: 0; font-size: 28px;">🎓 GraduaT</h1>
+                            <p style="margin: 10px 0 0 0; font-size: 16px;">Sistema de Gestión Educativa</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+                            <h2 style="color: #333; margin-top: 0;">¡Registro de Institución Exitoso!</h2>
+                            
+                            <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                                Felicitaciones, <strong>${nombreInstitucion}</strong> ha sido registrada exitosamente en nuestra plataforma.
+                            </p>
+                            
+                            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                                <h3 style="color: #16a34a; margin-top: 0;">✅ Estado del Registro</h3>
+                                <p style="color: #16a34a; margin: 0; font-weight: 500;">
+                                    Su institución ha sido registrada correctamente y ya puede comenzar a utilizar la plataforma.
+                                </p>
+                            </div>
+
+                            <h3 style="color: #333; margin-top: 30px;">🔑 Códigos de Acceso Generados</h3>
+                            <p style="color: #666; line-height: 1.6;">
+                                Se han generado los siguientes códigos únicos para su institución:
+                            </p>
+
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr style="background: #e9ecef;">
+                                        <th style="padding: 10px; text-align: left; border: 1px solid #dee2e6;">Tipo</th>
+                                        <th style="padding: 10px; text-align: left; border: 1px solid #dee2e6;">Código</th>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 500;">Institución</td>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-family: monospace; font-weight: bold; color: #1e40af;">${codigos.Código_Institución}</td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 500;">Supervisor</td>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-family: monospace; font-weight: bold; color: #7c3aed;">${codigos.Código_Supervisor}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 500;">Director</td>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-family: monospace; font-weight: bold; color: #16a34a;">${codigos.Código_Director}</td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 500;">Maestro</td>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-family: monospace; font-weight: bold; color: #d97706;">${codigos.Código_Maestro}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 500;">Alumno</td>
+                                        <td style="padding: 10px; border: 1px solid #dee2e6; font-family: monospace; font-weight: bold; color: #0369a1;">${codigos.Código_Alumno}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+                                <h3 style="color: #1e40af; margin-top: 0;">📋 Próximos Pasos</h3>
+                                <ul style="color: #1e40af; line-height: 1.6;">
+                                    <li>Guarde estos códigos en un lugar seguro</li>
+                                    <li>Comparta los códigos correspondientes con cada tipo de usuario</li>
+                                    <li>Use el código de institución para acceder al panel de administración</li>
+                                    <li>Los usuarios pueden registrarse usando sus códigos específicos</li>
+                                </ul>
+                            </div>
+
+                            <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                                <h3 style="color: #d97706; margin-top: 0;">⚠️ Información Importante</h3>
+                                <ul style="color: #d97706; line-height: 1.6;">
+                                    <li>No comparta estos códigos con personas no autorizadas</li>
+                                    <li>Cada código es único y está vinculado a su institución</li>
+                                    <li>En caso de pérdida, contacte al administrador del sistema</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
+                            <p style="color: #888; font-size: 14px; margin: 0;">
+                                © 2024 GraduaT - Sistema de Gestión Educativa<br>
+                                Este es un email automático, por favor no respondas.
+                            </p>
+                        </div>
+                    </div>
+                `
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            console.log('✅ Email de registro de institución enviado:', result.messageId);
+            return { success: true, messageId: result.messageId };
+        } catch (error) {
+            console.error('❌ Error al enviar email de registro de institución:', error);
             throw new Error(`Error al enviar email: ${error.message}`);
         }
     }
