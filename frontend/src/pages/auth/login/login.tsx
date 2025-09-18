@@ -15,7 +15,7 @@ import {
     Login as LoginIcon
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import vista3DLibros from "../../../assets/vista-3d-libros.png";
+import Logo from '../../../assets/logo.png'
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +40,7 @@ export default function Login() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#e3f2fd", // Fondo azul claro
+                backgroundColor: "white", // Fondo
                 padding: { xs: 2, sm: 1 },
             }}>
             <Fade in timeout={800}>
@@ -80,11 +80,13 @@ export default function Login() {
                                 }}
                             >
                                 <Box
+                                    component="img"
+                                    src={Logo}
+                                    alt="GraduaT"
                                     sx={{
                                         width: 40,
                                         height: 40,
                                         borderRadius: 2,
-                                        backgroundColor: "#7c3aed", // Púrpura
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -183,7 +185,7 @@ export default function Login() {
                                             id="keepLoggedIn"
                                             style={{
                                                 marginRight: 8,
-                                                accentColor: "#7c3aed",
+                                                accentColor: "#38b000",
                                             }}
                                         />
                                         <Typography
@@ -199,7 +201,7 @@ export default function Login() {
                                     <Button
                                         variant="text"
                                         sx={{
-                                            color: "#7c3aed",
+                                            color: "black",
                                             textTransform: "none",
                                             fontSize: "0.875rem",
                                             fontWeight: 500,
@@ -223,14 +225,11 @@ export default function Login() {
                                     sx={{
                                         py: 1.5,
                                         mb: 3,
-                                        backgroundColor: "#7c3aed",
                                         borderRadius: 2,
                                         textTransform: "none",
                                         fontSize: "1rem",
                                         fontWeight: 600,
-                                        "&:hover": {
-                                            backgroundColor: "#6d28d9",
-                                        },
+                                        bgcolor: '#38b000'
                                     }}
                                 >
                                     Iniciar sesión
@@ -251,12 +250,13 @@ export default function Login() {
                                         variant="text"
                                         onClick={() => navigate("/codigo-acceso")}
                                         sx={{
-                                            color: "#7c3aed",
+                                            color: "#00012",
                                             textTransform: "none",
-                                            fontWeight: 600,
+                                            fontWeight: 500,
                                             p: 0,
                                             minWidth: "auto",
                                             fontSize: "0.875rem",
+                                            textDecoration: "underline",
                                             "&:hover": {
                                                 backgroundColor: "transparent",
                                                 textDecoration: "underline",
@@ -272,9 +272,7 @@ export default function Login() {
                         {/* Sección derecha - Solo imagen */}
                         <Box
                             sx={{
-                                boxShadow: "0 10px 10px rgba(0,0,0,0.2)",
                                 flex: 1,
-                                backgroundColor: "#f8fafc",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
@@ -290,7 +288,6 @@ export default function Login() {
                                     left: 0,
                                     right: 0,
                                     bottom: 0,
-                                    background: "linear-gradient(135deg, #e3f2fd 0%, #f8fafc 100%)",
                                     opacity: 0.8,
                                 }}
                             />
@@ -310,13 +307,12 @@ export default function Login() {
                             >
                                 <Box
                                     component="img"
-                                    src={vista3DLibros}
+                                    src={Logo}
                                     alt="Vista 3D de libros y educación"
                                     sx={{
                                         width: "100%",
                                         height: "100%",
                                         objectFit: "contain",
-                                        filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))",
                                     }}
                                 />
                             </Box>

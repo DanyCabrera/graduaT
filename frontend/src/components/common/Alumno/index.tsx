@@ -1,20 +1,20 @@
-{/* Alumno */}
+{/* Alumno */ }
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
-import {FooterAlumno} from "../../layout/footer";
+import { FooterAlumno } from "../../layout/footer";
 import Navbar from "./navbar";
 
-export default function index()  {
+export default function index() {
     return (
-        <Box sx={{display: "flex", flexDirection: "column", minHeight: '100vh', justifyContent: 'center' }}>
-           
+        <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh', justifyContent: 'center' }}>
+
             <Navbar />
             {/* Contenido principal */}
-            <Box sx={{flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-               
+            <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+
                 {/* Saludo */}
                 <Box sx={{ mb: 4 }}>
                     <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
@@ -87,5 +87,5 @@ export default function index()  {
             </Box>
             <FooterAlumno />
         </Box>
-    ); 
+    );
 }
