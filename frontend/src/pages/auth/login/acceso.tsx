@@ -1,5 +1,5 @@
-import {
-    Container,
+//import {
+    //Container,
     //Card,
     //CardContent,
     //Typography,
@@ -11,7 +11,7 @@ import {
     //FormGroup,
     //InputLabel,
     //FormControl,
-} from "@mui/material";
+//} from "@mui/material";
 
 // acceso alumno/maestro
 /*
@@ -78,29 +78,176 @@ const accesoAlumnoMaestro = () => {
 }
 */
 
-// acceso supervisor/director
+import {
+    Container,
+    Box,
+    Typography,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
+    TextField,
+    Button,
+    Paper,
+    Fade,
+} from "@mui/material";
+import { Business as BusinessIcon } from "@mui/icons-material";
+
+// acceso supervisor/director — con diseño moderno como en CodigoAcceso
 const accesoSupervisorDirector = () => {
     return (
-        <>
-            <Container>
-                <h1>Acceso Supervisor/Director</h1>
-                {/* 
-                    Contenedor para el acceso del supervisor y director
-                    Aca solo vas a diseñar otro Card con el de acceso alumno/maestro pero ahora va hacer para superviros y director
-                    los campos que se necesitan son: Instituciones y Código de Rol, y el botón de acceder va hacer para que el supervisor o director ingrese a la plataforma
+        <Box
+            sx={{
+                minHeight: '100vh',
+                backgroundColor: '#f8fafc', // Fondo claro
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 2,
+            }}
+        >
+            <Container maxWidth="sm">
+                <Fade in timeout={800}>
+                    <Box>
+                        {/* Header */}
+                        <Box sx={{ textAlign: 'center', mb: 4 }}>
+                            <Box
+                                sx={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: 80,
+                                    height: 80,
+                                    borderRadius: '50%',
+                                    backgroundColor: '#e2e8f0',
+                                    mb: 2,
+                                }}
+                            >
+                                <BusinessIcon sx={{ fontSize: 40, color: '#64748b' }} />
+                            </Box>
+                            <Typography
+                                variant="h3"
+                                sx={{
+                                    color: '#1e293b',
+                                    fontWeight: 700,
+                                    mb: 1,
+                                }}
+                            >
+                                Acceso Supervisor/Director
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    color: '#64748b',
+                                    fontWeight: 400,
+                                }}
+                            >
+                                Ingresa tu institución y código de rol
+                            </Typography>
+                        </Box>
 
-                    El diseño esta en figma ahi estan los dos campos que se necesitan crear
-                    para el campo de institucion lo puedes copiar de la otra funcion de acceso alumno/maestro
-                    ahi tengo el codigo para que se vea como un listado y para el campo de codigo del rol
-                    que sea que el user digite solo codigo en mayúscula y que sea minimo de 6 digitos.
+                        {/* Formulario */}
+                        <Paper
+                            sx={{
+                                borderRadius: 3,
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                                backgroundColor: 'white',
+                                border: '1px solid #e2e8f0',
+                            }}
+                        >
+                            <Box sx={{ p: 4 }}>
+                                {/* Campo Institución */}
+                                <FormControl fullWidth sx={{ mb: 3 }}>
+                                    <InputLabel id="institucion-label">
+                                        Institución
+                                    </InputLabel>
+                                    <Select
+                                        labelId="institucion-label"
+                                        id="institucion-select"
+                                        label="Institución"
+                                        defaultValue=""
+                                        sx={{
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#ccc',
+                                            },
+                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#999',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#0066cc',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value={1}>Colegio Paraíso</MenuItem>
+                                        <MenuItem value={2}>Colegio Nacional</MenuItem>
+                                        <MenuItem value={3}>Colegio Internacional</MenuItem>
+                                        <MenuItem value={4}>Instituto Carlo Dubón</MenuItem>
+                                    </Select>
+                                </FormControl>
 
-                    solo diseña eso, no hagas ningun tipo de funcionalidad, despues lo vamos  validar dependiendo de que rol entre le mostrara el panel
-                 */}
+                                {/* Campo Código Rol */}
+                                <TextField
+                                    fullWidth
+                                    label="Código Rol"
+                                    placeholder="INGRESAR CÓDIGO ROL"
+                                    inputProps={{
+                                        maxLength: 10,
+                                        pattern: '[A-Z]{6,}',
+                                        title: 'Ingrese solo letras mayúsculas (mínimo 6 caracteres)',
+                                    }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    sx={{
+                                        '& .MuiInputBase-input': {
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '1px',
+                                        },
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                borderColor: '#ccc',
+                                            },
+                                            '&:hover fieldset': {
+                                                borderColor: '#999',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderColor: '#0066cc',
+                                            },
+                                        },
+                                    }}
+                                />
+
+                                {/* Botón Entrar */}
+                                <Button
+                                    variant="contained"
+                                    fullWidth
+                                    sx={{
+                                        mt: 3,
+                                        py: 1.5,
+                                        borderRadius: 2,
+                                        backgroundColor: '#374151',
+                                        textTransform: 'none',
+                                        fontWeight: 500,
+                                        '&:hover': {
+                                            backgroundColor: '#1f2937',
+                                        },
+                                        '&:disabled': {
+                                            backgroundColor: '#9ca3af',
+                                        },
+                                    }}
+                                >
+                                    ENTRAR
+                                </Button>
+                            </Box>
+                        </Paper>
+                    </Box>
+                </Fade>
             </Container>
-        </>
-    )
-}
+        </Box>
+    );
+};
 
+// Exporta como antes
 export default function Acceso() {
     return (
         <>
