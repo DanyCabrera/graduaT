@@ -6,14 +6,15 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
-import Footer  from '../../layout/footer';
+import { FooterMaestro }  from '../../layout/footer';
 import Navbar from "./navbar";
 
 const Maestro: React.FC = () => {
     return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{display: "flex", flexDirection: "column", minHeight: '100vh'}}>
+
             <Navbar />
-            <Box sx={{ p: 7 }}>
+            <Box sx={{flexGrow: 1, p: 7 }}>
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold", marginLeft: 35 }}>
                     Mis Cursos
                 </Typography>
@@ -73,7 +74,7 @@ const Maestro: React.FC = () => {
                     </Card>
                 </Box>
             </Box>
-            <Footer />
+            <FooterMaestro />
         </Box>
     );
 };
