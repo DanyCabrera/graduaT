@@ -7,7 +7,9 @@ import {
     Typography,
     IconButton,
     InputAdornment,
-    Fade
+    Fade,
+    Alert,
+    CircularProgress
 } from "@mui/material";
 import {
     Visibility,
@@ -21,15 +23,69 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleTogglePassword = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Login attempt:", { email, password });
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await fetch('http://localhost:3001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    usuario: email, // El backend espera 'usuario' pero usamos email
+                    contraseña: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Guardar token y datos del usuario
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('user_data', JSON.stringify(data.user));
+                localStorage.setItem('user_role', data.user.Rol);
+
+                console.log('Login exitoso:', data);
+
+                // Redirigir según el rol
+                switch (data.user.Rol) {
+                    case 'Alumno':
+                        navigate('/alumno');
+                        break;
+                    case 'Maestro':
+                        navigate('/maestro');
+                        break;
+                    case 'Director':
+                        navigate('/director');
+                        break;
+                    case 'Supervisor':
+                        navigate('/supervisor');
+                        break;
+                    default:
+                        navigate('/');
+                }
+            } else {
+                setError(data.error || 'Error al iniciar sesión');
+            }
+        } catch (error) {
+            console.error('Error en login:', error);
+            setError('Error de conexión. Intenta de nuevo.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -118,6 +174,13 @@ export default function Login() {
                                 Bienvenido
                             </Typography>
 
+
+                            {/* Mostrar error si existe */}
+                            {error && (
+                                <Alert severity="error" sx={{ mb: 2 }}>
+                                    {error}
+                                </Alert>
+                            )}
 
                             {/* Formulario */}
                             <Box component="form" onSubmit={handleLogin}>
@@ -221,7 +284,8 @@ export default function Login() {
                                     type="submit"
                                     fullWidth
                                     variant="contained"
-                                    endIcon={<LoginIcon />}
+                                    disabled={loading}
+                                    endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
                                     sx={{
                                         py: 1.5,
                                         mb: 3,
@@ -229,10 +293,13 @@ export default function Login() {
                                         textTransform: "none",
                                         fontSize: "1rem",
                                         fontWeight: 600,
-                                        bgcolor: '#38b000'
+                                        bgcolor: '#38b000',
+                                        '&:disabled': {
+                                            bgcolor: '#a0a0a0'
+                                        }
                                     }}
                                 >
-                                    Iniciar sesión
+                                    {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
                                 </Button>
                             </Box>
 

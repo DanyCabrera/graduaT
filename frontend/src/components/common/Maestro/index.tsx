@@ -9,12 +9,48 @@ import CardActionArea from "@mui/material/CardActionArea";
 import { FooterMaestro }  from '../../layout/footer';
 import Navbar from "./navbar";
 
-const Maestro: React.FC = () => {
+interface UserData {
+    Usuario: string;
+    Nombre: string;
+    Apellido: string;
+    Correo: string;
+    Teléfono: string;
+    Rol: string;
+    Código_Institución: string;
+    Nombre_Institución?: string;
+}
+
+interface IndexMaestroProps {
+    userData?: UserData | null;
+}
+
+const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
+    const handleLogout = () => {
+        // Limpiar localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('user_role');
+        
+        // Redirigir al inicio
+        window.location.href = 'http://localhost:5173';
+    };
     return (
         <Box sx={{display: "flex", flexDirection: "column", minHeight: '100vh'}}>
 
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <Box sx={{flexGrow: 1, p: 7 }}>
+                {/* Saludo */}
+                <Box sx={{ mb: 4, textAlign: 'center' }}>
+                    <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 1 }}>
+                        Hola, Prof. {userData ? `${userData.Nombre} ${userData.Apellido}` : 'Maestro'}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: "#666" }}>
+                        Docente de {userData?.Nombre_Institución || 'tu institución'}
+                    </Typography>
+                </Box>
+
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold", marginLeft: 35 }}>
                     Mis Cursos
                 </Typography>
@@ -79,4 +115,4 @@ const Maestro: React.FC = () => {
     );
 };
 
-export default Maestro;
+export default IndexMaestro;

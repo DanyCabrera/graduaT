@@ -6,6 +6,8 @@ import RegistroLogin from "../../pages/auth/login/registro";
 import Acceso from '../../pages/auth/login/acceso';
 import Alumno from '../../pages/roles/alumno';
 import Maestro from '../../pages/roles/maestro';
+import Director from '../../pages/roles/director'; 
+import Supervisor from '../../pages/roles/supervisor';
 
 // Importar componentes
 import Login from '../../pages/auth/login/login';
@@ -20,7 +22,6 @@ import InstitutionRoutes from './InstitutionRoutes';
 //Importar not found
 import NotFound from '../../components/ui/notFound';
 
-// Componente de error 404
 
 export default function AppRoutes() {
   return (
@@ -37,6 +38,8 @@ export default function AppRoutes() {
       {/* Rutas de roles */}
       <Route path={ROUTES.ALUMNO} element={<Alumno />} />
       <Route path={ROUTES.MAESTRO} element={<Maestro />} />
+      <Route path={ROUTES.DIRECTOR} element={<Director />} />
+      <Route path={ROUTES.SUPERVISOR} element={<Supervisor />} />
 
       {/* Sub-rutas de administración */}
       <Route path={`${ROUTES.ADMIN}/*`} element={<AdminRoutes />} />

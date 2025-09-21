@@ -66,6 +66,19 @@ class Maestro {
         }
     }
 
+    static async updateByUsuario(usuario, updateData) {
+        try {
+            const db = await getDB();
+            const result = await db.collection('Maestros').updateOne(
+                { Usuario: usuario },
+                { $set: updateData }
+            );
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async delete(id) {
         try {
             const db = await getDB();

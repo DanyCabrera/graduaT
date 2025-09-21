@@ -573,7 +573,7 @@ export default function LoginAdmin() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/useradmin/login', {
+            const response = await fetch('http://localhost:3001/api/useradmin/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -636,7 +636,7 @@ export default function LoginAdmin() {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/useradmin', {
+            const response = await fetch('http://localhost:3001/api/useradmin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

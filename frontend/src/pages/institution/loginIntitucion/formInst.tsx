@@ -116,7 +116,7 @@ export default function FormInst() {
         setLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:5000/api/colegios/codigo/${codigo}`);
+            const response = await fetch(`http://localhost:3001/api/colegios/codigo/${codigo}`);
             const result = await response.json();
 
             if (result.success) {

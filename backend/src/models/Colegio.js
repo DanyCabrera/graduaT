@@ -153,7 +153,9 @@ class Colegio {
     static async findById(id) {
         try {
             const db = await getDB();
-            const colegio = await db.collection('Colegio').findOne({ _id: id });
+            const { ObjectId } = require('mongodb');
+            const objectId = new ObjectId(id);
+            const colegio = await db.collection('Colegio').findOne({ _id: objectId });
             return colegio;
         } catch (error) {
             throw error;
@@ -205,8 +207,10 @@ class Colegio {
     static async update(id, updateData) {
         try {
             const db = await getDB();
+            const { ObjectId } = require('mongodb');
+            const objectId = new ObjectId(id);
             const result = await db.collection('Colegio').updateOne(
-                { _id: id },
+                { _id: objectId },
                 { $set: updateData }
             );
             return result;
@@ -218,7 +222,9 @@ class Colegio {
     static async delete(id) {
         try {
             const db = await getDB();
-            const result = await db.collection('Colegio').deleteOne({ _id: id });
+            const { ObjectId } = require('mongodb');
+            const objectId = new ObjectId(id);
+            const result = await db.collection('Colegio').deleteOne({ _id: objectId });
             return result;
         } catch (error) {
             throw error;

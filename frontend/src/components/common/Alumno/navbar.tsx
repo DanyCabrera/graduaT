@@ -3,7 +3,13 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-export default function Navbar() {
+import { Logout } from "@mui/icons-material";
+
+interface NavbarProps {
+    onLogout?: () => void;
+}
+
+export default function Navbar({ onLogout }: NavbarProps) {
     return (
         <>
             {/* Navbar */}
@@ -17,6 +23,19 @@ export default function Navbar() {
                         <Button color="inherit">Inicio</Button>
                         <Button color="inherit">PruebaT</Button>
                         <Button color="inherit">Progreso</Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<Logout />}
+                            onClick={onLogout}
+                            sx={{ 
+                                color: '#d32f2f',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(211, 47, 47, 0.04)'
+                                }
+                            }}
+                        >
+                            Cerrar Sesión
+                        </Button>
                     </Box>
                 </Toolbar>
             </AppBar>

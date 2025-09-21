@@ -69,7 +69,7 @@ export default function CodigoAcceso() {
             }
 
             // Si no se encuentra en localStorage, intentar con la API (códigos del backend)
-            const response = await fetch('http://localhost:5000/api/codigos-acceso/verificar', {
+            const response = await fetch('http://localhost:3001/api/codigos-acceso/verificar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

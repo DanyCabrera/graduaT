@@ -1,216 +1,245 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import {
-    Container,
-    Typography,
-    Box,
+import { useEffect, useState } from 'react';
+import { 
+    Box, 
+    Card, 
+    CardContent, 
+    Typography, 
+    Alert, 
     CircularProgress,
-    Alert,
     Button,
-    Paper,
     Fade
 } from '@mui/material';
-import {
-    CheckCircle,
-    Error,
-    Email,
-    ArrowBack
-} from '@mui/icons-material';
+import { CheckCircle, Error, Email } from '@mui/icons-material';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function VerifyEmail() {
+    const [loading, setLoading] = useState(true);
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+    const [message, setMessage] = useState('');
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [success, setSuccess] = useState(false);
-    const [error, setError] = useState('');
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        if (token) {
-            verifyEmail(token);
-        } else {
-            setError('Token de verificación no encontrado');
+        const token = searchParams.get('token') || localStorage.getItem('verificationToken');
+        
+        if (!token) {
+            setStatus('error');
+            setMessage('Token de verificación no encontrado');
             setLoading(false);
+            return;
         }
+
+        verifyEmail(token);
     }, [searchParams]);
 
-    const verifyEmail = async (verificationToken: string) => {
+    const verifyEmail = async (token: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/useradmin/verify-email/${verificationToken}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                setSuccess(true);
-                // Redirigir al login después de 3 segundos
+            console.log('🔍 Verificando email con token:', token);
+            
+            // Intentar primero con el endpoint de userAdmin (para administradores)
+            console.log('📧 Intentando verificación de administrador...');
+            let response = await fetch(`http://localhost:3001/api/useradmin/verify-email/${token}`);
+            console.log('📊 Respuesta del endpoint de admin:', response.status, response.statusText);
+            
+            if (response.ok) {
+                const adminResponse = await response.json();
+                console.log('✅ Verificación de admin exitosa:', adminResponse);
+                setStatus('success');
+                setMessage('¡Email verificado exitosamente! Ya puedes iniciar sesión como administrador.');
+                
+                // Redirigir al login de administrador después de 3 segundos
                 setTimeout(() => {
                     navigate('/admin');
                 }, 3000);
+                return;
             } else {
-                setError(data.message || 'Error al verificar el email');
+                const adminError = await response.json();
+                console.log('❌ Error en verificación de admin:', adminError);
+            }
+            
+            // Si no es un administrador, intentar con el endpoint de auth (para otros usuarios)
+            console.log('👤 Intentando verificación de usuario normal...');
+            response = await fetch(`http://localhost:3001/api/auth/verify-email?token=${token}`);
+            console.log('📊 Respuesta del endpoint de auth:', response.status, response.statusText);
+            
+            if (response.ok) {
+                const userData = await response.json();
+                console.log('✅ Verificación de usuario exitosa:', userData);
+                setStatus('success');
+                setMessage('¡Email verificado exitosamente!');
+                
+                // Guardar token y datos del usuario
+                localStorage.setItem('token', userData.token);
+                localStorage.setItem('user', JSON.stringify(userData.user));
+                
+                // Redirigir al panel correspondiente después de 3 segundos
+                setTimeout(() => {
+                    redirectToPanel(userData.user.Rol);
+                }, 3000);
+            } else {
+                const errorData = await response.json();
+                console.log('❌ Error en verificación de usuario:', errorData);
+                setStatus('error');
+                setMessage(errorData.error || errorData.message || 'Error al verificar el email');
             }
         } catch (error) {
-            console.error('Error al verificar email:', error);
-            setError('Error de conexión. Intenta nuevamente.');
+            console.error('💥 Error al verificar email:', error);
+            setStatus('error');
+            setMessage('Error de conexión. Intenta de nuevo.');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleGoToLogin = () => {
-        navigate('/admin');
+    const redirectToPanel = (rol: string) => {
+        switch (rol) {
+            case 'Alumno':
+                navigate('/alumno');
+                break;
+            case 'Maestro':
+                navigate('/maestro');
+                break;
+            case 'Director':
+                navigate('/director');
+                break;
+            case 'Supervisor':
+                navigate('/supervisor');
+                break;
+            default:
+                navigate('/');
+        }
     };
 
-    const handleGoHome = () => {
-        navigate('/');
+    const handleManualRedirect = () => {
+        const storedUserData = localStorage.getItem('user');
+        if (storedUserData) {
+            const user = JSON.parse(storedUserData);
+            redirectToPanel(user.Rol);
+        } else {
+            // Si no hay datos de usuario, probablemente es un administrador
+            // Redirigir al login de administrador
+            navigate('/admin');
+        }
     };
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                backgroundColor: '#f8fafc',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                p: 2,
-            }}
-        >
-            <Container maxWidth="sm">
-                <Fade in timeout={800}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 4,
-                            borderRadius: 3,
-                            textAlign: 'center',
-                            backgroundColor: 'white',
-                        }}
-                    >
-                        {loading ? (
-                            <Box>
-                                <CircularProgress size={60} sx={{ mb: 3, color: '#1976d2' }} />
-                                <Typography variant="h5" sx={{ mb: 2, color: '#333' }}>
+        <Box sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 3,
+            backgroundColor: '#f5f5f5'
+        }}>
+            <Fade in timeout={800}>
+                <Card sx={{
+                    maxWidth: 500,
+                    width: '100%',
+                    borderRadius: 3,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+                }}>
+                    <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                        {loading && (
+                            <>
+                                <CircularProgress size={60} sx={{ mb: 3, color: 'primary.main' }} />
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: 500 }}>
                                     Verificando tu email...
                                 </Typography>
-                                <Typography variant="body1" sx={{ color: '#666' }}>
-                                    Por favor espera mientras confirmamos tu registro.
+                                <Typography variant="body1" color="text.secondary">
+                                    Por favor espera mientras verificamos tu dirección de correo electrónico.
                                 </Typography>
-                            </Box>
-                        ) : success ? (
-                            <Box>
-                                <CheckCircle 
-                                    sx={{ 
-                                        fontSize: 80, 
-                                        color: '#4caf50', 
-                                        mb: 3 
-                                    }} 
-                                />
-                                <Typography variant="h4" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
-                                    ¡Email Verificado!
+                            </>
+                        )}
+
+                        {status === 'success' && (
+                            <>
+                                <CheckCircle sx={{ 
+                                    fontSize: 80, 
+                                    color: 'success.main', 
+                                    mb: 3 
+                                }} />
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: 500, color: 'success.main' }}>
+                                    ¡Verificación Exitosa!
                                 </Typography>
-                                <Typography variant="h6" sx={{ mb: 3, color: '#4caf50' }}>
-                                    Tu cuenta ha sido activada exitosamente
+                                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                                    {message}
                                 </Typography>
-                                <Typography variant="body1" sx={{ mb: 4, color: '#666', lineHeight: 1.6 }}>
-                                    ¡Registro validado exitosamente! Ya puedes iniciar sesión en la plataforma.
-                                    Serás redirigido automáticamente al login en unos segundos.
-                                </Typography>
+                                <Alert severity="success" sx={{ mb: 3 }}>
+                                    Tu cuenta ha sido verificada correctamente. Serás redirigido automáticamente a tu panel.
+                                </Alert>
                                 <Button
                                     variant="contained"
-                                    size="large"
-                                    onClick={handleGoToLogin}
-                                    startIcon={<Email />}
+                                    onClick={handleManualRedirect}
                                     sx={{
-                                        backgroundColor: '#1976d2',
-                                        px: 4,
                                         py: 1.5,
+                                        px: 4,
                                         borderRadius: 2,
                                         textTransform: 'none',
-                                        fontWeight: 500,
-                                        '&:hover': {
-                                            backgroundColor: '#1565c0',
-                                        },
+                                        fontSize: '1rem',
+                                        fontWeight: 500
                                     }}
                                 >
-                                    Ir al Login
+                                    Ir a mi Panel
                                 </Button>
-                            </Box>
-                        ) : (
-                            <Box>
-                                <Error 
-                                    sx={{ 
-                                        fontSize: 80, 
-                                        color: '#f44336', 
-                                        mb: 3 
-                                    }} 
-                                />
-                                <Typography variant="h4" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
+                            </>
+                        )}
+
+                        {status === 'error' && (
+                            <>
+                                <Error sx={{ 
+                                    fontSize: 80, 
+                                    color: 'error.main', 
+                                    mb: 3 
+                                }} />
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: 500, color: 'error.main' }}>
                                     Error de Verificación
                                 </Typography>
-                                <Alert 
-                                    severity="error" 
-                                    sx={{ 
-                                        mb: 3,
-                                        textAlign: 'left',
-                                        backgroundColor: '#ffebee',
-                                        border: '1px solid #ffcdd2',
-                                    }}
-                                >
-                                    {error}
-                                </Alert>
-                                <Typography variant="body1" sx={{ mb: 4, color: '#666', lineHeight: 1.6 }}>
-                                    El enlace de verificación puede haber expirado o ser inválido.
-                                    Contacta al administrador si el problema persiste.
+                                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                                    {message}
                                 </Typography>
+                                <Alert severity="error" sx={{ mb: 3 }}>
+                                    No se pudo verificar tu email. El enlace puede haber expirado o ser inválido.
+                                </Alert>
                                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                                     <Button
                                         variant="outlined"
-                                        onClick={handleGoHome}
-                                        startIcon={<ArrowBack />}
+                                        onClick={() => navigate('/acceso')}
                                         sx={{
-                                            borderColor: '#e0e0e0',
-                                            color: '#666',
-                                            px: 3,
                                             py: 1.5,
+                                            px: 3,
                                             borderRadius: 2,
-                                            textTransform: 'none',
-                                            '&:hover': {
-                                                borderColor: '#bdbdbd',
-                                                backgroundColor: '#f5f5f5',
-                                            },
+                                            textTransform: 'none'
                                         }}
                                     >
-                                        Ir al Inicio
+                                        Intentar de Nuevo
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        onClick={handleGoToLogin}
-                                        startIcon={<Email />}
+                                        onClick={() => navigate('/admin')}
                                         sx={{
-                                            backgroundColor: '#1976d2',
-                                            px: 3,
                                             py: 1.5,
+                                            px: 3,
                                             borderRadius: 2,
-                                            textTransform: 'none',
-                                            '&:hover': {
-                                                backgroundColor: '#1565c0',
-                                            },
+                                            textTransform: 'none'
                                         }}
                                     >
-                                        Intentar Login
+                                        Ir al Registro de Admin
                                     </Button>
                                 </Box>
+                            </>
+                        )}
+
+                        {!loading && status === 'success' && (
+                            <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                                <Email sx={{ color: 'text.secondary', fontSize: 20 }} />
+                                <Typography variant="body2" color="text.secondary">
+                                    Redirigiendo automáticamente...
+                                </Typography>
                             </Box>
                         )}
-                    </Paper>
-                </Fade>
-            </Container>
+                    </CardContent>
+                </Card>
+            </Fade>
         </Box>
     );
 }

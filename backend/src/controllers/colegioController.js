@@ -14,7 +14,9 @@ const getAllColegios = async (req, res) => {
 const getColegioById = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log('Buscando colegio con ID:', id);
         const colegio = await Colegio.findById(id);
+        console.log('Colegio encontrado:', colegio ? 'Sí' : 'No');
         if (!colegio) return res.status(404).json({ error: 'Colegio no encontrado' });
         res.json({ success: true, data: colegio });
     } catch (error) {

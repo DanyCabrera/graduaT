@@ -7,21 +7,48 @@ import CardActionArea from "@mui/material/CardActionArea";
 import { FooterAlumno } from "../../layout/footer";
 import Navbar from "./navbar";
 
-export default function index() {
+interface UserData {
+    Usuario: string;
+    Nombre: string;
+    Apellido: string;
+    Correo: string;
+    Teléfono: string;
+    Rol: string;
+    Código_Institución: string;
+    Nombre_Institución?: string;
+}
+
+interface IndexAlumnoProps {
+    userData?: UserData | null;
+}
+
+export default function IndexAlumno({ userData }: IndexAlumnoProps) {
+    const handleLogout = () => {
+        // Limpiar localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('user_role');
+        
+        // Redirigir al inicio
+        window.location.href = 'http://localhost:5173';
+    };
+
     return (
         <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh', justifyContent: 'center' }}>
 
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             {/* Contenido principal */}
             <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 
                 {/* Saludo */}
                 <Box sx={{ mb: 4 }}>
                     <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
-                        Hola, Keyri Obando
+                        Hola, {userData ? `${userData.Nombre} ${userData.Apellido}` : 'Estudiante'}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "#666", mt: 1 }}>
-                        Estudiante de Ingeniería en Sistemas, Universidad Central
+                        Estudiante de {userData?.Nombre_Institución || 'tu institución'}
                     </Typography>
                 </Box>
 

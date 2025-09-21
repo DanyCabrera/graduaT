@@ -119,7 +119,7 @@ export default function AdminPanel() {
         setErrorInstituciones(null);
         
         try {
-            const response = await fetch('http://localhost:5000/api/colegios');
+            const response = await fetch('http://localhost:3001/api/colegios');
             const result = await response.json();
             
             if (result.success) {

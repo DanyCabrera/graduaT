@@ -143,7 +143,7 @@ export default function LoginInstituciones() {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/colegios', {
+            const response = await fetch('http://localhost:3001/api/colegios', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

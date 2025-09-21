@@ -4,11 +4,17 @@ require('dotenv').config();
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: "smtp.gmail.com",
+            port: 587, // recomendado para STARTTLS
+            secure: false, // true solo si usas puerto 465
             auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
+                pass: process.env.EMAIL_PASS, // ⚠️ debe ser App Password de Gmail
+            },
+            tls: {
+                rejectUnauthorized: false,
+            },
+            connectionTimeout: 10000 // 10s de espera antes de marcar timeout
         });
     }
 
@@ -80,8 +86,10 @@ class EmailService {
             console.log('✅ Email de verificación enviado:', result.messageId);
             return { success: true, messageId: result.messageId };
         } catch (error) {
-            console.error('❌ Error al enviar email de verificación:', error);
-            throw new Error(`Error al enviar email: ${error.message}`);
+            console.error('❌ Error al enviar email de verificación:', error.message);
+            console.log('💡 El usuario puede verificar manualmente usando el token');
+            // No lanzar error, solo retornar fallo para que el registro continúe
+            return { success: false, error: error.message };
         }
     }
 
@@ -181,8 +189,91 @@ class EmailService {
             console.log('✅ Email de registro de institución enviado:', result.messageId);
             return { success: true, messageId: result.messageId };
         } catch (error) {
-            console.error('❌ Error al enviar email de registro de institución:', error);
-            throw new Error(`Error al enviar email: ${error.message}`);
+            console.error('❌ Error al enviar email de registro de institución:', error.message);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Enviar email de verificación de usuario
+    async sendUserVerificationEmail(email, token, nombre, rol) {
+        try {
+            const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
+
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: `🎓 Verificación de Email - ${rol} - GraduaT`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+                            <h1 style="margin: 0; font-size: 28px;">🎓 GraduaT</h1>
+                            <p style="margin: 10px 0 0 0; font-size: 16px;">Sistema de Gestión Educativa</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+                            <h2 style="color: #333; margin-top: 0;">¡Hola ${nombre}!</h2>
+                            
+                            <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                                Tu registro como <strong>${rol}</strong> ha sido exitoso. Para completar el proceso y acceder a tu panel correspondiente, 
+                                necesitas verificar tu dirección de correo electrónico.
+                            </p>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${verificationUrl}" 
+                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                            color: white; 
+                                            padding: 15px 30px; 
+                                            text-decoration: none; 
+                                            border-radius: 25px; 
+                                            font-weight: bold; 
+                                            font-size: 16px;
+                                            display: inline-block;
+                                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                    ✅ Verificar mi Email
+                                </a>
+                            </div>
+                            
+                            <p style="color: #888; font-size: 14px; line-height: 1.5;">
+                                Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:<br>
+                                <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
+                            </p>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                                <h3 style="color: #333; margin-top: 0; font-size: 18px;">🎯 Próximos Pasos:</h3>
+                                <ul style="color: #666; line-height: 1.6;">
+                                    <li>Haz clic en el botón de verificación</li>
+                                    <li>Serás redirigido automáticamente a tu panel de ${rol}</li>
+                                    <li>Podrás acceder a todas las funcionalidades disponibles</li>
+                                </ul>
+                            </div>
+
+                            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+                                <h3 style="color: #1e40af; margin-top: 0;">🔐 Información de seguridad:</h3>
+                                <ul style="color: #1e40af; line-height: 1.6;">
+                                    <li>Este enlace expira en 24 horas</li>
+                                    <li>No compartas este enlace con nadie</li>
+                                    <li>Si no solicitaste este registro, puedes ignorar este email</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
+                            <p style="color: #888; font-size: 14px; margin: 0;">
+                                © 2024 GraduaT - Sistema de Gestión Educativa<br>
+                                Este es un email automático, por favor no respondas.
+                            </p>
+                        </div>
+                    </div>
+                `
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            console.log('✅ Email de verificación de usuario enviado:', result.messageId);
+            return { success: true, messageId: result.messageId };
+        } catch (error) {
+            console.error('❌ Error al enviar email de verificación de usuario:', error.message);
+            console.log('💡 El usuario puede verificar manualmente usando el token');
+            return { success: false, error: error.message };
         }
     }
 
