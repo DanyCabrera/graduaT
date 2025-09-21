@@ -131,7 +131,17 @@ export default function Login() {
         }
     }, [formData, selectedRol, navigate, validateForm]);
 
-    const FormularioSupervisorDirector = useMemo(() => {
+    const FormularioSupervisor = useMemo(() => {
+        return(
+            <>
+                <Fade in timeout={800}>
+                    <h1>Formulario Supervisor</h1>
+                    
+                </Fade>
+            </>
+        )
+    }, []);
+    const FormularioDirector = useMemo(() => {
         return (
             <Fade in timeout={800}>
                 <Box
@@ -554,8 +564,11 @@ export default function Login() {
     return (
         <>
             {/* Mostrar formulario dependiendo con qué rol esté entrando */}
-            {/* formulario para Supervisor/Director */}
-            {selectedRol === "Supervisor" || selectedRol === "Director" ? FormularioSupervisorDirector : null}
+            {/* formulario para Director */}
+            {selectedRol === "Director" ? FormularioDirector : null}
+
+            {/* formulario para Supervisor */}
+            {selectedRol === "Supervisor" ? FormularioSupervisor : null}
 
             {/* formulario para Maestro/Alumno */}
             {selectedRol === "Maestro" || selectedRol === "Alumno" ? FormularioMaestroAlumno : null}
