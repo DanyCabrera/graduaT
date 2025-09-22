@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Card, CardContent, Button, Typography, TextField, Box, IconButton, Fade, Alert, CircularProgress, InputAdornment, InputLabel, Select, MenuItem, FormControl } from "@mui/material";
-import { ArrowBack, DepartureBoard, Visibility, VisibilityOff } from "@mui/icons-material";
+import { ArrowBack, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -92,7 +92,8 @@ export default function Login() {
             setError('El teléfono es requerido');
             return false;
         }
-        if (!formData.departamento.trim()) {
+        // Validar departamento solo para Supervisor
+        if (selectedRol === "Supervisor" && !formData.departamento.trim()) {
             setError('El departamento es requerido');
             return false;
         }
@@ -123,14 +124,18 @@ export default function Login() {
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
+        
+        // Limpiar mensajes previos
         setSuccess('');
         setEmailError('');
 
+        // Validar formulario antes de limpiar errores
         if (!validateForm()) {
             return;
         }
 
+        // Si la validación pasa, limpiar errores y continuar
+        setError('');
         setLoading(true);
 
         try {
@@ -139,7 +144,8 @@ export default function Login() {
                 nombre: formData.nombre,
                 apellido: formData.apellido,
                 telefono: formData.telefono,
-                departamento: formData.departamento,
+                // Solo incluir departamento para Supervisor
+                ...(selectedRol === "Supervisor" && { departamento: formData.departamento }),
                 correo: formData.correo,
                 contraseña: formData.contraseña,
                 rol: selectedRol
@@ -148,12 +154,74 @@ export default function Login() {
             // Guardar datos del usuario en localStorage
             localStorage.setItem('userData', JSON.stringify(userData));
 
-            setSuccess('Datos guardados. Redirigiendo al panel de acceso...');
+            if (selectedRol === "Supervisor") {
+                // Supervisor se registra directamente en el backend
+                const supervisorData = {
+                    Nombre: formData.nombre,
+                    Apellido: formData.apellido,
+                    Teléfono: formData.telefono,
+                    Correo: formData.correo,
+                    Contraseña: formData.contraseña,
+                    Rol: selectedRol,
+                    Usuario: formData.correo, // Usar correo como usuario
+                    Departamento: formData.departamento,
+                    emailVerificado: false,
+                    tokenVerificacion: ''
+                };
 
-            // Redirigir al panel de acceso para validar código e institución
-            setTimeout(() => {
-                navigate('/acceso');
-            }, 1500);
+                // Registrar supervisor en el backend
+                const registerResponse = await fetch('http://localhost:3001/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(supervisorData),
+                });
+
+                if (!registerResponse.ok) {
+                    const errorData = await registerResponse.json();
+                    setError(errorData.error || 'Error en el registro del supervisor');
+                    setLoading(false);
+                    return;
+                }
+
+                // Enviar correo de verificación
+                const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: formData.correo,
+                        nombre: formData.nombre,
+                        rol: selectedRol
+                    }),
+                });
+
+                if (emailResponse.ok) {
+                    const emailData = await emailResponse.json();
+                    setSuccess('Registro exitoso. Se ha enviado un correo de verificación a tu email.');
+                    
+                    // Si hay un token en la respuesta (para testing), guardarlo
+                    if (emailData.token) {
+                        localStorage.setItem('verificationToken', emailData.token);
+                        console.log('Token de verificación:', emailData.token);
+                    }
+                    
+                    // Redirigir a la página de verificación de email
+                    setTimeout(() => {
+                        navigate('/verify-email');
+                    }, 3000);
+                } else {
+                    setError('Error al enviar el correo de verificación');
+                }
+            } else {
+                // Director, Maestro y Alumno van al panel de acceso
+                setSuccess('Datos guardados. Redirigiendo al panel de acceso...');
+                setTimeout(() => {
+                    navigate('/acceso');
+                }, 1500);
+            }
 
         } catch (error) {
             setError('Error al procesar los datos');
@@ -162,8 +230,9 @@ export default function Login() {
         }
     }, [formData, selectedRol, navigate, validateForm]);
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setAge(event.target.value);
+    const handleDepartamentoChange = (event: any) => {
+        const value = event.target.value;
+        handleInputChange('departamento', value);
     };
 
     const FormularioSupervisor = useMemo(() => {
@@ -281,12 +350,13 @@ export default function Login() {
                                         }}
                                     />
                                     <FormControl fullWidth>
-                                        <InputLabel id="departamento-label">Departamento</InputLabel>
+                                        <InputLabel id="departamento-label">Departamento *</InputLabel>
                                         <Select
-                                            defaultValue={null}
+                                            value={formData.departamento}
                                             labelId="departamento-label"
                                             name="departamento"
-                                            onChange={handleChange}
+                                            onChange={handleDepartamentoChange}
+                                            label="Departamento *"
                                             sx={{
                                                 borderRadius: 2,
                                                 backgroundColor: "white",
@@ -386,7 +456,7 @@ export default function Login() {
                                             },
                                         }}
                                     >
-                                        {loading ? 'Procesando...' : 'Siguiente'}
+                                        {loading ? 'Procesando...' : 'Registrar'}
                                     </Button>
                                 </Box>
                             </CardContent>
@@ -397,7 +467,7 @@ export default function Login() {
                 </Fade>
             </>
         )
-    }, []);
+    }, [formData, loading, error, success, emailError, showPassword, showConfirmPassword, handleInputChange, handleSubmit, handleBackToPanel, selectedRol]);
     const FormularioDirector = useMemo(() => {
         return (
             <Fade in timeout={800}>

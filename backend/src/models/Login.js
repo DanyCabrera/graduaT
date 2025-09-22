@@ -4,15 +4,17 @@ const bcrypt = require('bcryptjs');
 class Login {
     constructor(data) {
         this.Apellido = data.Apellido;
-        this.Código_Institución = data.Código_Institución;
-        this.Nombre_Institución = data.Nombre_Institución;
-        this.Código_Rol = data.Código_Rol;
+        this.Código_Institución = data.Código_Institución || '';
+        this.Nombre_Institución = data.Nombre_Institución || '';
+        this.Código_Rol = data.Código_Rol || '';
         this.Contraseña = data.Contraseña;
         this.Correo = data.Correo;
         this.Nombre = data.Nombre;
         this.Rol = data.Rol;
         this.Teléfono = data.Teléfono;
         this.Usuario = data.Usuario;
+        this.emailVerificado = data.emailVerificado || false;
+        this.tokenVerificacion = data.tokenVerificacion || '';
     }
 
     static async create(loginData) {

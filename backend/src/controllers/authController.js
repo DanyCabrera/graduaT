@@ -75,18 +75,23 @@ const register = async (req, res) => {
         
         // Log de los datos recibidos
         console.log('Datos recibidos en registro:', JSON.stringify(userData, null, 2));
+        console.log('Rol del usuario:', userData.Rol);
 
         // Verificar si el usuario ya existe
+        console.log('Verificando si el usuario ya existe:', userData.Usuario);
         const existingUser = await Login.findByUsuario(userData.Usuario);
         if (existingUser) {
+            console.log('Usuario ya existe:', existingUser.Usuario);
             return res.status(400).json({
                 error: 'El usuario ya existe'
             });
         }
 
         // Verificar si el correo ya existe
+        console.log('Verificando si el correo ya existe:', userData.Correo);
         const existingEmail = await Login.findByCorreo(userData.Correo);
         if (existingEmail) {
+            console.log('Correo ya existe:', existingEmail.Correo);
             return res.status(400).json({
                 error: 'El correo ya está registrado'
             });
@@ -95,8 +100,10 @@ const register = async (req, res) => {
         // Crear nuevo usuario en Login
         console.log('Intentando crear usuario con datos:', JSON.stringify(userData, null, 2));
         const loginResult = await Login.create(userData);
+        console.log('Resultado de Login.create:', loginResult);
         
         if (loginResult.insertedId) {
+            console.log('Usuario creado en Login exitosamente, ID:', loginResult.insertedId);
             // Crear usuario en la colección específica según su rol
             let roleResult = null;
             
@@ -126,12 +133,14 @@ const register = async (req, res) => {
                         });
                         break;
                     case 'Supervisor':
+                        console.log('Creando supervisor con datos:', JSON.stringify(userData, null, 2));
                         roleResult = await Supervisor.create({
                             ...userData,
                             Código: userData.Código_Rol || '',
-                            DEPARTAMENTO: '', // Se llenará después
+                            DEPARTAMENTO: userData.Departamento || '',
                             Nombre_Institución: userData.Nombre_Institución || ''
                         });
+                        console.log('Supervisor creado exitosamente:', roleResult);
                         break;
                     default:
                         console.log('Rol no reconocido:', userData.Rol);

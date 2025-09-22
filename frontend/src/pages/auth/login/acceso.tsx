@@ -391,6 +391,8 @@ const AccesoSupervisorDirector = () => {
                         Código_Institución: institucion.Código_Institución,
                         Nombre_Institución: institucion.Nombre,
                         Código_Rol: codigoRol,
+                        // Incluir departamento solo para Supervisor
+                        ...(userData.rol === "Supervisor" && userData.departamento && { Departamento: userData.departamento }),
                         emailVerificado: false,
                         tokenVerificacion: ''
                     };
@@ -615,11 +617,63 @@ const AccesoSupervisorDirector = () => {
 };
 
 export default function Acceso() {
+    const [userData, setUserData] = useState<any>(null);
+
+    useEffect(() => {
+        // Cargar datos del usuario desde localStorage
+        const data = localStorage.getItem('userData');
+        if (data) {
+            setUserData(JSON.parse(data));
+        }
+    }, []);
+
+    // Si no hay datos de usuario, mostrar mensaje de error
+    if (!userData) {
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 2,
+                }}
+            >
+                <Alert severity="error">
+                    No se encontraron datos del usuario. Por favor regresa al registro.
+                </Alert>
+            </Box>
+        );
+    }
+
+    // Mostrar solo el formulario apropiado según el rol
+    if (userData.rol === "Supervisor") {
+        // Supervisor no debería llegar aquí, pero por seguridad redirigir
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 2,
+                }}
+            >
+                <Alert severity="info">
+                    Los supervisores no requieren validación de código. Redirigiendo a tu panel...
+                </Alert>
+            </Box>
+        );
+    }
+
     return (
         <>
-            
-            <AccesoAlumnoMaestro />
-            <AccesoSupervisorDirector />
+            {/* Mostrar formulario según el rol */}
+            {userData.rol === "Maestro" || userData.rol === "Alumno" ? (
+                <AccesoAlumnoMaestro />
+            ) : userData.rol === "Director" ? (
+                <AccesoSupervisorDirector />
+            ) : null}
         </>
     );
 }

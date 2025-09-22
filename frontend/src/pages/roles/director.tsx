@@ -10,6 +10,7 @@ import {
     Container
 } from '@mui/material';
 import { School, Person, Email, Phone, Business } from '@mui/icons-material';
+import NavbarDirector from '../../components/common/Director/navbar';
 
 interface UserData {
     Usuario: string;
@@ -25,6 +26,18 @@ interface UserData {
 export default function Director() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const handleLogout = () => {
+        // Limpiar localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('user_role');
+        
+        // Redirigir al inicio
+        window.location.href = 'http://localhost:5173';
+    };
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -80,6 +93,7 @@ export default function Director() {
             padding: 3 
         }}>
             <Container maxWidth="lg">
+                <NavbarDirector onLogout={handleLogout} />
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     {/* Header */}
                     <Paper sx={{ p: 3, background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)', color: 'white' }}>
