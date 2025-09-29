@@ -118,12 +118,30 @@ const register = async (req, res) => {
                         });
                         break;
                     case 'Maestro':
-                        roleResult = await Maestro.create({
+                        const maestroData = {
                             ...userData,
-                            CURSO: '', // Se llenará después
+                            CURSO: userData.Cursos || [], // Guardar los cursos seleccionados
                             Código_Rol: userData.Código_Rol || '',
-                            Nombre_Institución: userData.Nombre_Institución || ''
-                        });
+                            Nombre_Institución: userData.Nombre_Institución || '',
+                            // Asegurar que todos los campos requeridos estén presentes
+                            Apellido: userData.Apellido || '',
+                            Código_Institución: userData.Código_Institución || '',
+                            Correo: userData.Correo || '',
+                            Nombre: userData.Nombre || '',
+                            Rol: userData.Rol || '',
+                            Teléfono: userData.Teléfono || '',
+                            Usuario: userData.Usuario || ''
+                        };
+                        console.log('📝 Datos del maestro a crear:', JSON.stringify(maestroData, null, 2));
+                        console.log('🔍 Cursos recibidos:', userData.Cursos);
+                        console.log('🔍 Cursos en maestroData:', maestroData.CURSO);
+                        try {
+                            roleResult = await Maestro.create(maestroData);
+                            console.log('✅ Maestro creado exitosamente:', roleResult);
+                        } catch (maestroError) {
+                            console.error('❌ Error específico al crear maestro:', maestroError);
+                            throw maestroError;
+                        }
                         break;
                     case 'Director':
                         roleResult = await Director.create({
@@ -470,6 +488,88 @@ const verifyTokenAlumno = async (req, res) => {
     }
 };
 
+// Verificar token y obtener datos completos del usuario según su rol
+const verifyTokenWithRoleData = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({
+                error: 'Token de acceso requerido'
+            });
+        }
+
+        // Verificar token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
+        
+        // Buscar usuario en Login
+        const user = await Login.findByUsuario(decoded.usuario);
+        if (!user) {
+            return res.status(404).json({
+                error: 'Usuario no encontrado'
+            });
+        }
+
+        // Obtener datos completos según el rol
+        let roleData = null;
+        try {
+            switch (user.Rol) {
+                case 'Maestro':
+                    roleData = await Maestro.findByUsuario(user.Usuario);
+                    break;
+                case 'Alumno':
+                    roleData = await Alumno.findByUsuario(user.Usuario);
+                    break;
+                case 'Director':
+                    roleData = await Director.findByUsuario(user.Usuario);
+                    break;
+                case 'Supervisor':
+                    roleData = await Supervisor.findByUsuario(user.Usuario);
+                    break;
+            }
+        } catch (roleError) {
+            console.error(`Error obteniendo datos de ${user.Rol}:`, roleError);
+            // Continuar con datos básicos si hay error
+        }
+
+        // Combinar datos básicos con datos específicos del rol
+        const completeUserData = {
+            Usuario: user.Usuario,
+            Nombre: user.Nombre,
+            Apellido: user.Apellido,
+            Correo: user.Correo,
+            Teléfono: user.Teléfono,
+            Rol: user.Rol,
+            Código_Institución: user.Código_Institución,
+            Nombre_Institución: user.Nombre_Institución,
+            // Agregar datos específicos del rol si están disponibles
+            ...(roleData && {
+                CURSO: roleData.CURSO || [],
+                Código_Rol: roleData.Código_Rol || user.Código_Rol,
+                // Para Supervisor
+                ...(user.Rol === 'Supervisor' && {
+                    DEPARTAMENTO: roleData?.DEPARTAMENTO || '',
+                    Código: roleData?.Código || ''
+                }),
+                // Para Alumno
+                ...(user.Rol === 'Alumno' && {
+                    Código_Curso: roleData?.Código_Curso || ''
+                })
+            })
+        };
+
+        res.json({
+            user: completeUserData
+        });
+
+    } catch (error) {
+        console.error('Error al verificar token con datos de rol:', error);
+        res.status(401).json({
+            error: 'Token inválido o expirado'
+        });
+    }
+};
+
 module.exports = {
     login,
     register,
@@ -478,5 +578,6 @@ module.exports = {
     sendVerificationEmail,
     verifyEmail,
     updateUserInstitution,
-    verifyTokenAlumno
+    verifyTokenAlumno,
+    verifyTokenWithRoleData
 };

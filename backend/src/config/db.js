@@ -139,7 +139,7 @@ async function createCollections() {
                         Código_Institución: { bsonType: "string" },
                         Código_Rol: { bsonType: "string" },
                         Correo: { bsonType: "string" },
-                        CURSO: { bsonType: "string" },
+                        CURSO: { bsonType: "array" },
                         Nombre: { bsonType: "string" },
                         Rol: { bsonType: "string" },
                         Teléfono: { bsonType: "string" },

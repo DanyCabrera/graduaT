@@ -4,13 +4,11 @@ import { Route, Routes } from 'react-router-dom';
 import LoginInstituciones from '../../pages/institution/loginIntitucion/login';    
 import FormInst from '../../pages/institution/loginIntitucion/formInst';
 import CodigoAccesoInstitucion from '../../components/common/institucion/codigo_acceso';
+import NotFound from '../../components/ui/notFound';
 
 // Componente de error 404 para institución
 const InstitutionNotFound = () => (
-  <div style={{ textAlign: 'center', padding: '2rem' }}>
-    <h1>404 - Página de institución no encontrada</h1>
-    <p>La página de institución que buscas no existe.</p>
-  </div>
+  <NotFound />
 );
 
 export default function InstitutionRoutes() {

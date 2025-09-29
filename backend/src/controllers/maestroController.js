@@ -171,6 +171,116 @@ const getMaestrosByCurso = async (req, res) => {
     }
 };
 
+// Obtener maestros por múltiples cursos
+const getMaestrosByCursos = async (req, res) => {
+    try {
+        const { cursos } = req.body;
+        
+        if (!cursos || !Array.isArray(cursos)) {
+            return res.status(400).json({
+                error: 'Se requiere un array de cursos'
+            });
+        }
+        
+        const maestros = await Maestro.findByCursos(cursos);
+        
+        res.json({
+            success: true,
+            data: maestros,
+            count: maestros.length
+        });
+    } catch (error) {
+        console.error('Error al obtener maestros por cursos:', error);
+        res.status(500).json({
+            error: 'Error interno del servidor'
+        });
+    }
+};
+
+// Obtener datos completos del maestro por usuario (para verificación de token)
+const getMaestroByUsuario = async (req, res) => {
+    try {
+        const { usuario } = req.params;
+        const maestro = await Maestro.findByUsuario(usuario);
+        
+        if (!maestro) {
+            return res.status(404).json({
+                error: 'Maestro no encontrado'
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: maestro
+        });
+    } catch (error) {
+        console.error('Error al obtener maestro por usuario:', error);
+        res.status(500).json({
+            error: 'Error interno del servidor'
+        });
+    }
+};
+
+// Obtener maestros para los cursos del alumno (filtrado por institución)
+const getMaestrosForAlumno = async (req, res) => {
+    try {
+        // Verificar que el usuario esté autenticado
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({
+                error: 'Token de acceso requerido'
+            });
+        }
+
+        // Verificar y decodificar el token
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
+        
+        // Obtener la institución del usuario desde el token
+        const codigoInstitucion = decoded.codigoInstitucion;
+        if (!codigoInstitucion) {
+            return res.status(400).json({
+                error: 'Código de institución no encontrado en el token'
+            });
+        }
+
+        console.log('🔍 getMaestrosForAlumno - Código de institución:', codigoInstitucion);
+
+        // Los cursos que ve el alumno son fijos: Matemáticas y Comunicación y lenguaje
+        const cursosAlumno = ['Matemáticas', 'Comunicación y lenguaje'];
+        
+        // Obtener maestros para cada curso, pero solo de la misma institución
+        const maestrosPorCurso = {};
+        
+        for (const curso of cursosAlumno) {
+            // Buscar maestros que tengan este curso Y que sean de la misma institución
+            const maestros = await Maestro.findByCursoAndInstitucion(curso, codigoInstitucion);
+            maestrosPorCurso[curso] = maestros.map(maestro => ({
+                nombre: `${maestro.Nombre} ${maestro.Apellido}`,
+                correo: maestro.Correo,
+                telefono: maestro.Teléfono
+            }));
+        }
+        
+        console.log('🔍 getMaestrosForAlumno - Resultado:', maestrosPorCurso);
+        
+        res.json({
+            success: true,
+            data: maestrosPorCurso
+        });
+    } catch (error) {
+        console.error('Error al obtener maestros para alumno:', error);
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({
+                error: 'Token inválido'
+            });
+        }
+        res.status(500).json({
+            error: 'Error interno del servidor'
+        });
+    }
+};
+
 module.exports = {
     getAllMaestros,
     getMaestroById,
@@ -178,5 +288,8 @@ module.exports = {
     updateMaestro,
     deleteMaestro,
     getMaestrosByInstitucion,
-    getMaestrosByCurso
+    getMaestrosByCurso,
+    getMaestrosByCursos,
+    getMaestroByUsuario,
+    getMaestrosForAlumno
 };

@@ -1,11 +1,7 @@
-# Tareas asignadas
-- Realizar el panel de maestro y alumno de acuerdo lo que se había diseñado en la plataforma de Figma.
-- Keyri realizara el panel principal del maestro
-- Fernanda realizara el panel principal del alumno
-
+# GraduaT
+# bajar cambios de github
 ```
 graduaT/
-
 git checkout .
 git pull origin main
 
@@ -43,35 +39,36 @@ http://localhost:5173/
 ```
 
 ## Keyri
-- navegar en la carpeta components y ahi lo que se le asigno va a modificar
+### Rediseñar la pagina NotFound
 ```
-/frontend/src/components/layout/footer.tsx
-Link para verlo los cambios en la web:
-http://localhost:5173/maestro
-http://localhost:5173/alumno
-
-Cualquiera de esos dos links podes ver los cambios
+Ir a:
+/frontend/src/components/ui/NotFound.jsx
 ```
 
 ## Fernanda
-- navegar en la carpeta components y ahi lo que se le asigno va a modificar
+### Rediseñar los formulario de los roles colocarle una barra de navegacion que tenga solo el logo y nombre de la plataforma y el btn de regresar
+- en cada formulario ya tiene el btn de regresar, solo de moverlo a la barra de navegacion y darle otro tipo de diseño.
 ```
-/frontend/src/pages/auth/login/acceso.tsx
+el logo y nombre de la plataforma lo encontraras en la carpeta de: 
+/frontend/src/assets/
+```
+```
+Ir a:
+/frontend/src/pages/auth/login/registro.tsx
+```
 
-Link para ver los cambios en la web:
-http://localhost:5173/acceso
-```
-## Material UI
+# Material UI
 - Ir a esta pagina para buscar los estilos que se van a usar
 ```
 https://mui.com/material-ui/all-components/
 ```
 
-## Subir cambios a github
+# Subir cambios a github
 ```
 En la raiz del proyecto
 /graduaT
 ejecutar estos comandos
-git checkout .
+git add .
+git commit -m "commit de la tara que realizo"
 git push origin main
 ```

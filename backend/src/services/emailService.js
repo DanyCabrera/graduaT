@@ -24,9 +24,9 @@ class EmailService {
             const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
 
             const mailOptions = {
-                from: process.env.EMAIL_USER,
+                from: 'GraduaT',
                 to: email,
-                subject: 'Bienvenido a GraduaT - Confirma tu registro',
+                subject: '¡Felicidades por tu registro en GraduaT!',
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                         <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
@@ -35,41 +35,11 @@ class EmailService {
                         </div>
                         
                         <div style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
-                            <h2 style="color: #333; margin-top: 0;">¡Bienvenido a la plataforma, ${nombre}!</h2>
+                            <h2 style="color: #333; margin-top: 0; text-align: center;">¡Felicidades por tu registro en la plataforma!</h2>
                             
-                            <p style="color: #666; line-height: 1.6; font-size: 16px;">
-                                Tu registro fue exitoso. Para completar el proceso y acceder a todas las funcionalidades 
-                                de la plataforma, necesitas confirmar tu dirección de correo electrónico.
+                            <p style="color: #666; line-height: 1.6; font-size: 16px; text-align: center;">
+                                Hola ${nombre}, tu registro fue exitoso. ¡Bienvenido a GraduaT!
                             </p>
-                            
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${verificationUrl}" 
-                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                            color: white; 
-                                            padding: 15px 30px; 
-                                            text-decoration: none; 
-                                            border-radius: 25px; 
-                                            font-weight: bold; 
-                                            font-size: 16px;
-                                            display: inline-block;
-                                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                                    ✅ Confirmar mi registro
-                                </a>
-                            </div>
-                            
-                            <p style="color: #888; font-size: 14px; line-height: 1.5;">
-                                Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:<br>
-                                <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
-                            </p>
-                            
-                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
-                                <h3 style="color: #333; margin-top: 0; font-size: 18px;">🔐 Información de seguridad:</h3>
-                                <ul style="color: #666; line-height: 1.6;">
-                                    <li>Este enlace expira en 24 horas</li>
-                                    <li>No compartas este enlace con nadie</li>
-                                    <li>Si no solicitaste este registro, puedes ignorar este email</li>
-                                </ul>
-                            </div>
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
@@ -97,9 +67,9 @@ class EmailService {
     async sendInstitutionRegistrationEmail(email, nombreInstitucion, codigos) {
         try {
             const mailOptions = {
-                from: process.env.EMAIL_USER,
+                from: 'GraduaT',
                 to: email,
-                subject: '🎓 Registro de Institución Exitoso - GraduaT',
+                subject: '¡Felicidades por tu registro en GraduaT!',
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                         <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
@@ -108,24 +78,13 @@ class EmailService {
                         </div>
                         
                         <div style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
-                            <h2 style="color: #333; margin-top: 0;">¡Registro de Institución Exitoso!</h2>
+                            <h2 style="color: #333; margin-top: 0; text-align: center;">¡Felicidades por tu registro en la plataforma!</h2>
                             
-                            <p style="color: #666; line-height: 1.6; font-size: 16px;">
-                                Felicitaciones, <strong>${nombreInstitucion}</strong> ha sido registrada exitosamente en nuestra plataforma.
-                            </p>
-                            
-                            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-                                <h3 style="color: #16a34a; margin-top: 0;">✅ Estado del Registro</h3>
-                                <p style="color: #16a34a; margin: 0; font-weight: 500;">
-                                    Su institución ha sido registrada correctamente y ya puede comenzar a utilizar la plataforma.
-                                </p>
-                            </div>
-
-                            <h3 style="color: #333; margin-top: 30px;">🔑 Códigos de Acceso Generados</h3>
-                            <p style="color: #666; line-height: 1.6;">
-                                Se han generado los siguientes códigos únicos para su institución:
+                            <p style="color: #666; line-height: 1.6; font-size: 16px; text-align: center;">
+                                <strong>${nombreInstitucion}</strong> ha sido registrada exitosamente. ¡Bienvenido a GraduaT!
                             </p>
 
+                            <h3 style="color: #333; margin-top: 30px; text-align: center;">🔑 Códigos de Acceso</h3>
                             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr style="background: #e9ecef;">
@@ -154,25 +113,6 @@ class EmailService {
                                     </tr>
                                 </table>
                             </div>
-
-                            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
-                                <h3 style="color: #1e40af; margin-top: 0;">📋 Próximos Pasos</h3>
-                                <ul style="color: #1e40af; line-height: 1.6;">
-                                    <li>Guarde estos códigos en un lugar seguro</li>
-                                    <li>Comparta los códigos correspondientes con cada tipo de usuario</li>
-                                    <li>Use el código de institución para acceder al panel de administración</li>
-                                    <li>Los usuarios pueden registrarse usando sus códigos específicos</li>
-                                </ul>
-                            </div>
-
-                            <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-                                <h3 style="color: #d97706; margin-top: 0;">⚠️ Información Importante</h3>
-                                <ul style="color: #d97706; line-height: 1.6;">
-                                    <li>No comparta estos códigos con personas no autorizadas</li>
-                                    <li>Cada código es único y está vinculado a su institución</li>
-                                    <li>En caso de pérdida, contacte al administrador del sistema</li>
-                                </ul>
-                            </div>
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
@@ -200,9 +140,9 @@ class EmailService {
             const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
 
             const mailOptions = {
-                from: process.env.EMAIL_USER,
+                from: 'GraduaT',
                 to: email,
-                subject: `🎓 Verificación de Email - ${rol} - GraduaT`,
+                subject: '¡Felicidades por tu registro en GraduaT!',
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                         <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
@@ -211,50 +151,11 @@ class EmailService {
                         </div>
                         
                         <div style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
-                            <h2 style="color: #333; margin-top: 0;">¡Hola ${nombre}!</h2>
+                            <h2 style="color: #333; margin-top: 0; text-align: center;">¡Felicidades por tu registro en la plataforma!</h2>
                             
-                            <p style="color: #666; line-height: 1.6; font-size: 16px;">
-                                Tu registro como <strong>${rol}</strong> ha sido exitoso. Para completar el proceso y acceder a tu panel correspondiente, 
-                                necesitas verificar tu dirección de correo electrónico.
+                            <p style="color: #666; line-height: 1.6; font-size: 16px; text-align: center;">
+                                Hola ${nombre}, tu registro como <strong>${rol}</strong> fue exitoso. ¡Bienvenido a GraduaT!
                             </p>
-                            
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${verificationUrl}" 
-                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                            color: white; 
-                                            padding: 15px 30px; 
-                                            text-decoration: none; 
-                                            border-radius: 25px; 
-                                            font-weight: bold; 
-                                            font-size: 16px;
-                                            display: inline-block;
-                                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                                    ✅ Verificar mi Email
-                                </a>
-                            </div>
-                            
-                            <p style="color: #888; font-size: 14px; line-height: 1.5;">
-                                Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:<br>
-                                <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
-                            </p>
-                            
-                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
-                                <h3 style="color: #333; margin-top: 0; font-size: 18px;">🎯 Próximos Pasos:</h3>
-                                <ul style="color: #666; line-height: 1.6;">
-                                    <li>Haz clic en el botón de verificación</li>
-                                    <li>Serás redirigido automáticamente a tu panel de ${rol}</li>
-                                    <li>Podrás acceder a todas las funcionalidades disponibles</li>
-                                </ul>
-                            </div>
-
-                            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
-                                <h3 style="color: #1e40af; margin-top: 0;">🔐 Información de seguridad:</h3>
-                                <ul style="color: #1e40af; line-height: 1.6;">
-                                    <li>Este enlace expira en 24 horas</li>
-                                    <li>No compartas este enlace con nadie</li>
-                                    <li>Si no solicitaste este registro, puedes ignorar este email</li>
-                                </ul>
-                            </div>
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">

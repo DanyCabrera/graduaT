@@ -18,6 +18,7 @@ interface UserData {
     Rol: string;
     Código_Institución: string;
     Nombre_Institución?: string;
+    CURSO?: string[];
 }
 
 interface IndexMaestroProps {
@@ -25,6 +26,12 @@ interface IndexMaestroProps {
 }
 
 const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
+    // Debug: Mostrar los datos que llegan al componente
+    console.log('🔍 IndexMaestro - userData recibido:', userData);
+    console.log('🔍 IndexMaestro - CURSO:', userData?.CURSO);
+    console.log('🔍 IndexMaestro - Tipo de CURSO:', typeof userData?.CURSO);
+    console.log('🔍 IndexMaestro - Es array:', Array.isArray(userData?.CURSO));
+
     const handleLogout = () => {
         // Limpiar localStorage
         localStorage.removeItem('token');
@@ -36,6 +43,25 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
         // Redirigir al inicio
         window.location.href = 'http://localhost:5173';
     };
+
+    // Definir información de cursos disponibles
+    const cursosDisponibles = {
+        'Matemáticas': {
+            titulo: 'Matemáticas',
+            descripcion: 'Curso de matemáticas básicas',
+            imagen: 'https://media.istockphoto.com/id/1026884078/es/vector/ni%C3%B1os-ni%C3%B1o-y-ni%C3%B1a-aprender-matem%C3%A1ticas-con-la-ilustraci%C3%B3n-de-libros-abiertos.jpg?s=612x612&w=0&k=20&c=ZoKy5yqnbLyHkdCvXOyWY_wrAx9yvwdBGjJHZj14lwY=',
+            url: 'https://es.khanacademy.org/math'
+        },
+        'Comunicación y lenguaje': {
+            titulo: 'Comunicación y Lenguaje',
+            descripcion: 'Curso de lectura y escritura',
+            imagen: 'https://i.pinimg.com/736x/9f/1d/9a/9f1d9ab4830d2e82efe8ed95cd4be5eb.jpg',
+            url: 'https://es.khanacademy.org/humanities/grammar'
+        }
+    };
+
+    // Obtener solo los cursos asignados al maestro
+    const cursosAsignados = userData?.CURSO || [];
     return (
         <Box sx={{display: "flex", flexDirection: "column", minHeight: '100vh'}}>
 
@@ -55,60 +81,52 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                     Mis Cursos
                 </Typography>
 
-                {/* Grid de cursos */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                        gap: 5,
-                    }}
-                >
-                    {/* Curso 1 */}
-                    <Card sx={{ width: 500, minHeight: 500 }} elevation={4}>
-                        <CardActionArea
-                            onClick={() =>
-                                (window.location.href = "https://es.khanacademy.org/math")
-                            }
-                        >
-                            <CardMedia
-                                component="img"
-                                sx={{ height: 380, objectFit: "cover" }}
-                                image="https://media.istockphoto.com/id/1026884078/es/vector/ni%C3%B1os-ni%C3%B1o-y-ni%C3%B1a-aprender-matem%C3%A1ticas-con-la-ilustraci%C3%B3n-de-libros-abiertos.jpg?s=612x612&w=0&k=20&c=ZoKy5yqnbLyHkdCvXOyWY_wrAx9yvwdBGjJHZj14lwY="
-                                alt="Matemáticas"
-                            />
-                            <CardContent>
-                                <Typography variant="h6">Matemáticas</Typography>
-                                <Typography color="text.secondary">
-                                    Curso de matemáticas básicas
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-
-                    {/* Curso 2 */}
-                    <Card sx={{ width: 500, minHeight: 500 }} elevation={4}>
-                        <CardActionArea
-                            onClick={() =>
-                            (window.location.href =
-                                "https://es.khanacademy.org/humanities/grammar")
-                            }
-                        >
-                            <CardMedia
-                                component="img"
-                                sx={{ height: 380, objectFit: "cover" }}  // 👈 misma altura también aquí
-                                image="https://i.pinimg.com/736x/9f/1d/9a/9f1d9ab4830d2e82efe8ed95cd4be5eb.jpg"
-                                alt="Comunicación y Lenguaje"
-                            />
-                            <CardContent>
-                                <Typography variant="h6">Comunicación y Lenguaje</Typography>
-                                <Typography color="text.secondary">
-                                    Curso de lectura y escritura
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-                </Box>
+                {/* Grid de cursos dinámico */}
+                {cursosAsignados.length > 0 ? (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                            gap: 5,
+                        }}
+                    >
+                        {cursosAsignados.map((cursoNombre, index) => {
+                            const cursoInfo = cursosDisponibles[cursoNombre as keyof typeof cursosDisponibles];
+                            if (!cursoInfo) return null;
+                            
+                            return (
+                                <Card key={index} sx={{ width: 500, minHeight: 500 }} elevation={4}>
+                                    <CardActionArea
+                                        onClick={() => window.location.href = cursoInfo.url}
+                                    >
+                                        <CardMedia
+                                            component="img"
+                                            sx={{ height: 380, objectFit: "cover" }}
+                                            image={cursoInfo.imagen}
+                                            alt={cursoInfo.titulo}
+                                        />
+                                        <CardContent>
+                                            <Typography variant="h6">{cursoInfo.titulo}</Typography>
+                                            <Typography color="text.secondary">
+                                                {cursoInfo.descripcion}
+                                            </Typography>
+                                        </CardContent>
+                                    </CardActionArea>
+                                </Card>
+                            );
+                        })}
+                    </Box>
+                ) : (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                        <Typography variant="h6" color="text.secondary">
+                            No tienes cursos asignados aún
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            Contacta con tu administrador para asignarte cursos
+                        </Typography>
+                    </Box>
+                )}
             </Box>
             <FooterMaestro />
         </Box>

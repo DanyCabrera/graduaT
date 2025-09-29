@@ -1,5 +1,5 @@
 const express = require('express');
-const { login, register, verifyToken, changePassword, sendVerificationEmail, verifyEmail, updateUserInstitution } = require('../controllers/authController');
+const { login, register, verifyToken, changePassword, sendVerificationEmail, verifyEmail, updateUserInstitution, verifyTokenWithRoleData } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -23,5 +23,8 @@ router.get('/verify-email', verifyEmail);
 
 // PUT /api/auth/update-institution
 router.put('/update-institution', updateUserInstitution);
+
+// GET /api/auth/verify-with-role-data
+router.get('/verify-with-role-data', verifyTokenWithRoleData);
 
 module.exports = router;

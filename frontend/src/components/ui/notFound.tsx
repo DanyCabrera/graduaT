@@ -75,7 +75,7 @@ export default function NotFound() {
                                     fontSize: { xs: '1.5rem', md: '2rem' }
                                 }}
                             >
-                                ¡Oops! Página no encontrada
+                                ¡Oops! Page NotFound
                             </Typography>
 
                             {/* Botones de acción */}

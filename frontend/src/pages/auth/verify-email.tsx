@@ -16,10 +16,14 @@ export default function VerifyEmail() {
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
+    const [isVerified, setIsVerified] = useState(false);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Si ya se verificó exitosamente, no hacer nada más
+        if (isVerified) return;
+        
         const token = searchParams.get('token') || localStorage.getItem('verificationToken');
         
         if (!token) {
@@ -30,9 +34,12 @@ export default function VerifyEmail() {
         }
 
         verifyEmail(token);
-    }, [searchParams]);
+    }, [searchParams, isVerified]);
 
     const verifyEmail = async (token: string) => {
+        // Si ya se verificó exitosamente, no hacer nada
+        if (isVerified) return;
+        
         try {
             console.log('🔍 Verificando email con token:', token);
             
@@ -44,14 +51,16 @@ export default function VerifyEmail() {
             if (response.ok) {
                 const adminResponse = await response.json();
                 console.log('✅ Verificación de admin exitosa:', adminResponse);
+                setIsVerified(true);
                 setStatus('success');
                 setMessage('¡Email verificado exitosamente! Ya puedes iniciar sesión como administrador.');
+                setLoading(false);
                 
                 // Redirigir al login de administrador después de 3 segundos
                 setTimeout(() => {
                     navigate('/admin');
                 }, 3000);
-                return;
+                return; // Salir inmediatamente después del éxito
             } else {
                 const adminError = await response.json();
                 console.log('❌ Error en verificación de admin:', adminError);
@@ -65,28 +74,25 @@ export default function VerifyEmail() {
             if (response.ok) {
                 const userData = await response.json();
                 console.log('✅ Verificación de usuario exitosa:', userData);
-                setStatus('success');
-                setMessage('¡Email verificado exitosamente!');
                 
                 // Guardar token y datos del usuario
                 localStorage.setItem('token', userData.token);
                 localStorage.setItem('user', JSON.stringify(userData.user));
                 
-                // Redirigir al panel correspondiente después de 3 segundos
-                setTimeout(() => {
-                    redirectToPanel(userData.user.Rol);
-                }, 3000);
+                // Redirigir inmediatamente al panel correspondiente sin mostrar el panel de verificación
+                redirectToPanel(userData.user.Rol);
+                return;
             } else {
                 const errorData = await response.json();
                 console.log('❌ Error en verificación de usuario:', errorData);
                 setStatus('error');
                 setMessage(errorData.error || errorData.message || 'Error al verificar el email');
+                setLoading(false);
             }
         } catch (error) {
             console.error('💥 Error al verificar email:', error);
             setStatus('error');
             setMessage('Error de conexión. Intenta de nuevo.');
-        } finally {
             setLoading(false);
         }
     };

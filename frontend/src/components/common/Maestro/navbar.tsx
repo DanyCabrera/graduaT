@@ -4,9 +4,14 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { Logout } from "@mui/icons-material";
+import Agenda  from "./agenda";
 
 interface NavbarProps {
     onLogout?: () => void;
+}
+
+const handleBackToAgenda = () => {
+    <Agenda />
 }
 
 export default function Navbar({ onLogout }: NavbarProps) {
@@ -37,7 +42,7 @@ export default function Navbar({ onLogout }: NavbarProps) {
                         <Button color="inherit">
                             Alumnos
                         </Button>
-                        <Button color="inherit">
+                        <Button color="inherit" onClick={handleBackToAgenda}>
                             Agenda
                         </Button>
                         <Button color="inherit">

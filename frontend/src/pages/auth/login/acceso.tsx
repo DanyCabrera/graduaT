@@ -14,6 +14,9 @@ import {
     Paper,
     TextField,
     Fade,
+    FormGroup,
+    FormControlLabel,
+    Checkbox,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Business as BusinessIcon } from "@mui/icons-material";
@@ -35,12 +38,12 @@ const AccesoAlumnoMaestro = () => {
     const [instituciones, setInstituciones] = useState<Institucion[]>([]);
     const [institucionSeleccionada, setInstitucionSeleccionada] = useState('');
     const [codigoRolMaestroAlumno, setCodigoRolMaestroAlumno] = useState('');
+    const [cursosSeleccionados, setCursosSeleccionados] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [userData, setUserData] = useState<any>(null);
     const navigate = useNavigate();
-
     // Cargar instituciones al montar el componente
     useEffect(() => {
         cargarInstituciones();
@@ -59,7 +62,6 @@ const AccesoAlumnoMaestro = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 // Extraer el array de instituciones del objeto de respuesta
-                console.log('Instituciones cargadas:', responseData.data);
                 setInstituciones(responseData.data || []);
             } else {
                 setError('Error al cargar las instituciones');
@@ -70,6 +72,23 @@ const AccesoAlumnoMaestro = () => {
             setLoading(false);
         }
     };
+
+    const handleToClearInput = () => {
+        setInstitucionSeleccionada('');
+        setCodigoRolMaestroAlumno('');
+        setCursosSeleccionados([]);
+        setError('');
+        setSuccess('');
+    }
+
+    const handleCancelRegistration = () => {
+        // Limpiar datos del localStorage
+        localStorage.removeItem('userData');
+        localStorage.removeItem('verificationToken');
+        
+        // Redirigir al registro
+        navigate('/panelRol');
+    }
 
     const validarCodigo = async () => {
         if (!institucionSeleccionada) {
@@ -87,19 +106,21 @@ const AccesoAlumnoMaestro = () => {
             return;
         }
 
+        if (userData && userData.rol === 'Maestro' && cursosSeleccionados.length === 0) {
+            setError('Por favor seleccione su curso');
+            return;
+        }
+
         try {
             setLoading(true);
             setError('');
             setSuccess('');
 
             // Primero validar que la institución existe
-            console.log('Buscando institución con ID:', institucionSeleccionada);
             const institucionResponse = await fetch(`http://localhost:3001/api/colegios/${institucionSeleccionada}`);
-            console.log('Respuesta de institución:', institucionResponse.status, institucionResponse.statusText);
-            
+
             if (!institucionResponse.ok) {
                 const errorData = await institucionResponse.json();
-                console.log('Error de institución:', errorData);
                 setError(`Institución no encontrada: ${errorData.error || 'Error desconocido'}`);
                 setLoading(false);
                 return;
@@ -109,12 +130,12 @@ const AccesoAlumnoMaestro = () => {
             const institucion = institucionData.data;
 
             // Validar que el código de rol corresponde al rol del usuario
-            const codigoCorrecto = userData.rol === 'Maestro' 
-                ? institucion.Código_Maestro 
+            const codigoCorrecto = userData && userData.rol === 'Maestro'
+                ? institucion.Código_Maestro
                 : institucion.Código_Alumno;
-            
+
             if (codigoRolMaestroAlumno !== codigoCorrecto) {
-                setError(`Código de rol inválido. Código esperado: ${codigoCorrecto}`);
+                setError(`Código inválido`);
                 setLoading(false);
                 return;
             }
@@ -126,13 +147,14 @@ const AccesoAlumnoMaestro = () => {
                 Teléfono: userData.telefono,
                 Correo: userData.correo,
                 Contraseña: userData.contraseña,
-                Rol: userData.rol,
+                Rol: userData && userData.rol,
                 Usuario: userData.correo,
                 Código_Institución: institucion.Código_Institución,
-                Nombre_Institución: institucion.Nombre,
+                Nombre_Institución: institucion.Nombre_Completo,
                 Código_Rol: codigoRolMaestroAlumno,
                 emailVerificado: false,
-                tokenVerificacion: ''
+                tokenVerificacion: '',
+                Cursos: cursosSeleccionados
             };
 
             // Registrar el usuario
@@ -151,15 +173,15 @@ const AccesoAlumnoMaestro = () => {
                 return;
             }
 
-                // Actualizar el usuario con la institución seleccionada
-                const updatedUserData = {
-                    ...userData,
-                    institucion: institucion.Código_Institución,
-                    Nombre_Institución: institucion.Nombre
-                };
+            // Actualizar el usuario con la institución seleccionada
+            const updatedUserData = {
+                ...userData,
+                institucion: institucion.Código_Institución,
+                Nombre_Institución: institucion.Nombre_Completo
+            };
 
-                // Guardar datos actualizados
-                localStorage.setItem('userData', JSON.stringify(updatedUserData));
+            // Guardar datos actualizados
+            localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
             // Enviar correo de verificación
             const response = await fetch('http://localhost:3001/api/auth/send-verification-email', {
@@ -170,27 +192,26 @@ const AccesoAlumnoMaestro = () => {
                 body: JSON.stringify({
                     email: userData.correo,
                     nombre: userData.nombre,
-                    rol: userData.rol
+                    rol: userData && userData.rol
                 }),
             });
 
             if (response.ok) {
                 const responseData = await response.json();
-                setSuccess('Registro exitoso. Se ha enviado un correo de verificación a tu email. Por favor revisa tu bandeja de entrada.');
-                
+                setSuccess('Registro exitoso.');
+
                 // Si hay un token en la respuesta (para testing), guardarlo
                 if (responseData.token) {
                     localStorage.setItem('verificationToken', responseData.token);
-                    console.log('Token de verificación:', responseData.token);
                 }
-                
+
                 // Redirigir a la página de verificación de email
                 setTimeout(() => {
                     navigate('/verify-email');
                 }, 3000);
             } else {
                 const errorData = await response.json();
-                setError(errorData.error || 'Error al enviar el correo de verificación');
+                setError(errorData.error || 'Error al enviar el correo');
             }
         } catch (error) {
             setError('Error de conexión');
@@ -281,24 +302,86 @@ const AccesoAlumnoMaestro = () => {
                                     sx={{ mt: 2 }}
                                 />
 
-                                {userData?.institucion && (
-                                    <Alert severity="info">
-                                        <Typography variant="body2">
-                                            Institución: {userData.institucion}
+                                {userData && userData.rol === 'Maestro' && (
+                                    <FormGroup>
+                                        <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }}>
+                                            Selecciona tu(s) curso(s):
                                         </Typography>
-                                    </Alert>
+
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    value="Matemáticas"
+                                                    checked={cursosSeleccionados.includes("Matemáticas")}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setCursosSeleccionados([...cursosSeleccionados, e.target.value]);
+                                                        } else {
+                                                            setCursosSeleccionados(
+                                                                cursosSeleccionados.filter((curso) => curso !== e.target.value)
+                                                            );
+                                                        }
+                                                    }}
+                                                />
+                                            }
+                                            label="Matemáticas"
+                                        />
+
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    value="Comunicación y lenguaje"
+                                                    checked={cursosSeleccionados.includes("Comunicación y lenguaje")}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setCursosSeleccionados([...cursosSeleccionados, e.target.value]);
+                                                        } else {
+                                                            setCursosSeleccionados(
+                                                                cursosSeleccionados.filter((curso) => curso !== e.target.value)
+                                                            );
+                                                        }
+                                                    }}
+                                                />
+                                            }
+                                            label="Comunicación y lenguaje"
+                                        />
+                                    </FormGroup>
                                 )}
 
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    fullWidth
-                                    onClick={validarCodigo}
-                                    disabled={loading || !institucionSeleccionada || !codigoRolMaestroAlumno.trim()}
-                                    startIcon={loading ? <CircularProgress size={20} /> : null}
-                                >
-                                    {loading ? 'Enviando correo...' : 'Enviar Correo de Verificación'}
-                                </Button>
+                                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        fullWidth
+                                        onClick={validarCodigo}
+                                        disabled={loading || !institucionSeleccionada || !codigoRolMaestroAlumno.trim()}
+                                        startIcon={loading ? <CircularProgress size={20} /> : null}
+                                        sx={{ flex: 2 }}
+                                    >
+                                        {loading ? 'Entrando...' : 'Entrar al panel'}
+                                    </Button>
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        onClick={handleToClearInput}
+                                        disabled={loading}
+                                        sx={{ flex: 1 }}
+                                    >
+                                        Limpiar
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={handleCancelRegistration}
+                                        disabled={loading}
+                                        sx={{ flex: 1 }}
+                                    >
+                                        Cancelar Registro
+                                    </Button>
+                                </Box>
                             </CardContent>
                         </Card>
                     </Container>
@@ -307,7 +390,6 @@ const AccesoAlumnoMaestro = () => {
         </>
     )
 }
-
 
 // acceso supervisor/director
 const AccesoSupervisorDirector = () => {
@@ -365,19 +447,12 @@ const AccesoSupervisorDirector = () => {
             setSuccess('');
 
             // Verificar si el código de rol es válido para supervisor o director
-            console.log('Buscando institución con ID (Supervisor/Director):', institucionSeleccionada);
             const response = await fetch(`http://localhost:3001/api/colegios/${institucionSeleccionada}`);
-            console.log('Respuesta de institución (Supervisor/Director):', response.status, response.statusText);
-            
+
             if (response.ok) {
                 const responseData = await response.json();
                 const institucion = responseData.data;
-                
-                console.log('Institución:', institucion);
-                console.log('Código ingresado:', codigoRol);
-                console.log('Código Supervisor:', institucion.Código_Supervisor);
-                console.log('Código Director:', institucion.Código_Director);
-                
+
                 if (codigoRol === institucion.Código_Supervisor || codigoRol === institucion.Código_Director) {
                     // Crear el usuario en el backend con todos los datos
                     const userDataForRegistration = {
@@ -386,13 +461,13 @@ const AccesoSupervisorDirector = () => {
                         Teléfono: userData.telefono,
                         Correo: userData.correo,
                         Contraseña: userData.contraseña,
-                        Rol: userData.rol,
+                        Rol: userData && userData.rol,
                         Usuario: userData.correo,
                         Código_Institución: institucion.Código_Institución,
-                        Nombre_Institución: institucion.Nombre,
+                        Nombre_Institución: institucion.Nombre_Completo,
                         Código_Rol: codigoRol,
                         // Incluir departamento solo para Supervisor
-                        ...(userData.rol === "Supervisor" && userData.departamento && { Departamento: userData.departamento }),
+                        ...(userData && userData.rol === "Supervisor" && userData.departamento && { Departamento: userData.departamento }),
                         emailVerificado: false,
                         tokenVerificacion: ''
                     };
@@ -413,15 +488,15 @@ const AccesoSupervisorDirector = () => {
                         return;
                     }
 
-                // Actualizar el usuario con la institución seleccionada
-                const updatedUserData = {
-                    ...userData,
-                    institucion: institucion.Código_Institución,
-                    Nombre_Institución: institucion.Nombre
-                };
+                    // Actualizar el usuario con la institución seleccionada
+                    const updatedUserData = {
+                        ...userData,
+                        institucion: institucion.Código_Institución,
+                        Nombre_Institución: institucion.Nombre_Completo
+                    };
 
-                // Guardar datos actualizados
-                localStorage.setItem('userData', JSON.stringify(updatedUserData));
+                    // Guardar datos actualizados
+                    localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
                     // Enviar correo de verificación
                     const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
@@ -432,28 +507,27 @@ const AccesoSupervisorDirector = () => {
                         body: JSON.stringify({
                             email: userData.correo,
                             nombre: userData.nombre,
-                            rol: userData.rol
+                            rol: userData && userData.rol
                         }),
                     });
 
                     if (emailResponse.ok) {
                         const emailData = await emailResponse.json();
-                        setSuccess('Registro exitoso. Código válido. Se ha enviado un correo de verificación a tu email.');
-                        
+                        setSuccess('Registro exitoso.');
+
                         // Si hay un token en la respuesta (para testing), guardarlo
                         if (emailData.token) {
                             localStorage.setItem('verificationToken', emailData.token);
-                            console.log('Token de verificación:', emailData.token);
                         }
-                        
+
                         setTimeout(() => {
                             navigate('/verify-email');
                         }, 3000);
                     } else {
-                        setError('Error al enviar el correo de verificación');
+                        setError('Error');
                     }
                 } else {
-                    setError(`Código de rol inválido. Códigos válidos: Supervisor: ${institucion.Código_Supervisor}, Director: ${institucion.Código_Director}`);
+                    setError(`Código de rol inválido`);
                 }
             } else {
                 setError('Institución no encontrada');
@@ -605,7 +679,7 @@ const AccesoSupervisorDirector = () => {
                                         fontWeight: 500,
                                     }}
                                 >
-                                    {loading ? 'Enviando correo...' : 'ENVIAR CORREO DE VERIFICACIÓN'}
+                                    {loading ? 'Entrando...' : 'Entrar al panel'}
                                 </Button>
                             </Box>
                         </Paper>
@@ -618,14 +692,41 @@ const AccesoSupervisorDirector = () => {
 
 export default function Acceso() {
     const [userData, setUserData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Cargar datos del usuario desde localStorage
         const data = localStorage.getItem('userData');
+        
         if (data) {
-            setUserData(JSON.parse(data));
+            try {
+                const parsedData = JSON.parse(data);
+                setUserData(parsedData);
+            } catch (error) {
+                setUserData(null);
+            }
+        } else {
         }
+        setLoading(false);
     }, []);
+
+    // Mostrar loading mientras se cargan los datos
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 2,
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     // Si no hay datos de usuario, mostrar mensaje de error
     if (!userData) {
@@ -637,11 +738,19 @@ export default function Acceso() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: 2,
+                    flexDirection: 'column',
+                    gap: 2,
                 }}
             >
                 <Alert severity="error">
                     No se encontraron datos del usuario. Por favor regresa al registro.
                 </Alert>
+                <Button
+                    variant="contained"
+                    onClick={() => navigate('/')}
+                >
+                    Ir al Registro
+                </Button>
             </Box>
         );
     }
@@ -660,20 +769,33 @@ export default function Acceso() {
                 }}
             >
                 <Alert severity="info">
-                    Los supervisores no requieren validación de código. Redirigiendo a tu panel...
+                    Redirigiendo al panel...
                 </Alert>
             </Box>
         );
     }
 
-    return (
-        <>
-            {/* Mostrar formulario según el rol */}
-            {userData.rol === "Maestro" || userData.rol === "Alumno" ? (
-                <AccesoAlumnoMaestro />
-            ) : userData.rol === "Director" ? (
-                <AccesoSupervisorDirector />
-            ) : null}
-        </>
-    );
+    // Renderizar formulario según el rol
+    if (userData.rol === "Maestro" || userData.rol === "Alumno") {
+        return <AccesoAlumnoMaestro />;
+    } else if (userData.rol === "Director") {
+        return <AccesoSupervisorDirector />;
+    } else {
+        // Rol no reconocido
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 2,
+                }}
+            >
+                <Alert severity="error">
+                    Rol no reconocido: {userData.rol}. Por favor regresa al registro.
+                </Alert>
+            </Box>
+        );
+    }
 }

@@ -205,7 +205,6 @@ export default function Login() {
                     // Si hay un token en la respuesta (para testing), guardarlo
                     if (emailData.token) {
                         localStorage.setItem('verificationToken', emailData.token);
-                        console.log('Token de verificación:', emailData.token);
                     }
                     
                     // Redirigir a la página de verificación de email
@@ -468,6 +467,7 @@ export default function Login() {
             </>
         )
     }, [formData, loading, error, success, emailError, showPassword, showConfirmPassword, handleInputChange, handleSubmit, handleBackToPanel, selectedRol]);
+    
     const FormularioDirector = useMemo(() => {
         return (
             <Fade in timeout={800}>

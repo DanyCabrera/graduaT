@@ -4,13 +4,11 @@ import {
     Card, 
     CardContent, 
     Typography, 
-    Avatar,
-    Paper,
-    Chip,
+
     Container
 } from '@mui/material';
-import { School, Person, Email, Phone, Business } from '@mui/icons-material';
 import NavbarDirector from '../../components/common/Director/navbar';
+import InformacionDirector from '../../components/common/Director/informacion';
 
 interface UserData {
     Usuario: string;
@@ -20,12 +18,13 @@ interface UserData {
     Teléfono: string;
     Rol: string;
     Código_Institución: string;
-    Nombre_Institución?: string;
+    Nombre_Institución: string;
 }
 
 export default function Director() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState('inicio');
 
     const handleLogout = () => {
         // Limpiar localStorage
@@ -37,6 +36,73 @@ export default function Director() {
         
         // Redirigir al inicio
         window.location.href = 'http://localhost:5173';
+    };
+
+    const handleNavigation = (page: string) => {
+        setCurrentPage(page);
+    };
+
+    const renderPageContent = () => {
+        switch (currentPage) {
+            case 'informacion':
+                return <InformacionDirector userData={userData} />;
+            case 'alumnos':
+                return (
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                Gestión de Alumnos
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary">
+                                Aquí podrás gestionar la información de los alumnos de tu institución.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                );
+            case 'cursos':
+                return (
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                Gestión de Cursos
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary">
+                                Aquí podrás gestionar los cursos y materias de tu institución.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                );
+            case 'tests':
+                return (
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                Gestión de Tests
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary">
+                                Aquí podrás gestionar los tests y evaluaciones.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                );
+            case 'historial':
+                return (
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                Historial
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary">
+                                Aquí podrás ver el historial de actividades y reportes.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                );
+            default: // 'inicio'
+                return (
+                    <Typography variant='h2'>Bienvenido</Typography>
+                );
+        }
     };
 
     useEffect(() => {
@@ -90,113 +156,19 @@ export default function Director() {
         <Box sx={{ 
             minHeight: '100vh', 
             backgroundColor: '#f5f5f5', 
-            padding: 3 
         }}>
-            <Container maxWidth="lg">
-                <NavbarDirector onLogout={handleLogout} />
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    {/* Header */}
-                    <Paper sx={{ p: 3, background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)', color: 'white' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255,255,255,0.2)' }}>
-                                <School sx={{ fontSize: 30 }} />
-                            </Avatar>
-                            <Box>
-                                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                                    Panel de Director
-                                </Typography>
-                                <Typography variant="h6" sx={{ opacity: 0.9 }}>
-                                    Bienvenido, Dir. {userData.Nombre} {userData.Apellido}
-                                </Typography>
-                            </Box>
-                        </Box>
-                    </Paper>
-
-                    {/* Información del Usuario */}
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-                        <Card sx={{ flex: 1 }}>
-                            <CardContent>
-                                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Person color="primary" />
-                                    Información Personal
-                                </Typography>
-                                
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Nombre Completo</Typography>
-                                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                            Dir. {userData.Nombre} {userData.Apellido}
-                                        </Typography>
-                                    </Box>
-                                    
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Email color="action" />
-                                        <Box>
-                                            <Typography variant="body2" color="text.secondary">Correo Electrónico</Typography>
-                                            <Typography variant="body1">{userData.Correo}</Typography>
-                                        </Box>
-                                    </Box>
-                                    
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Phone color="action" />
-                                        <Box>
-                                            <Typography variant="body2" color="text.secondary">Teléfono</Typography>
-                                            <Typography variant="body1">{userData.Teléfono}</Typography>
-                                        </Box>
-                                    </Box>
-                                </Box>
-                            </CardContent>
-                        </Card>
-
-                        {/* Información Académica */}
-                        <Card sx={{ flex: 1 }}>
-                            <CardContent>
-                                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Business color="primary" />
-                                    Información Académica
-                                </Typography>
-                                
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Rol</Typography>
-                                        <Chip 
-                                            label={userData.Rol} 
-                                            color="warning" 
-                                            variant="outlined"
-                                            sx={{ mt: 0.5 }}
-                                        />
-                                    </Box>
-                                    
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Institución</Typography>
-                                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                            {userData.Nombre_Institución || userData.Código_Institución}
-                                        </Typography>
-                                    </Box>
-                                    
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Usuario</Typography>
-                                        <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
-                                            {userData.Usuario}
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Box>
-
-                    {/* Funcionalidades del Director */}
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Funcionalidades Disponibles
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary">
-                                Aquí se mostrarán las funcionalidades específicas para directores, como:
-                                gestionar personal, supervisar actividades académicas, generar reportes, etc.
-                            </Typography>
-                        </CardContent>
-                    </Card>
+            <Container
+                sx={{
+                    minWidth: '100%',
+                    minHeight: '100%',
+                }}>
+                <NavbarDirector 
+                    onLogout={handleLogout} 
+                    onNavigate={handleNavigation}
+                    currentPage={currentPage}
+                />
+                <Box sx={{ p: 3 }}>
+                    {renderPageContent()}
                 </Box>
             </Container>
         </Box>
