@@ -6,11 +6,20 @@ import {
     Container,
     Paper,
     Stack,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material'
+import Tortu404 from "../../assets/Tortu404.png";
+import logo from "../../assets/LogoColor1.png";
+import Tortu404Cel from "../../assets/Tortu404cel.png";
 import { useNavigate } from 'react-router-dom'
+
 
 export default function NotFound() {
     const navigate = useNavigate()
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
     const handleToHome = () => {
         navigate('/')
@@ -22,27 +31,57 @@ export default function NotFound() {
                 <Box
                     sx={{
                         display: 'flex',
+                        flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         minHeight: '100vh',
                         minWidth: '100vw',
                         position: 'relative',
                         overflow: 'hidden',
-                        bgcolor: '#1c1c1c'
+                        bgcolor: '#ffffffff'
                     }}>
+
+                        {/* Logo arriba a la izquierda */}
+                    <Box
+                        component="img"
+                        src= {logo}   // 👈 cambia al nombre real de tu logo
+                        alt="Logo"
+                        sx={{
+                            position: 'absolute',
+                            top: 20,
+                            left: 20,
+                            width: { xs: 110, sm: 120, md: 145 },
+                        }}
+                    />
                     
                     {/* Elementos decorativos de fondo */}
-                    <Box/>
-                    <Container maxWidth="md">
+                    
+                    <Container maxWidth={false} sx={{ mt: 2, mb: 1 }}>
                         <Paper
                             elevation={0}
                             sx={{
-                                p: 6,
+                                p: 4,
                                 textAlign: 'center',
-                                bgcolor: '#1c1c1c'
+                                bgcolor: '#ffffffff'
                             }}
                         >
-                            {/* Número 404 grande */}
+                            {/* Imagen personalizada con el 404 */}
+                            <Box
+                                component="img"
+                                src={isMobile ? Tortu404Cel : Tortu404} // 👈 colócala en /public o la carpeta que uses
+                                alt="Página no encontrada"
+                                sx={{
+                                    width: '100%',
+                                    maxWidth: '1050px',
+                                    height: 'auto',
+                                    display: 'block',
+                                    mx: 'auto',
+                                }}
+                                
+                            />
+
+                        
+                            {/* Número 404 grande 
                             <Typography
                                 variant="h1"
                                 sx={{
@@ -63,9 +102,9 @@ export default function NotFound() {
                                 }}
                             >
                                 404
-                            </Typography>
+                            </Typography>*/}
 
-                            {/* Título */}
+                            {/* Título *
                             <Typography
                                 variant="h3"
                                 sx={{
@@ -76,16 +115,42 @@ export default function NotFound() {
                                 }}
                             >
                                 ¡Oops! Page NotFound
-                            </Typography>
+                            </Typography>/}
 
-                            {/* Botones de acción */}
+                            {/* Botones de acción 
                             <Stack
                                 direction={{ xs: 'column', sm: 'row' }}
                                 spacing={2}
                                 justifyContent="center"
                                 alignItems="center"
-                                sx={{ mt: 4 }}
+                                sx={{ mt: 0.5 }}
+                            >*/}
+
+                                {/* Botón debajo de la imagen */}
+                            <Button
+                                color="error"
+                                variant="contained"
+                                size="large"
+                                onClick={handleToHome}
+                                sx={{
+                                    mt: { xs: 1,  md: 0.1 },
+                                    ml: { xs: 0, sm: 0, md: 40 },
+                                    borderRadius: 3,
+                                    px: 8,
+                                    py: 1.5,
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold',
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        transform: 'translateY(-2px)',
+                                    },
+                                    transition: 'all 0.3s ease'
+                                }}
                             >
+                                REGRESAR
+                            </Button>
+
+                                {/*
                                 <Button
                                     color='error'
                                     variant="outlined"
@@ -96,7 +161,9 @@ export default function NotFound() {
                                         px: 4,
                                         py: 1.5,
                                         fontSize: '1rem',
+                                        bgcolor: '#de4136',
                                         fontWeight: 'bold',
+                                        color: '#ffffff',
                                         textTransform: 'none',
                                         '&:hover': {
                                             transform: 'translateY(-2px)',
@@ -106,7 +173,7 @@ export default function NotFound() {
                                 >
                                     Regresar
                                 </Button>
-                            </Stack>
+                            </Stack>*/} 
                         </Paper>
                     </Container>
                 </Box>
