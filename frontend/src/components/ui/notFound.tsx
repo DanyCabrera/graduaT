@@ -41,10 +41,10 @@ export default function NotFound() {
                         bgcolor: '#ffffffff'
                     }}>
 
-                        {/* Logo arriba a la izquierda */}
+                        
                     <Box
                         component="img"
-                        src= {logo}   // 👈 cambia al nombre real de tu logo
+                        src= {logo}   
                         alt="Logo"
                         sx={{
                             position: 'absolute',
@@ -68,7 +68,7 @@ export default function NotFound() {
                             {/* Imagen personalizada con el 404 */}
                             <Box
                                 component="img"
-                                src={isMobile ? Tortu404Cel : Tortu404} // 👈 colócala en /public o la carpeta que uses
+                                src={isMobile ? Tortu404Cel : Tortu404} 
                                 alt="Página no encontrada"
                                 sx={{
                                     width: '100%',
