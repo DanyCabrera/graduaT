@@ -3,7 +3,7 @@ import { Card, CardContent, Button, Typography, TextField, Box, IconButton, Fade
 import { ArrowBack, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { AppBar, Toolbar } from "@mui/material";
-// Ajusta esta ruta si tu logo tiene otro nombre
+
 import logo from "../../../assets/LogoColor1.png";
 
 export default function Login() {
@@ -967,7 +967,7 @@ export default function Login() {
                 </Toolbar>
             </AppBar>
 
-            {/* Contenido del formulario con margen superior */}
+            {/* Contenido del formulario */}
             <Box sx={{ marginTop: "64px" }}>
                 {selectedRol === "Director" ? FormularioDirector : null}
                 {selectedRol === "Supervisor" ? FormularioSupervisor : null}
