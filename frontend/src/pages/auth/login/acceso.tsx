@@ -207,8 +207,8 @@ const AccesoAlumnoMaestro = () => {
 
                 // Redirigir a la página de verificación de email
                 setTimeout(() => {
-                    navigate('/verify-email');
-                }, 3000);
+                    navigate('/');
+                }, 2000);
             } else {
                 const errorData = await response.json();
                 setError(errorData.error || 'Error al enviar el correo');

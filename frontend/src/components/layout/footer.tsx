@@ -7,7 +7,7 @@ export function FooterMaestro() {
         <Box
             component="footer"
             sx={{
-                bgcolor: "#113507ff",
+                bgcolor: "#023047",
                 color: "white",
                 mt: "auto",
                 py: 4,
@@ -95,7 +95,7 @@ export function FooterAlumno() {
         <Box
             component="footer"
             sx={{
-                bgcolor: "#113507ff",
+                bgcolor: "#2f3e46",
                 color: "white",
                 mt: "auto",
                 py: 4,

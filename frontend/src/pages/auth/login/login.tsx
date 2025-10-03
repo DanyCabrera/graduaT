@@ -58,7 +58,6 @@ export default function Login() {
                 localStorage.setItem('user_data', JSON.stringify(data.user));
                 localStorage.setItem('user_role', data.user.Rol);
 
-                console.log('Login exitoso:', data);
 
                 // Redirigir según el rol
                 switch (data.user.Rol) {
