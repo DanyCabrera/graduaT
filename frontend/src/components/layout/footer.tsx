@@ -1,5 +1,6 @@
 import { Box, Typography, Button, Link } from "@mui/material";
 import logo from "../../assets/logoo1.png";
+import tortuFooter from "../../assets/TortuFooter.png";
 
 // Footer para Maestro
 export function FooterMaestro() {
@@ -12,6 +13,7 @@ export function FooterMaestro() {
                 mt: "auto",
                 py: 4,
                 px: 2,
+                position: 'relative',
             }}
         >
             <Box
@@ -27,16 +29,33 @@ export function FooterMaestro() {
                     sx={{
                         display: 'flex',
                         justifyContent: { xs: 'center', md: 'flex-start' },
-                        width: { xs: '100%', md: '33%' }
+                        width: { xs: '100%', md: '33%' },
+                        position: 'relative',
                     }}
                 >
                     <Box
                         component="img"
                         src={logo}
                         alt="GraduaT logo"
-                        sx={{ height: 60 }}
+                        sx={{ height: 70 }}
                     />
                 </Box>
+
+                  {/* Tortuga saliendo del footer */}
+                    <Box
+                        component="img"
+                        src={tortuFooter}
+                        alt="Tortuga GraduaT"
+                        sx={{
+                            height: 180,
+                            position: 'absolute',
+                            right: 70,
+                            bottom: 41,
+                            zIndex: 10,
+                            transform: 'rotate(-10deg)',
+                            pointerEvents: 'none',
+                        }}
+                    />
 
                 <Box
                     sx={{
@@ -95,11 +114,12 @@ export function FooterAlumno() {
         <Box
             component="footer"
             sx={{
-                bgcolor: "#113507ff",
+                bgcolor: "#36385fff",
                 color: "white",
                 mt: "auto",
                 py: 4,
                 px: 2,
+                position: 'relative',
             }}
         >
             <Box
@@ -115,15 +135,32 @@ export function FooterAlumno() {
                     sx={{
                         display: 'flex',
                         justifyContent: { xs: 'center', md: 'flex-start' },
-                        width: { xs: '100%', md: '33%' }
+                        width: { xs: '100%', md: '33%' },
+                        position: 'relative',
                     }}
                 >
                     <Box
                         component="img"
                         src={logo}
                         alt="GraduaT logo"
-                        sx={{ height: 60 }}
+                        sx={{ height: 70 }}
                     />
+                    {/* Tortuga saliendo del footer */}
+                    <Box
+                        component="img"
+                        src={tortuFooter}
+                        alt="Tortuga GraduaT"
+                        sx={{
+                            height: 180,
+                            position: 'absolute',
+                            right: 70,
+                            bottom: 41,
+                            zIndex: 10,
+                            transform: 'rotate(2deg)',
+                            pointerEvents: 'none',
+                        }}
+                    />
+
                 </Box>
 
                 <Box

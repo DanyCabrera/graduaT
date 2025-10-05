@@ -126,7 +126,7 @@ export default function NotFound() {
                                 sx={{ mt: 0.5 }}
                             >*/}
 
-                                {/* Botón debajo de la imagen */}
+                                {/* Botón debajo de la imagen 
                             <Button
                                 color="error"
                                 variant="contained"
@@ -148,7 +148,7 @@ export default function NotFound() {
                                 }}
                             >
                                 REGRESAR
-                            </Button>
+                            </Button> */}
 
                                 {/*
                                 <Button
