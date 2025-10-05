@@ -523,7 +523,6 @@ export default function LoginAdmin() {
             } else if (field === 'password') {
                 const passwordError = validatePassword(value);
                 const confirmPasswordError = validateConfirmPassword(prev.confirmPassword, value);
-                console.log('Validando contraseña:', { value, passwordError, confirmPasswordError, confirmPassword: prev.confirmPassword });
                 setErrors(prevErrors => ({
                     ...prevErrors,
                     password: passwordError,

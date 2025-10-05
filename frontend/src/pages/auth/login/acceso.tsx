@@ -92,7 +92,7 @@ const AccesoAlumnoMaestro = () => {
 
     const validarCodigo = async () => {
         if (!institucionSeleccionada) {
-            setError('Por favor seleccione una institución');
+            setError('Por favor seleccione su institución');
             return;
         }
 
@@ -207,8 +207,8 @@ const AccesoAlumnoMaestro = () => {
 
                 // Redirigir a la página de verificación de email
                 setTimeout(() => {
-                    navigate('/verify-email');
-                }, 3000);
+                    navigate('/');
+                }, 2000);
             } else {
                 const errorData = await response.json();
                 setError(errorData.error || 'Error al enviar el correo');
@@ -432,7 +432,7 @@ const AccesoSupervisorDirector = () => {
 
     const validarAcceso = async () => {
         if (!institucionSeleccionada || !codigoRol) {
-            setError('Por favor seleccione una institución e ingrese el código de rol');
+            setError('Por favor seleccione su institución');
             return;
         }
 

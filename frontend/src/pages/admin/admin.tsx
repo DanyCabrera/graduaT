@@ -28,19 +28,21 @@ import {
 import {
     Dashboard,
     School,
-    People,
-    Assessment,
     Settings,
     Logout,
     AdminPanelSettings,
     Person,
     Email,
     Business,
-    LocationOn,
-    Phone,
-    Refresh
+    Refresh,
+    CheckCircle,
+    Cancel,
+    ToggleOn,
+    ToggleOff
 } from '@mui/icons-material';
 import CodigoAcceso from '../../components/common/admin/codigo';
+import TablaCodigos from '../../components/common/admin/tablaCodigos';
+import DashboardPrincipal from '../../components/common/admin/DashboardPrincipal';
 
 interface AdminUser {
     _id: string;
@@ -67,16 +69,18 @@ interface Institucion {
     Código_Supervisor: string;
     fechaCreacion: string;
     emailVerificado: boolean;
+    habilitado: boolean;
 }
 
 export default function AdminPanel() {
     const navigate = useNavigate();
     const [user, setUser] = useState<AdminUser | null>(null);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [currentView, setCurrentView] = useState<'dashboard' | 'codigos' | 'instituciones'>('dashboard');
+    const [currentView, setCurrentView] = useState<'dashboard' | 'codigos' | 'instituciones' | 'todos-codigos'>('dashboard');
     const [instituciones, setInstituciones] = useState<Institucion[]>([]);
     const [loadingInstituciones, setLoadingInstituciones] = useState(false);
     const [errorInstituciones, setErrorInstituciones] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
         // Verificar si el usuario está autenticado
@@ -135,19 +139,56 @@ export default function AdminPanel() {
         }
     };
 
-    // Cargar instituciones cuando se cambie a la vista de instituciones
+    const toggleHabilitado = async (institucionId: string, habilitado: boolean) => {
+        try {
+            const response = await fetch(`http://localhost:3001/api/colegios/${institucionId}/habilitado`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ habilitado }),
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Actualizar la lista de instituciones
+                setInstituciones(prev => 
+                    prev.map(inst => 
+                        inst._id === institucionId 
+                            ? { ...inst, habilitado: habilitado }
+                            : inst
+                    )
+                );
+                
+                // Mostrar mensaje de éxito
+                setSuccessMessage(result.message || `Institución ${habilitado ? 'habilitada' : 'deshabilitada'} exitosamente`);
+                setErrorInstituciones(null);
+                
+                // Limpiar mensaje después de 5 segundos
+                setTimeout(() => {
+                    setSuccessMessage(null);
+                }, 5000);
+            } else {
+                setErrorInstituciones(result.error || 'Error al cambiar el estado de la institución');
+                setSuccessMessage(null);
+            }
+        } catch (error) {
+            console.error('Error al cambiar estado:', error);
+            setErrorInstituciones('Error de conexión al cambiar el estado');
+        }
+    };
+
+
+    // Cargar instituciones cuando se cambie a vistas que las necesiten
     useEffect(() => {
-        if (currentView === 'instituciones') {
+        if (currentView === 'instituciones' || 
+            currentView === 'todos-codigos' || 
+            currentView === 'dashboard') {
             cargarInstituciones();
         }
     }, [currentView]);
 
-    const stats = [
-        { title: 'Total Usuarios', value: '1,234', icon: <People />, color: '#1976d2' },
-        { title: 'Instituciones Registradas', value: instituciones.length.toString(), icon: <School />, color: '#388e3c' },
-        { title: 'Reportes', value: '12', icon: <Assessment />, color: '#f57c00' },
-        { title: 'Activos Hoy', value: '89', icon: <Dashboard />, color: '#7b1fa2' }
-    ];
 
     if (!user) {
         return (
@@ -158,9 +199,9 @@ export default function AdminPanel() {
     }
 
     return (
-        <Box sx={{ flexGrow: 1, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+        <Box sx={{ flexGrow: 1 }}>
             {/* AppBar */}
-            <AppBar position="static" sx={{ backgroundColor: '#1976d2' }}>
+            <AppBar position="static" sx={{ backgroundColor: '#212529' }}>
                 <Toolbar>
                     <AdminPanelSettings sx={{ mr: 2 }} />
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -212,25 +253,27 @@ export default function AdminPanel() {
 
             <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
                 {/* Información del Usuario */}
-                <Paper sx={{ p: 3, mb: 4, backgroundColor: '#fff' }}>
+                <Paper 
+                    sx={{ 
+                        p: 3, 
+                        mb: 4, 
+                        backgroundColor: '#006d77',
+                        borderRadius: 3
+                    }}
+                    >
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Avatar sx={{ bgcolor: '#1976d2', mr: 2, width: 56, height: 56 }}>
+                        <Avatar sx={{ bgcolor: '#83c5be', mr: 2, width: 56, height: 56 }}>
                             <AdminPanelSettings />
                         </Avatar>
                         <Box>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#fff' }}>
                                 Bienvenido, {user.Nombre} {user.Apellido}
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                                <Email sx={{ fontSize: 16, color: '#666' }} />
-                                <Typography variant="body2" color="text.secondary">
+                                <Email sx={{ fontSize: 16, color: '#fff' }} />
+                                <Typography variant="body2" color="text.secondary" sx={{ color: '#fff' }}>
                                     {user.Correo}
                                 </Typography>
-                                <Chip 
-                                    label={user.emailVerificado ? "Verificado" : "No verificado"} 
-                                    size="small" 
-                                    color={user.emailVerificado ? "success" : "warning"}
-                                />
                             </Box>
                         </Box>
                     </Box>
@@ -252,7 +295,15 @@ export default function AdminPanel() {
                         sx={{ mr: 2 }}
                         startIcon={<Business />}
                     >
-                        Instituciones ({instituciones.length})
+                        Gestionar Instituciones ({instituciones.length})
+                    </Button>
+                    <Button
+                        variant={currentView === 'todos-codigos' ? 'contained' : 'outlined'}
+                        onClick={() => setCurrentView('todos-codigos')}
+                        sx={{ mr: 2 }}
+                        startIcon={<School />}
+                    >
+                        Todos los Códigos
                     </Button>
                     <Button
                         variant={currentView === 'codigos' ? 'contained' : 'outlined'}
@@ -265,70 +316,9 @@ export default function AdminPanel() {
 
                 {/* Contenido */}
                 {currentView === 'dashboard' ? (
-                    <>
-                        {/* Estadísticas */}
-                        <Box sx={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: { 
-                                xs: '1fr', 
-                                sm: 'repeat(2, 1fr)', 
-                                md: 'repeat(4, 1fr)' 
-                            }, 
-                            gap: 3, 
-                            mb: 4 
-                        }}>
-                            {stats.map((stat, index) => (
-                                <Card key={index} sx={{ height: '100%' }}>
-                                    <CardContent>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                            <Avatar sx={{ bgcolor: stat.color, mr: 2 }}>
-                                                {stat.icon}
-                                            </Avatar>
-                                            <Box>
-                                                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                                                    {stat.value}
-                                                </Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {stat.title}
-                                                </Typography>
-                                            </Box>
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </Box>
-
-                        {/* Información adicional */}
-                        <Box sx={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: { 
-                                xs: '1fr', 
-                                md: 'repeat(2, 1fr)' 
-                            }, 
-                            gap: 3 
-                        }}>
-                            <Card>
-                                <CardContent>
-                                    <Typography variant="h6" sx={{ mb: 2 }}>
-                                        Actividad Reciente
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        No hay actividad reciente para mostrar.
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardContent>
-                                    <Typography variant="h6" sx={{ mb: 2 }}>
-                                        Sistema
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Sistema funcionando correctamente.
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </Box>
-                    </>
+                    <DashboardPrincipal 
+                        instituciones={instituciones}
+                    />
                 ) : currentView === 'instituciones' ? (
                     <Card>
                         <CardContent>
@@ -349,6 +339,12 @@ export default function AdminPanel() {
                             {errorInstituciones && (
                                 <Alert severity="error" sx={{ mb: 2 }}>
                                     {errorInstituciones}
+                                </Alert>
+                            )}
+
+                            {successMessage && (
+                                <Alert severity="success" sx={{ mb: 2 }}>
+                                    {successMessage}
                                 </Alert>
                             )}
 
@@ -373,36 +369,36 @@ export default function AdminPanel() {
                                             <TableRow>
                                                 <TableCell sx={{ fontWeight: 'bold' }}>Institución</TableCell>
                                                 <TableCell sx={{ fontWeight: 'bold' }}>Correo</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Teléfono</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Dirección</TableCell>
                                                 <TableCell sx={{ fontWeight: 'bold' }}>Departamento</TableCell>
                                                 <TableCell sx={{ fontWeight: 'bold' }}>Código Institución</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Estado</TableCell>
                                                 <TableCell sx={{ fontWeight: 'bold' }}>Fecha Registro</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold' }}>Acciones</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             {instituciones.map((institucion) => (
                                                 <TableRow key={institucion._id} hover>
                                                     <TableCell>
-                                                        <Box>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                                                                {institucion.Nombre_Completo}
-                                                            </Typography>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                                                                <LocationOn sx={{ fontSize: 14, color: '#666', mr: 0.5 }} />
-                                                                <Typography variant="caption" color="text.secondary">
-                                                                    {institucion.Dirección}
-                                                                </Typography>
-                                                            </Box>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                                                                <Phone sx={{ fontSize: 14, color: '#666', mr: 0.5 }} />
-                                                                <Typography variant="caption" color="text.secondary">
-                                                                    {institucion.Teléfono}
-                                                                </Typography>
-                                                            </Box>
-                                                        </Box>
+                                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                                                            {institucion.Nombre_Completo}
+                                                        </Typography>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Typography variant="body2">
                                                             {institucion.Correo}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {institucion.Teléfono}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {institucion.Dirección}
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell>
@@ -426,9 +422,42 @@ export default function AdminPanel() {
                                                         </Typography>
                                                     </TableCell>
                                                     <TableCell>
+                                                        <Chip 
+                                                            icon={institucion.habilitado ? <CheckCircle /> : <Cancel />}
+                                                            label={institucion.habilitado ? "Habilitada" : "Deshabilitada"}
+                                                            color={institucion.habilitado ? "success" : "error"}
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
                                                         <Typography variant="body2" color="text.secondary">
                                                             {new Date(institucion.fechaCreacion).toLocaleDateString('es-GT')}
                                                         </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                                            {institucion.habilitado ? (
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    color="error"
+                                                                    size="small"
+                                                                    startIcon={<ToggleOff />}
+                                                                    onClick={() => toggleHabilitado(institucion._id, false)}
+                                                                >
+                                                                    Deshabilitar
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    color="success"
+                                                                    size="small"
+                                                                    startIcon={<ToggleOn />}
+                                                                    onClick={() => toggleHabilitado(institucion._id, true)}
+                                                                >
+                                                                    Habilitar
+                                                                </Button>
+                                                            )}
+                                                        </Box>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -438,6 +467,13 @@ export default function AdminPanel() {
                             )}
                         </CardContent>
                     </Card>
+                ) : currentView === 'todos-codigos' ? (
+                    <TablaCodigos 
+                        instituciones={instituciones}
+                        loading={loadingInstituciones}
+                        error={errorInstituciones}
+                        onRefresh={cargarInstituciones}
+                    />
                 ) : (
                     <CodigoAcceso />
                 )}

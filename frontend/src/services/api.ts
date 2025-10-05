@@ -25,23 +25,30 @@ class ApiService {
 
     // Agregar token de autenticación si existe
     const token = localStorage.getItem('auth_token');
+    
     if (token) {
       config.headers = {
         ...config.headers,
         Authorization: `Bearer ${token}`,
       };
+      console.log('✅ Token agregado a headers');
+    } else {
+      console.log('❌ No se encontró token de autenticación');
     }
 
     try {
       const response = await fetch(url, config);
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error response:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error('❌ API request failed:', error);
       throw error;
     }
   }

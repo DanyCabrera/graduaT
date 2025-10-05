@@ -12,6 +12,7 @@ const cursoRoutes = require('./routes/cursoRoutes');
 const resultadoRoutes = require('./routes/resultadoRoutes');
 const colegioRoutes = require('./routes/colegioRoutes');
 const userAdminRoutes = require('./routes/userAdminRoutes');
+const agendaRoutes = require('./routes/agendaRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -34,6 +35,7 @@ app.use('/api/cursos', cursoRoutes);
 app.use('/api/resultados', resultadoRoutes);
 app.use('/api/colegios', colegioRoutes);
 app.use('/api/useradmin', userAdminRoutes);
+app.use('/api/agenda', agendaRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -49,7 +51,8 @@ app.get('/', (req, res) => {
             cursos: '/api/cursos',
             resultados: '/api/resultados',
             colegios: '/api/colegios',
-            useradmin: '/api/useradmin'
+            useradmin: '/api/useradmin',
+            agenda: '/api/agenda'
         }
     });
 });

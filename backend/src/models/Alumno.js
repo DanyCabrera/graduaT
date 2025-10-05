@@ -11,6 +11,7 @@ class Alumno {
         this.Rol = data.Rol;
         this.Teléfono = data.Teléfono;
         this.Usuario = data.Usuario;
+        this.habilitado = data.habilitado !== undefined ? data.habilitado : true;
     }
 
     static async create(alumnoData) {

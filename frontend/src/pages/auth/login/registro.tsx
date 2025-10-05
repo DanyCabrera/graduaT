@@ -2,12 +2,14 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { Card, CardContent, Button, Typography, TextField, Box, IconButton, Fade, Alert, CircularProgress, InputAdornment, InputLabel, Select, MenuItem, FormControl } from "@mui/material";
 import { ArrowBack, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { AppBar, Toolbar } from "@mui/material";
+
+import logo from "../../../assets/LogoColor1.png";
 
 export default function Login() {
     // Estado para almacenar el rol seleccionado
     const [selectedRol, setSelectedRol] = useState<string | null>(null);
     const navigate = useNavigate();
-
     // Estados para el formulario
     const [formData, setFormData] = useState({
         nombre: '',
@@ -19,24 +21,20 @@ export default function Login() {
         confirmarContraseña: '',
         codigoRol: ''
     });
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [emailError, setEmailError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
     // Efecto para obtener el rol seleccionado del almacenamiento local
     useEffect(() => {
         const rol = localStorage.getItem("selectedRol");
         setSelectedRol(rol);
     }, []);
-
     const handleBackToPanel = () => {
         navigate('/panelRol');
     };
-
         const departamentos = [
         'Alta Verapaz',
         'Baja Verapaz',
@@ -61,13 +59,11 @@ export default function Login() {
         'Totonicapán',
         'Zacapa',
     ];
-
     const handleInputChange = useCallback((field: string, value: string) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
-
         // Validar email en tiempo real
         if (field === 'correo') {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -78,7 +74,6 @@ export default function Login() {
             }
         }
     }, []);
-
     const validateForm = useCallback(() => {
         if (!formData.nombre.trim()) {
             setError('El nombre es requerido');
@@ -119,25 +114,19 @@ export default function Login() {
         // La validación se hará en el panel de acceso
         return true;
     }, [formData, selectedRol]);
-
     // Función removida - la validación de códigos se hace en el panel de acceso
-
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
-        
         // Limpiar mensajes previos
         setSuccess('');
         setEmailError('');
-
         // Validar formulario antes de limpiar errores
         if (!validateForm()) {
             return;
         }
-
         // Si la validación pasa, limpiar errores y continuar
         setError('');
         setLoading(true);
-
         try {
             // Solo guardar datos en localStorage para el panel de acceso
             const userData = {
@@ -150,10 +139,8 @@ export default function Login() {
                 contraseña: formData.contraseña,
                 rol: selectedRol
             };
-
             // Guardar datos del usuario en localStorage
             localStorage.setItem('userData', JSON.stringify(userData));
-
             if (selectedRol === "Supervisor") {
                 // Supervisor se registra directamente en el backend
                 const supervisorData = {
@@ -168,7 +155,6 @@ export default function Login() {
                     emailVerificado: false,
                     tokenVerificacion: ''
                 };
-
                 // Registrar supervisor en el backend
                 const registerResponse = await fetch('http://localhost:3001/api/auth/register', {
                     method: 'POST',
@@ -177,14 +163,12 @@ export default function Login() {
                     },
                     body: JSON.stringify(supervisorData),
                 });
-
                 if (!registerResponse.ok) {
                     const errorData = await registerResponse.json();
                     setError(errorData.error || 'Error en el registro del supervisor');
                     setLoading(false);
                     return;
                 }
-
                 // Enviar correo de verificación
                 const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
                     method: 'POST',
@@ -197,16 +181,13 @@ export default function Login() {
                         rol: selectedRol
                     }),
                 });
-
                 if (emailResponse.ok) {
                     const emailData = await emailResponse.json();
                     setSuccess('Registro exitoso. Se ha enviado un correo de verificación a tu email.');
-                    
                     // Si hay un token en la respuesta (para testing), guardarlo
                     if (emailData.token) {
                         localStorage.setItem('verificationToken', emailData.token);
                     }
-                    
                     // Redirigir a la página de verificación de email
                     setTimeout(() => {
                         navigate('/verify-email');
@@ -221,19 +202,16 @@ export default function Login() {
                     navigate('/acceso');
                 }, 1500);
             }
-
         } catch (error) {
             setError('Error al procesar los datos');
         } finally {
             setLoading(false);
         }
     }, [formData, selectedRol, navigate, validateForm]);
-
     const handleDepartamentoChange = (event: any) => {
         const value = event.target.value;
         handleInputChange('departamento', value);
     };
-
     const FormularioSupervisor = useMemo(() => {
         return (
             <>
@@ -246,110 +224,108 @@ export default function Login() {
                             justifyContent: "center",
                             alignItems: "center",
                             padding: 3,
-                            backgroundColor: "#fafafa",
+                            backgroundColor: "#f8f9fc",
                         }}
                     >
-                        {/* Botón de regreso */}
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                top: 20,
-                                left: 20,
-                            }}
-                        >
-                            <IconButton
-                                onClick={handleBackToPanel}
-                                sx={{
-                                    backgroundColor: "white",
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                    "&:hover": {
-                                        backgroundColor: "#f5f5f5",
-                                    },
-                                }}
-                            >
-                                <ArrowBack />
-                            </IconButton>
-                        </Box>
-
                         <Card
                             variant="outlined"
                             sx={{
                                 width: { xs: "95%", sm: "500px" },
                                 maxWidth: "500px",
                                 padding: 0,
-                                borderRadius: 2,
-                                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                                border: "1px solid #e0e0e0",
+                                borderRadius: 3,
+                                boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+                                border: "none",
+                                backgroundColor: "white",
                             }}
                         >
                             <CardContent sx={{ padding: 4 }}>
                                 <Typography
-                                    variant="h4"
+                                    variant="h3"
                                     textAlign="center"
                                     sx={{
                                         marginBottom: 3,
-                                        fontWeight: 300,
-                                        color: "#333",
-                                        fontSize: "1.75rem",
+                                        fontWeight: 600,
+                                        color: "#2c3e50",
+                                        fontSize: { xs: "1.5rem", sm: "1.75rem" },
+                                        letterSpacing: "-0.5px",
                                     }}
                                 >
                                     Registro {selectedRol}
                                 </Typography>
-
                                 {error && (
-                                    <Alert severity="error" sx={{ mb: 2 }}>
+                                    <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                                         {error}
                                     </Alert>
                                 )}
-
                                 {success && (
-                                    <Alert severity="success" sx={{ mb: 2 }}>
+                                    <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
                                         {success}
                                     </Alert>
                                 )}
-
-                                <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                                     <TextField
                                         fullWidth
-                                        label="Nombre"
+                                        label="Nombre *"
                                         value={formData.nombre}
                                         onChange={(e) => handleInputChange('nombre', e.target.value)}
                                         variant="outlined"
                                         required
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
+                                                borderRadius: 2,
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                fontSize: "0.9rem",
+                                                fontWeight: 500,
                                             },
                                         }}
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Apellido"
+                                        label="Apellido *"
                                         value={formData.apellido}
                                         onChange={(e) => handleInputChange('apellido', e.target.value)}
                                         variant="outlined"
                                         required
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
+                                                borderRadius: 2,
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                fontSize: "0.9rem",
+                                                fontWeight: 500,
                                             },
                                         }}
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Teléfono"
+                                        label="Teléfono *"
                                         value={formData.telefono}
                                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                                         variant="outlined"
                                         required
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
+                                                borderRadius: 2,
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                fontSize: "0.9rem",
+                                                fontWeight: 500,
                                             },
                                         }}
                                     />
                                     <FormControl fullWidth>
-                                        <InputLabel id="departamento-label">Departamento *</InputLabel>
+                                        <InputLabel id="departamento-label" sx={{ fontSize: "0.9rem", fontWeight: 500 }}>Departamento *</InputLabel>
                                         <Select
                                             value={formData.departamento}
                                             labelId="departamento-label"
@@ -359,6 +335,9 @@ export default function Login() {
                                             sx={{
                                                 borderRadius: 2,
                                                 backgroundColor: "white",
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
                                             }}
                                         >
                                             {departamentos.map((dep, index) => (
@@ -370,7 +349,7 @@ export default function Login() {
                                     </FormControl>
                                     <TextField
                                         fullWidth
-                                        label="Correo"
+                                        label="Correo *"
                                         type="email"
                                         value={formData.correo}
                                         onChange={(e) => handleInputChange('correo', e.target.value)}
@@ -380,13 +359,20 @@ export default function Login() {
                                         helperText={emailError}
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
+                                                borderRadius: 2,
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                fontSize: "0.9rem",
+                                                fontWeight: 500,
                                             },
                                         }}
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Contraseña"
+                                        label="Contraseña *"
                                         type={showPassword ? "text" : "password"}
                                         value={formData.contraseña}
                                         onChange={(e) => handleInputChange('contraseña', e.target.value)}
@@ -406,13 +392,20 @@ export default function Login() {
                                         }}
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
+                                                borderRadius: 2,
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                fontSize: "0.9rem",
+                                                fontWeight: 500,
                                             },
                                         }}
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Confirmar Contraseña"
+                                        label="Confirmar Contraseña *"
                                         type={showConfirmPassword ? "text" : "password"}
                                         value={formData.confirmarContraseña}
                                         onChange={(e) => handleInputChange('confirmarContraseña', e.target.value)}
@@ -432,11 +425,17 @@ export default function Login() {
                                         }}
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
-                                                borderRadius: 1,
+                                                borderRadius: 2,
+                                                "&:hover fieldset": {
+                                                    borderColor: "#3498db",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                fontSize: "0.9rem",
+                                                fontWeight: 500,
                                             },
                                         }}
                                     />
-
                                     <Button
                                         variant="contained"
                                         type="submit"
@@ -445,13 +444,15 @@ export default function Login() {
                                         sx={{
                                             marginTop: 2,
                                             padding: 1.5,
-                                            backgroundColor: "#333",
-                                            borderRadius: 1,
+                                            backgroundColor: "#3498db",
+                                            borderRadius: 2,
                                             textTransform: "none",
                                             fontSize: "1rem",
-                                            fontWeight: 400,
+                                            fontWeight: 500,
+                                            boxShadow: "0 2px 8px rgba(52, 152, 219, 0.2)",
                                             "&:hover": {
-                                                backgroundColor: "#555",
+                                                backgroundColor: "#2980b9",
+                                                boxShadow: "0 4px 12px rgba(52, 152, 219, 0.3)",
                                             },
                                         }}
                                     >
@@ -461,13 +462,10 @@ export default function Login() {
                             </CardContent>
                         </Card>
                     </Box>
-
-
                 </Fade>
             </>
         )
     }, [formData, loading, error, success, emailError, showPassword, showConfirmPassword, handleInputChange, handleSubmit, handleBackToPanel, selectedRol]);
-    
     const FormularioDirector = useMemo(() => {
         return (
             <Fade in timeout={800}>
@@ -479,111 +477,109 @@ export default function Login() {
                         justifyContent: "center",
                         alignItems: "center",
                         padding: 3,
-                        backgroundColor: "#fafafa",
+                        backgroundColor: "#f8f9fc",
                     }}
                 >
-                    {/* Botón de regreso */}
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            top: 20,
-                            left: 20,
-                        }}
-                    >
-                        <IconButton
-                            onClick={handleBackToPanel}
-                            sx={{
-                                backgroundColor: "white",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                "&:hover": {
-                                    backgroundColor: "#f5f5f5",
-                                },
-                            }}
-                        >
-                            <ArrowBack />
-                        </IconButton>
-                    </Box>
-
                     <Card
                         variant="outlined"
                         sx={{
                             width: { xs: "95%", sm: "500px" },
                             maxWidth: "500px",
                             padding: 0,
-                            borderRadius: 2,
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                            border: "1px solid #e0e0e0",
+                            borderRadius: 3,
+                            boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+                            border: "none",
+                            backgroundColor: "white",
                         }}
                     >
                         <CardContent sx={{ padding: 4 }}>
                             <Typography
-                                variant="h4"
+                                variant="h3"
                                 textAlign="center"
                                 sx={{
                                     marginBottom: 3,
-                                    fontWeight: 300,
-                                    color: "#333",
-                                    fontSize: "1.75rem",
+                                    fontWeight: 600,
+                                    color: "#2c3e50",
+                                    fontSize: { xs: "1.5rem", sm: "1.75rem" },
+                                    letterSpacing: "-0.5px",
                                 }}
                             >
                                 Registro {selectedRol}
                             </Typography>
-
                             {error && (
-                                <Alert severity="error" sx={{ mb: 2 }}>
+                                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                                     {error}
                                 </Alert>
                             )}
-
                             {success && (
-                                <Alert severity="success" sx={{ mb: 2 }}>
+                                <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
                                     {success}
                                 </Alert>
                             )}
-
-                            <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                                 <TextField
                                     fullWidth
-                                    label="Nombre"
+                                    label="Nombre *"
                                     value={formData.nombre}
                                     onChange={(e) => handleInputChange('nombre', e.target.value)}
                                     variant="outlined"
                                     required
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Apellido"
+                                    label="Apellido *"
                                     value={formData.apellido}
                                     onChange={(e) => handleInputChange('apellido', e.target.value)}
                                     variant="outlined"
                                     required
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Teléfono"
+                                    label="Teléfono *"
                                     value={formData.telefono}
                                     onChange={(e) => handleInputChange('telefono', e.target.value)}
                                     variant="outlined"
                                     required
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Correo"
+                                    label="Correo *"
                                     type="email"
                                     value={formData.correo}
                                     onChange={(e) => handleInputChange('correo', e.target.value)}
@@ -593,13 +589,20 @@ export default function Login() {
                                     helperText={emailError}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Contraseña"
+                                    label="Contraseña *"
                                     type={showPassword ? "text" : "password"}
                                     value={formData.contraseña}
                                     onChange={(e) => handleInputChange('contraseña', e.target.value)}
@@ -619,13 +622,20 @@ export default function Login() {
                                     }}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Confirmar Contraseña"
+                                    label="Confirmar Contraseña *"
                                     type={showConfirmPassword ? "text" : "password"}
                                     value={formData.confirmarContraseña}
                                     onChange={(e) => handleInputChange('confirmarContraseña', e.target.value)}
@@ -645,11 +655,17 @@ export default function Login() {
                                     }}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
-
                                 <Button
                                     variant="contained"
                                     type="submit"
@@ -658,13 +674,15 @@ export default function Login() {
                                     sx={{
                                         marginTop: 2,
                                         padding: 1.5,
-                                        backgroundColor: "#333",
-                                        borderRadius: 1,
+                                        backgroundColor: "#3498db",
+                                        borderRadius: 2,
                                         textTransform: "none",
                                         fontSize: "1rem",
-                                        fontWeight: 400,
+                                        fontWeight: 500,
+                                        boxShadow: "0 2px 8px rgba(52, 152, 219, 0.2)",
                                         "&:hover": {
-                                            backgroundColor: "#555",
+                                            backgroundColor: "#2980b9",
+                                            boxShadow: "0 4px 12px rgba(52, 152, 219, 0.3)",
                                         },
                                     }}
                                 >
@@ -677,7 +695,6 @@ export default function Login() {
             </Fade>
         );
     }, [formData, loading, error, success, emailError, showPassword, showConfirmPassword, handleInputChange, handleSubmit, handleBackToPanel, selectedRol]);
-
     const FormularioMaestroAlumno = useMemo(() => {
         return (
             <Fade in timeout={800}>
@@ -689,111 +706,109 @@ export default function Login() {
                         justifyContent: "center",
                         alignItems: "center",
                         padding: 3,
-                        backgroundColor: "#fafafa",
+                        backgroundColor: "#f8f9fc",
                     }}
                 >
-                    {/* Botón de regreso */}
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            top: 20,
-                            left: 20,
-                        }}
-                    >
-                        <IconButton
-                            onClick={handleBackToPanel}
-                            sx={{
-                                backgroundColor: "white",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                "&:hover": {
-                                    backgroundColor: "#f5f5f5",
-                                },
-                            }}
-                        >
-                            <ArrowBack />
-                        </IconButton>
-                    </Box>
-
                     <Card
                         variant="outlined"
                         sx={{
                             width: { xs: "95%", sm: "500px" },
                             maxWidth: "500px",
                             padding: 0,
-                            borderRadius: 2,
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                            border: "1px solid #e0e0e0",
+                            borderRadius: 3,
+                            boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+                            border: "none",
+                            backgroundColor: "white",
                         }}
                     >
                         <CardContent sx={{ padding: 4 }}>
                             <Typography
-                                variant="h4"
+                                variant="h3"
                                 textAlign="center"
                                 sx={{
                                     marginBottom: 3,
-                                    fontWeight: 300,
-                                    color: "#333",
-                                    fontSize: "1.75rem",
+                                    fontWeight: 600,
+                                    color: "#2c3e50",
+                                    fontSize: { xs: "1.5rem", sm: "1.75rem" },
+                                    letterSpacing: "-0.5px",
                                 }}
                             >
                                 Registro {selectedRol}
                             </Typography>
-
                             {error && (
-                                <Alert severity="error" sx={{ mb: 2 }}>
+                                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                                     {error}
                                 </Alert>
                             )}
-
                             {success && (
-                                <Alert severity="success" sx={{ mb: 2 }}>
+                                <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
                                     {success}
                                 </Alert>
                             )}
-
-                            <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                                 <TextField
                                     fullWidth
-                                    label="Nombre"
+                                    label="Nombre *"
                                     value={formData.nombre}
                                     onChange={(e) => handleInputChange('nombre', e.target.value)}
                                     variant="outlined"
                                     required
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Apellido"
+                                    label="Apellido *"
                                     value={formData.apellido}
                                     onChange={(e) => handleInputChange('apellido', e.target.value)}
                                     variant="outlined"
                                     required
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Teléfono"
+                                    label="Teléfono *"
                                     value={formData.telefono}
                                     onChange={(e) => handleInputChange('telefono', e.target.value)}
                                     variant="outlined"
                                     required
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Correo"
+                                    label="Correo *"
                                     type="email"
                                     value={formData.correo}
                                     onChange={(e) => handleInputChange('correo', e.target.value)}
@@ -803,13 +818,20 @@ export default function Login() {
                                     helperText={emailError}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Contraseña"
+                                    label="Contraseña *"
                                     type={showPassword ? "text" : "password"}
                                     value={formData.contraseña}
                                     onChange={(e) => handleInputChange('contraseña', e.target.value)}
@@ -829,13 +851,20 @@ export default function Login() {
                                     }}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
                                 <TextField
                                     fullWidth
-                                    label="Confirmar Contraseña"
+                                    label="Confirmar Contraseña *"
                                     type={showConfirmPassword ? "text" : "password"}
                                     value={formData.confirmarContraseña}
                                     onChange={(e) => handleInputChange('confirmarContraseña', e.target.value)}
@@ -855,7 +884,14 @@ export default function Login() {
                                     }}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
-                                            borderRadius: 1,
+                                            borderRadius: 2,
+                                            "&:hover fieldset": {
+                                                borderColor: "#3498db",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            fontSize: "0.9rem",
+                                            fontWeight: 500,
                                         },
                                     }}
                                 />
@@ -868,13 +904,15 @@ export default function Login() {
                                     sx={{
                                         marginTop: 2,
                                         padding: 1.5,
-                                        backgroundColor: "#333",
-                                        borderRadius: 1,
+                                        backgroundColor: "#3498db",
+                                        borderRadius: 2,
                                         textTransform: "none",
                                         fontSize: "1rem",
-                                        fontWeight: 400,
+                                        fontWeight: 500,
+                                        boxShadow: "0 2px 8px rgba(52, 152, 219, 0.2)",
                                         "&:hover": {
-                                            backgroundColor: "#555",
+                                            backgroundColor: "#2980b9",
+                                            boxShadow: "0 4px 12px rgba(52, 152, 219, 0.3)",
                                         },
                                     }}
                                 >
@@ -887,18 +925,54 @@ export default function Login() {
             </Fade>
         );
     }, [formData, loading, error, success, emailError, showPassword, showConfirmPassword, handleInputChange, handleSubmit, handleBackToPanel, selectedRol]);
-
     return (
         <>
-            {/* Mostrar formulario dependiendo con qué rol esté entrando */}
-            {/* formulario para Director */}
-            {selectedRol === "Director" ? FormularioDirector : null}
+            {/* barra de navegación */}
+            <AppBar 
+                position="fixed" 
+                sx={{ 
+                    backgroundColor: "white", 
+                    color: "black", 
+                    boxShadow: "none", 
+                    borderBottom: "1px solid #e0e0e0",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 1100,
+                }}
+            >
+                <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+                    {/* Logo a la izquierda */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <img src={logo} alt="Logo" style={{ height: "28px", width: "auto" }} />
+                    </Box>
 
-            {/* formulario para Supervisor */}
-            {selectedRol === "Supervisor" ? FormularioSupervisor : null}
+                    {/* Botón de regresar a la derecha */}
+                    <Button
+                        color="inherit"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBackToPanel}
+                        sx={{
+                            textTransform: "none",
+                            fontWeight: "medium",
+                            fontSize: "0.9rem",
+                            color: "#555",
+                            "&:hover": {
+                                backgroundColor: "rgba(0, 0, 0, 0.04)",
+                            },
+                        }}
+                    >
+                        Regresar
+                    </Button>
+                </Toolbar>
+            </AppBar>
 
-            {/* formulario para Maestro/Alumno */}
-            {selectedRol === "Maestro" || selectedRol === "Alumno" ? FormularioMaestroAlumno : null}
+            {/* Contenido del formulario */}
+            <Box sx={{ marginTop: "64px" }}>
+                {selectedRol === "Director" ? FormularioDirector : null}
+                {selectedRol === "Supervisor" ? FormularioSupervisor : null}
+                {selectedRol === "Maestro" || selectedRol === "Alumno" ? FormularioMaestroAlumno : null}
+            </Box>
         </>
     );
 }

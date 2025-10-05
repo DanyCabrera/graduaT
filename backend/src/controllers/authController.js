@@ -48,6 +48,38 @@ const login = async (req, res) => {
             });
         }
 
+        // Verificar si el usuario está habilitado
+        let userRoleData = null;
+        try {
+            switch (user.Rol) {
+                case 'Supervisor':
+                    userRoleData = await Supervisor.findByUsuario(usuario);
+                    break;
+                case 'Director':
+                    userRoleData = await Director.findByUsuario(usuario);
+                    break;
+                case 'Maestro':
+                    userRoleData = await Maestro.findByUsuario(usuario);
+                    break;
+                case 'Alumno':
+                    userRoleData = await Alumno.findByUsuario(usuario);
+                    break;
+                default:
+                    console.log('Rol no reconocido:', user.Rol);
+            }
+
+            // Verificar si el usuario está deshabilitado
+            if (userRoleData && userRoleData.habilitado === false) {
+                return res.status(403).json({
+                    error: 'Su cuenta ha sido deshabilitada. Contacte al administrador.'
+                });
+            }
+
+        } catch (roleError) {
+            console.error('Error al verificar estado del usuario:', roleError);
+            // Continuar con el login si hay error al verificar el rol
+        }
+
         // Generar token
         const token = generateToken(user);
 

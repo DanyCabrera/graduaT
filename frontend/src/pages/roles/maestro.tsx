@@ -31,22 +31,15 @@ export default function Maestro() {
     const fetchUserData = async () => {
         try {
             const token = localStorage.getItem('token');
-            console.log('🔍 Maestro - Token:', token);
             
             const response = await fetch('http://localhost:3001/api/auth/verify-with-role-data', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
-            console.log('🔍 Maestro - Response status:', response.status);
-            
+                        
             if (response.ok) {
                 const data = await response.json();
-                console.log('🔍 Maestro - Datos completos del usuario:', data.user);
-                console.log('🔍 Maestro - CURSO en datos:', data.user?.CURSO);
-                console.log('🔍 Maestro - Tipo de CURSO:', typeof data.user?.CURSO);
-                console.log('🔍 Maestro - Es array CURSO:', Array.isArray(data.user?.CURSO));
                 setUserData(data.user);
             } else {
                 const errorData = await response.json();

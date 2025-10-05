@@ -41,19 +41,15 @@ export default function VerifyEmail() {
         if (isVerified) return;
         
         try {
-            console.log('🔍 Verificando email con token:', token);
             
             // Intentar primero con el endpoint de userAdmin (para administradores)
-            console.log('📧 Intentando verificación de administrador...');
             let response = await fetch(`http://localhost:3001/api/useradmin/verify-email/${token}`);
-            console.log('📊 Respuesta del endpoint de admin:', response.status, response.statusText);
             
             if (response.ok) {
-                const adminResponse = await response.json();
-                console.log('✅ Verificación de admin exitosa:', adminResponse);
+                
                 setIsVerified(true);
                 setStatus('success');
-                setMessage('¡Email verificado exitosamente! Ya puedes iniciar sesión como administrador.');
+                setMessage('¡Email verificado exitosamente!');
                 setLoading(false);
                 
                 // Redirigir al login de administrador después de 3 segundos
@@ -67,13 +63,10 @@ export default function VerifyEmail() {
             }
             
             // Si no es un administrador, intentar con el endpoint de auth (para otros usuarios)
-            console.log('👤 Intentando verificación de usuario normal...');
             response = await fetch(`http://localhost:3001/api/auth/verify-email?token=${token}`);
-            console.log('📊 Respuesta del endpoint de auth:', response.status, response.statusText);
             
             if (response.ok) {
                 const userData = await response.json();
-                console.log('✅ Verificación de usuario exitosa:', userData);
                 
                 // Guardar token y datos del usuario
                 localStorage.setItem('token', userData.token);
@@ -84,7 +77,6 @@ export default function VerifyEmail() {
                 return;
             } else {
                 const errorData = await response.json();
-                console.log('❌ Error en verificación de usuario:', errorData);
                 setStatus('error');
                 setMessage(errorData.error || errorData.message || 'Error al verificar el email');
                 setLoading(false);
@@ -171,7 +163,7 @@ export default function VerifyEmail() {
                                     {message}
                                 </Typography>
                                 <Alert severity="success" sx={{ mb: 3 }}>
-                                    Tu cuenta ha sido verificada correctamente. Serás redirigido automáticamente a tu panel.
+                                    Tu cuenta ha sido verificada correctamente
                                 </Alert>
                                 <Button
                                     variant="contained"
@@ -204,7 +196,7 @@ export default function VerifyEmail() {
                                     {message}
                                 </Typography>
                                 <Alert severity="error" sx={{ mb: 3 }}>
-                                    No se pudo verificar tu email. El enlace puede haber expirado o ser inválido.
+                                    No se pudo verificar tu email.
                                 </Alert>
                                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                                     <Button

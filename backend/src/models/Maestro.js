@@ -12,6 +12,7 @@ class Maestro {
         this.Teléfono = data.Teléfono;
         this.Usuario = data.Usuario;
         this.Nombre_Institución = data.Nombre_Institución || '';
+        this.habilitado = data.habilitado !== undefined ? data.habilitado : true;
     }
 
     static async create(maestroData) {

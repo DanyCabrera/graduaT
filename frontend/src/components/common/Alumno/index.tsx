@@ -1,13 +1,21 @@
 {/* Alumno */ }
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
 import CircularProgress from "@mui/material/CircularProgress";
+import Fade from "@mui/material/Fade";
 import { FooterAlumno } from "../../layout/footer";
+import Divider from '@mui/material/Divider';
 import Navbar from "./navbar";
+import Progreso from "./progreso";
+import PruebaT from "./pruebaT";
+
+//Cursos
+import Matematica from "../Matematica/index";
+import Comunicacion from "../Comunicacion/index";
 
 interface UserData {
     Usuario: string;
@@ -37,11 +45,7 @@ interface IndexAlumnoProps {
 export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     const [maestrosPorCurso, setMaestrosPorCurso] = useState<MaestrosPorCurso>({});
     const [loadingMaestros, setLoadingMaestros] = useState(true);
-
-    // Debug: Mostrar el estado actual
-    console.log('🔍 Alumno - Estado actual:');
-    console.log('🔍 Alumno - maestrosPorCurso:', maestrosPorCurso);
-    console.log('🔍 Alumno - loadingMaestros:', loadingMaestros);
+    const [currentSection, setCurrentSection] = useState('inicio');
 
     useEffect(() => {
         fetchMaestros();
@@ -50,35 +54,27 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     const fetchMaestros = async () => {
         try {
             setLoadingMaestros(true);
-            console.log('🔍 Alumno - Iniciando fetch de maestros...');
-            
+
             // Obtener el token del localStorage
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error('🔍 Alumno - No hay token disponible');
                 setLoadingMaestros(false);
                 return;
             }
-            
-            console.log('🔍 Alumno - Token encontrado:', token ? 'Sí' : 'No');
-            
+
+
             const response = await fetch('http://localhost:3001/api/maestros/for-alumno', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-            console.log('🔍 Alumno - Response status:', response.status);
-            console.log('🔍 Alumno - Response ok:', response.ok);
-            
+
+
             if (response.ok) {
                 const data = await response.json();
-                console.log('🔍 Alumno - Datos completos recibidos:', data);
-                console.log('🔍 Alumno - data.data:', data.data);
-                console.log('🔍 Alumno - data.success:', data.success);
-                
+
                 if (data.success && data.data) {
-                    console.log('🔍 Alumno - Estableciendo maestrosPorCurso:', data.data);
                     setMaestrosPorCurso(data.data);
                 } else {
                     console.error('🔍 Alumno - Respuesta no exitosa o sin datos:', data);
@@ -101,108 +97,195 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
         localStorage.removeItem('user_role');
-        
+
         // Redirigir al inicio
-        window.location.href = 'http://localhost:5173';
+        window.location.href = '/';
     };
 
-    return (
-        <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh', justifyContent: 'center' }}>
+    const handleNavigation = (section: string) => {
+        setCurrentSection(section);
+    };
 
-            <Navbar onLogout={handleLogout} />
-            {/* Contenido principal */}
-            <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-
-                {/* Saludo */}
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
-                        Hola, {userData ? `${userData.Nombre} ${userData.Apellido}` : 'Estudiante'}
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: "#666", mt: 1 }}>
-                        Estudiante de {userData?.Nombre_Institución || 'tu institución'}
-                    </Typography>
-                </Box>
-
-                {/* Título de cursos */}
-                <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3 }}>
-                    Mis Cursos
-                </Typography>
-
-                {/* Grid de cursos */}
-                {loadingMaestros ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-                        <CircularProgress />
-                        <Typography sx={{ ml: 2 }}>Cargando información de maestros...</Typography>
+    const renderContent = () => {
+        switch (currentSection) {
+            case 'pruebaT':
+                return (
+                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <PruebaT />
                     </Box>
-                ) : (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                        {/* Curso 1: Matemáticas */}
-                        <Card sx={{ flex: 1, minWidth: 300, borderRadius: 2, boxShadow: 3 }}>
-                            <CardActionArea
-                                onClick={() => (window.location.href = "https://es.khanacademy.org/math")}
-                            >
-                                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", p: 2 }}>
-                                    <Box sx={{ flex: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 0.5 }}>
-                                            Matemáticas
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {(() => {                                                
-                                                if (maestrosPorCurso['Matemáticas'] && maestrosPorCurso['Matemáticas'].length > 0) {
-                                                    return `Profesor: ${maestrosPorCurso['Matemáticas'][0].nombre}`;
-                                                } else {
-                                                    return 'Profesor: No asignado';
-                                                }
-                                            })()}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ ml: 2 }}>
+                );
+            case 'progreso':
+                return (
+                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <Progreso />
+                    </Box>
+                );
+            case 'matematicas':
+                return (
+                    <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh" }}>
+                        <Matematica />
+                    </Box>
+                );
+            case 'comunicacion':
+                return (
+                    <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh" }}>
+                        <Comunicacion />
+                    </Box>
+                );
+            default:
+                return (
+                    <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+
+                        {/* Saludo */}
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
+                                Bienvenido, {userData ? `${userData.Nombre}` : 'Estudiante'}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#666", mt: 1 }}>
+                                {userData?.Nombre_Institución || 'tu institución'}
+                            </Typography>
+                        </Box>
+
+                        {/* Título de cursos */}
+                        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3, textAlign: 'center' }}>
+                            Mis cursos
+                        </Typography>
+
+                        {/* Grid de cursos */}
+                        {loadingMaestros ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                                <CircularProgress />
+                                <Typography sx={{ ml: 2 }}>Cargando información de maestros...</Typography>
+                            </Box>
+                        ) : (
+                            <Box sx={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                                gap: 4
+                            }}>
+                                {/* Curso 1: Matemáticas */}
+                                <Card sx={{
+                                    borderRadius: 2,
+                                    backgroundColor: '#fff',
+                                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                                    border: 1,
+                                    borderColor: '#e0e0e0',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                                    }
+                                }}>
+                                    <CardActionArea onClick={() => handleNavigation('matematicas')}>
                                         <CardMedia
                                             component="img"
-                                            sx={{ width: 120, height: 120, objectFit: "cover" }}
+                                            sx={{
+                                                height: 220,
+                                                objectFit: "cover",
+                                                p: 2
+                                            }}
                                             image="https://img.freepik.com/vector-premium/ninos-objetos-matematicos_1639-28398.jpg"
                                             alt="Matemáticas"
                                         />
-                                    </Box>
-                                </Box>
-                            </CardActionArea>
-                        </Card>
-
-                        {/* Curso 2: Comunicación y Lenguaje */}
-                        <Card sx={{ flex: 1, minWidth: 300, borderRadius: 2, boxShadow: 3 }}>
-                            <CardActionArea
-                                onClick={() => (window.location.href = "https://es.khanacademy.org/humanities/grammar")}
-                            >
-                                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", p: 2 }}>
-                                    <Box sx={{ flex: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 0.5 }}>
-                                            Comunicación y Lenguaje
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {(() => {                                                
-                                                if (maestrosPorCurso['Comunicación y lenguaje'] && maestrosPorCurso['Comunicación y lenguaje'].length > 0) {
-                                                    return `Profesor: ${maestrosPorCurso['Comunicación y lenguaje'][0].nombre}`;
-                                                } else {
-                                                    return 'Profesor: No asignado';
+                                        <Divider />
+                                        <Box sx={{ p: 3 }}>
+                                            <Typography variant="h6" sx={{
+                                                fontWeight: 600,
+                                                mb: 1,
+                                                color: '#2c3e50'
+                                            }}>
+                                                Matemáticas
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#34495e',
+                                                mb: 2,
+                                                fontWeight: 500
+                                            }}>
+                                                {maestrosPorCurso['Matemáticas']?.length > 0
+                                                    ? `Prof. ${maestrosPorCurso['Matemáticas'][0].nombre}`
+                                                    : 'Profesor no asignado'
                                                 }
-                                            })()}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ ml: 2 }}>
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#7f8c8d',
+                                                lineHeight: 1.6
+                                            }}>
+                                                Curso fundamental que desarrolla el pensamiento lógico y habilidades para resolver problemas matemáticos.
+                                            </Typography>
+                                        </Box>
+                                    </CardActionArea>
+                                </Card>
+
+                                {/* Curso 2: Comunicación y Lenguaje */}
+                                <Card sx={{
+                                    borderRadius: 3,
+                                    backgroundColor: '#fff',
+                                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                                    border: 1,
+                                    borderColor: '#e0e0e0',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                                    }
+                                }}>
+                                    <CardActionArea onClick={() => handleNavigation('comunicacion')}>
                                         <CardMedia
                                             component="img"
-                                            sx={{ width: 120, height: 120, objectFit: "cover" }}
+                                            sx={{
+                                                height: 220,
+                                                objectFit: "cover",
+                                                p: 2
+                                            }}
                                             image="https://img.freepik.com/vector-gratis/bocadillo-dialogo-libro-lectura-nina_1308-105700.jpg"
                                             alt="Comunicación y Lenguaje"
                                         />
-                                    </Box>
-                                </Box>
-                            </CardActionArea>
-                        </Card>
+                                        <Divider />
+                                        <Box sx={{ p: 3 }}>
+                                            <Typography variant="h6" sx={{
+                                                fontWeight: 600,
+                                                mb: 1,
+                                                color: '#2c3e50'
+                                            }}>
+                                                Comunicación y Lenguaje
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#34495e',
+                                                mb: 2,
+                                                fontWeight: 500
+                                            }}>
+                                                {maestrosPorCurso['Comunicación y lenguaje']?.length > 0
+                                                    ? `Prof. ${maestrosPorCurso['Comunicación y lenguaje'][0].nombre}`
+                                                    : 'Profesor no asignado'
+                                                }
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#7f8c8d',
+                                                lineHeight: 1.6
+                                            }}>
+                                                Curso que desarrolla habilidades de comunicación efectiva, comprensión lectora y expresión escrita.
+                                            </Typography>
+                                        </Box>
+                                    </CardActionArea>
+                                </Card>
+                            </Box>
+                        )}
                     </Box>
-                )}
-            </Box>
-            <FooterAlumno />
-        </Box>
+                );
+        }
+    };
+
+    return (
+        <>
+            <Fade in={true} timeout={500}>
+                <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh', justifyContent: 'center' }}>
+                    <Navbar
+                        onLogout={handleLogout}
+                        onNavigate={handleNavigation}
+                        currentSection={currentSection}
+                    />
+                    {renderContent()}
+                    <FooterAlumno />
+                </Box>
+            </Fade>
+        </>
     );
 }
