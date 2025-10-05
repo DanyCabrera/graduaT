@@ -17,12 +17,13 @@ const getAgendaMaestro = async (req, res) => {
         const jwt = require('jsonwebtoken');
         console.log('🔑 Token recibido:', token.substring(0, 20) + '...');
         
+        let usuario;
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
             console.log('✅ Token decodificado correctamente:', decoded);
             
             // Obtener el usuario del token
-            const usuario = decoded.usuario;
+            usuario = decoded.usuario;
             if (!usuario) {
                 console.log('❌ Usuario no encontrado en el token');
                 return res.status(400).json({
@@ -130,12 +131,13 @@ const generarNuevaAgenda = async (req, res) => {
         const jwt = require('jsonwebtoken');
         console.log('🔑 Token recibido:', token.substring(0, 20) + '...');
         
+        let usuario;
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
             console.log('✅ Token decodificado correctamente:', decoded);
             
             // Obtener el usuario del token
-            const usuario = decoded.usuario;
+            usuario = decoded.usuario;
             if (!usuario) {
                 console.log('❌ Usuario no encontrado en el token');
                 return res.status(400).json({
@@ -268,12 +270,13 @@ const getAgendaSemana = async (req, res) => {
         const jwt = require('jsonwebtoken');
         console.log('🔑 Token recibido:', token.substring(0, 20) + '...');
         
+        let usuario;
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
             console.log('✅ Token decodificado correctamente:', decoded);
             
             // Obtener el usuario del token
-            const usuario = decoded.usuario;
+            usuario = decoded.usuario;
             if (!usuario) {
                 console.log('❌ Usuario no encontrado en el token');
                 return res.status(400).json({

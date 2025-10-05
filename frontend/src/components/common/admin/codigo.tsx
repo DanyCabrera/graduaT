@@ -61,7 +61,6 @@ export default function Codigo() {
     return (
         <Box
             sx={{
-                minHeight: "100vh",
                 backgroundColor: "#f8fafc",
                 padding: 2,
             }}

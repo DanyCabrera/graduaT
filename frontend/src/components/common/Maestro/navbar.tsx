@@ -42,7 +42,7 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                     component="div"
                     sx={{ fontWeight: "bold", marginLeft: 3 }}
                 >
-                    Panel del Maestro
+                    Maestro
                 </Typography>
 
                 <Box sx={{ display: "flex", gap: 1 }}>

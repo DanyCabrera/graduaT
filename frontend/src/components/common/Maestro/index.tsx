@@ -15,7 +15,6 @@ import Alumno from "./alumnos";
 import Historial from "./historial";
 import Test from "./test";
 
-
 interface UserData {
     Usuario: string;
     Nombre: string;
@@ -44,7 +43,7 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
         localStorage.removeItem('user_role');
         
         // Redirigir al inicio
-        window.location.href = 'http://localhost:5173';
+        window.location.href = '/';
     };
 
     const handleNavigation = (section: string) => {
@@ -92,6 +91,80 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                         <Test />
                     </Box>
                 );
+            case 'mate':
+                return (
+                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 3 }}>
+                            Curso de Matemáticas
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: "#666", mb: 4 }}>
+                            Gestiona el contenido y actividades del curso de Matemáticas
+                        </Typography>
+                        {/* Aquí puedes agregar más contenido específico para matemáticas */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            gap: 2, 
+                            flexWrap: 'wrap' 
+                        }}>
+                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6">Lecciones</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Gestionar contenido
+                                </Typography>
+                            </Card>
+                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6">Ejercicios</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Crear actividades
+                                </Typography>
+                            </Card>
+                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6">Evaluaciones</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Asignar tareas
+                                </Typography>
+                            </Card>
+                        </Box>
+                    </Box>
+                );
+            case 'comu':
+                return (
+                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 3 }}>
+                            Curso de Comunicación y Lenguaje
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: "#666", mb: 4 }}>
+                            Gestiona el contenido y actividades del curso de Comunicación y Lenguaje
+                        </Typography>
+                        {/* Aquí puedes agregar más contenido específico para comunicación */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            gap: 2, 
+                            flexWrap: 'wrap' 
+                        }}>
+                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6">Lectura</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Materiales de lectura
+                                </Typography>
+                            </Card>
+                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6">Escritura</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Ejercicios de escritura
+                                </Typography>
+                            </Card>
+                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6">Comprensión</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Actividades de comprensión
+                                </Typography>
+                            </Card>
+                        </Box>
+                    </Box>
+                );
             default:
                 return (
                     <Box sx={{flexGrow: 1, p: 7 }}>
@@ -104,10 +177,6 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                 {userData?.Nombre_Institución || 'tu institución'}
                             </Typography>
                         </Box>
-
-                        <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold", marginLeft: 35 }}>
-                            Mis Cursos
-                        </Typography>
 
                         {/* Grid de cursos dinámico */}
                         {cursosAsignados.length > 0 ? (
@@ -124,18 +193,46 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                     if (!cursoInfo) return null;
                                     
                                     return (
-                                        <Card key={index} sx={{ width: 500, minHeight: 500 }} elevation={4}>
+                                        <Card 
+                                            key={index} 
+                                            elevation={0}
+                                            sx={{ 
+                                                width: 300, 
+                                                minHeight: 300, 
+                                                borderRadius: 4,
+                                                border: 1,
+                                                borderColor: '#e2e8f0',
+                                            }} 
+                                            >
                                             <CardActionArea
-                                                onClick={() => window.location.href = cursoInfo.url}
+                                                onClick={() => {
+                                                    // Determinar qué caso activar basado en el nombre del curso
+                                                    if (cursoNombre === 'Matemáticas') {
+                                                        setCurrentSection('agenda');
+                                                    } else if (cursoNombre === 'Comunicación y lenguaje') {
+                                                        setCurrentSection('agenda');
+                                                    }
+                                                }}
                                             >
                                                 <CardMedia
                                                     component="img"
-                                                    sx={{ height: 380, objectFit: "cover" }}
                                                     image={cursoInfo.imagen}
                                                     alt={cursoInfo.titulo}
+                                                    sx={{ 
+                                                        height: '100%', 
+                                                        objectFit: 'cover',
+                                                        p: 2,
+                                                    }}
                                                 />
                                                 <CardContent>
-                                                    <Typography variant="h6">{cursoInfo.titulo}</Typography>
+                                                    <Typography 
+                                                        variant="h6"
+                                                        sx={{
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                    >
+                                                        {cursoInfo.titulo}
+                                                    </Typography>
                                                     <Typography color="text.secondary">
                                                         {cursoInfo.descripcion}
                                                     </Typography>

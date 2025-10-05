@@ -16,6 +16,7 @@ class Supervisor {
         this.Nombre_Institución = data.Nombre_Institución;
         this.emailVerificado = data.emailVerificado;
         this.tokenVerificacion = data.tokenVerificacion;
+        this.habilitado = data.habilitado !== undefined ? data.habilitado : true;
     }
 
     static async create(supervisorData) {

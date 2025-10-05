@@ -41,7 +41,6 @@ export default function VerifyEmail() {
         if (isVerified) return;
         
         try {
-            console.log('🔍 Verificando email con token:', token);
             
             // Intentar primero con el endpoint de userAdmin (para administradores)
             let response = await fetch(`http://localhost:3001/api/useradmin/verify-email/${token}`);
@@ -50,7 +49,7 @@ export default function VerifyEmail() {
                 
                 setIsVerified(true);
                 setStatus('success');
-                setMessage('¡Email verificado exitosamente! Ya puedes iniciar sesión como administrador.');
+                setMessage('¡Email verificado exitosamente!');
                 setLoading(false);
                 
                 // Redirigir al login de administrador después de 3 segundos
@@ -164,7 +163,7 @@ export default function VerifyEmail() {
                                     {message}
                                 </Typography>
                                 <Alert severity="success" sx={{ mb: 3 }}>
-                                    Tu cuenta ha sido verificada correctamente. Serás redirigido automáticamente a tu panel.
+                                    Tu cuenta ha sido verificada correctamente
                                 </Alert>
                                 <Button
                                     variant="contained"
@@ -197,7 +196,7 @@ export default function VerifyEmail() {
                                     {message}
                                 </Typography>
                                 <Alert severity="error" sx={{ mb: 3 }}>
-                                    No se pudo verificar tu email. El enlace puede haber expirado o ser inválido.
+                                    No se pudo verificar tu email.
                                 </Alert>
                                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                                     <Button

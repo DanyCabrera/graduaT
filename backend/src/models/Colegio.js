@@ -16,6 +16,7 @@ class Colegio {
         this.Teléfono = data.Teléfono;
         this.emailVerificado = data.emailVerificado || false;
         this.tokenVerificacion = data.tokenVerificacion || null;
+        this.habilitado = data.habilitado !== undefined ? data.habilitado : true;
         this.fechaCreacion = data.fechaCreacion || new Date();
         this.fechaActualizacion = data.fechaActualizacion || new Date();
     }

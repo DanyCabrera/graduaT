@@ -54,15 +54,15 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     const fetchMaestros = async () => {
         try {
             setLoadingMaestros(true);
-            
+
             // Obtener el token del localStorage
             const token = localStorage.getItem('token');
             if (!token) {
                 setLoadingMaestros(false);
                 return;
             }
-            
-            
+
+
             const response = await fetch('http://localhost:3001/api/maestros/for-alumno', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -70,10 +70,10 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                 }
             });
 
-            
+
             if (response.ok) {
                 const data = await response.json();
-                
+
                 if (data.success && data.data) {
                     setMaestrosPorCurso(data.data);
                 } else {
@@ -97,9 +97,9 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
         localStorage.removeItem('user_role');
-        
+
         // Redirigir al inicio
-        window.location.href = 'http://localhost:5173';
+        window.location.href = '/';
     };
 
     const handleNavigation = (section: string) => {
@@ -136,138 +136,138 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                 return (
                     <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 
-                {/* Saludo */}
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
-                        Bienvenido, {userData ? `${userData.Nombre}` : 'Estudiante'}
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: "#666", mt: 1 }}>
-                        {userData?.Nombre_Institución || 'tu institución'}
-                    </Typography>
-                </Box>
+                        {/* Saludo */}
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
+                                Bienvenido, {userData ? `${userData.Nombre}` : 'Estudiante'}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#666", mt: 1 }}>
+                                {userData?.Nombre_Institución || 'tu institución'}
+                            </Typography>
+                        </Box>
 
-                {/* Título de cursos */}
-                <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3, textAlign: 'center'}}>
-                    Mis cursos
-                </Typography>
+                        {/* Título de cursos */}
+                        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3, textAlign: 'center' }}>
+                            Mis cursos
+                        </Typography>
 
-                {/* Grid de cursos */}
-                {loadingMaestros ? (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-        <CircularProgress />
-        <Typography sx={{ ml: 2 }}>Cargando información de maestros...</Typography>
-    </Box>
-) : (
-    <Box sx={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", 
-        gap: 4 
-    }}>
-        {/* Curso 1: Matemáticas */}
-        <Card sx={{ 
-            borderRadius: 2,
-            backgroundColor: '#fff',
-            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-            border: 1,
-            borderColor: '#e0e0e0',
-            '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
-            }
-        }}>
-            <CardActionArea onClick={() => handleNavigation('matematicas')}>
-                <CardMedia
-                    component="img"
-                    sx={{ 
-                        height: 220,
-                        objectFit: "cover",
-                        p: 2
-                    }}
-                    image="https://img.freepik.com/vector-premium/ninos-objetos-matematicos_1639-28398.jpg"
-                    alt="Matemáticas"
-                />
-                <Divider />
-                <Box sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ 
-                        fontWeight: 600,
-                        mb: 1,
-                        color: '#2c3e50'
-                    }}>
-                        Matemáticas
-                    </Typography>
-                    <Typography variant="body2" sx={{ 
-                        color: '#34495e',
-                        mb: 2,
-                        fontWeight: 500
-                    }}>
-                        {maestrosPorCurso['Matemáticas']?.length > 0 
-                            ? `Prof. ${maestrosPorCurso['Matemáticas'][0].nombre}`
-                            : 'Profesor no asignado'
-                        }
-                    </Typography>
-                    <Typography variant="body2" sx={{ 
-                        color: '#7f8c8d',
-                        lineHeight: 1.6
-                    }}>
-                        Curso fundamental que desarrolla el pensamiento lógico y habilidades para resolver problemas matemáticos.
-                    </Typography>
-                </Box>
-            </CardActionArea>
-        </Card>
+                        {/* Grid de cursos */}
+                        {loadingMaestros ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                                <CircularProgress />
+                                <Typography sx={{ ml: 2 }}>Cargando información de maestros...</Typography>
+                            </Box>
+                        ) : (
+                            <Box sx={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                                gap: 4
+                            }}>
+                                {/* Curso 1: Matemáticas */}
+                                <Card sx={{
+                                    borderRadius: 2,
+                                    backgroundColor: '#fff',
+                                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                                    border: 1,
+                                    borderColor: '#e0e0e0',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                                    }
+                                }}>
+                                    <CardActionArea onClick={() => handleNavigation('matematicas')}>
+                                        <CardMedia
+                                            component="img"
+                                            sx={{
+                                                height: 220,
+                                                objectFit: "cover",
+                                                p: 2
+                                            }}
+                                            image="https://img.freepik.com/vector-premium/ninos-objetos-matematicos_1639-28398.jpg"
+                                            alt="Matemáticas"
+                                        />
+                                        <Divider />
+                                        <Box sx={{ p: 3 }}>
+                                            <Typography variant="h6" sx={{
+                                                fontWeight: 600,
+                                                mb: 1,
+                                                color: '#2c3e50'
+                                            }}>
+                                                Matemáticas
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#34495e',
+                                                mb: 2,
+                                                fontWeight: 500
+                                            }}>
+                                                {maestrosPorCurso['Matemáticas']?.length > 0
+                                                    ? `Prof. ${maestrosPorCurso['Matemáticas'][0].nombre}`
+                                                    : 'Profesor no asignado'
+                                                }
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#7f8c8d',
+                                                lineHeight: 1.6
+                                            }}>
+                                                Curso fundamental que desarrolla el pensamiento lógico y habilidades para resolver problemas matemáticos.
+                                            </Typography>
+                                        </Box>
+                                    </CardActionArea>
+                                </Card>
 
-        {/* Curso 2: Comunicación y Lenguaje */}
-        <Card sx={{ 
-            borderRadius: 3,
-            backgroundColor: '#fff',
-            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-            border: 1,
-            borderColor: '#e0e0e0',
-            '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
-            }
-        }}>
-            <CardActionArea onClick={() => handleNavigation('comunicacion')}>
-                <CardMedia
-                    component="img"
-                    sx={{ 
-                        height: 220,
-                        objectFit: "cover",
-                        p: 2
-                    }}
-                    image="https://img.freepik.com/vector-gratis/bocadillo-dialogo-libro-lectura-nina_1308-105700.jpg"
-                    alt="Comunicación y Lenguaje"
-                />
-                <Divider />
-                <Box sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ 
-                        fontWeight: 600,
-                        mb: 1,
-                        color: '#2c3e50'
-                    }}>
-                        Comunicación y Lenguaje
-                    </Typography>
-                    <Typography variant="body2" sx={{ 
-                        color: '#34495e',
-                        mb: 2,
-                        fontWeight: 500
-                    }}>
-                        {maestrosPorCurso['Comunicación y lenguaje']?.length > 0 
-                            ? `Prof. ${maestrosPorCurso['Comunicación y lenguaje'][0].nombre}`
-                            : 'Profesor no asignado'
-                        }
-                    </Typography>
-                    <Typography variant="body2" sx={{ 
-                        color: '#7f8c8d',
-                        lineHeight: 1.6
-                    }}>
-                        Curso que desarrolla habilidades de comunicación efectiva, comprensión lectora y expresión escrita.
-                    </Typography>
-                </Box>
-            </CardActionArea>
-        </Card>
-    </Box>
-)}
+                                {/* Curso 2: Comunicación y Lenguaje */}
+                                <Card sx={{
+                                    borderRadius: 3,
+                                    backgroundColor: '#fff',
+                                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                                    border: 1,
+                                    borderColor: '#e0e0e0',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                                    }
+                                }}>
+                                    <CardActionArea onClick={() => handleNavigation('comunicacion')}>
+                                        <CardMedia
+                                            component="img"
+                                            sx={{
+                                                height: 220,
+                                                objectFit: "cover",
+                                                p: 2
+                                            }}
+                                            image="https://img.freepik.com/vector-gratis/bocadillo-dialogo-libro-lectura-nina_1308-105700.jpg"
+                                            alt="Comunicación y Lenguaje"
+                                        />
+                                        <Divider />
+                                        <Box sx={{ p: 3 }}>
+                                            <Typography variant="h6" sx={{
+                                                fontWeight: 600,
+                                                mb: 1,
+                                                color: '#2c3e50'
+                                            }}>
+                                                Comunicación y Lenguaje
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#34495e',
+                                                mb: 2,
+                                                fontWeight: 500
+                                            }}>
+                                                {maestrosPorCurso['Comunicación y lenguaje']?.length > 0
+                                                    ? `Prof. ${maestrosPorCurso['Comunicación y lenguaje'][0].nombre}`
+                                                    : 'Profesor no asignado'
+                                                }
+                                            </Typography>
+                                            <Typography variant="body2" sx={{
+                                                color: '#7f8c8d',
+                                                lineHeight: 1.6
+                                            }}>
+                                                Curso que desarrolla habilidades de comunicación efectiva, comprensión lectora y expresión escrita.
+                                            </Typography>
+                                        </Box>
+                                    </CardActionArea>
+                                </Card>
+                            </Box>
+                        )}
                     </Box>
                 );
         }
@@ -277,8 +277,8 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
         <>
             <Fade in={true} timeout={500}>
                 <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh', justifyContent: 'center' }}>
-                    <Navbar 
-                        onLogout={handleLogout} 
+                    <Navbar
+                        onLogout={handleLogout}
                         onNavigate={handleNavigation}
                         currentSection={currentSection}
                     />

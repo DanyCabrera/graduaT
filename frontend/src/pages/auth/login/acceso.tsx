@@ -92,7 +92,7 @@ const AccesoAlumnoMaestro = () => {
 
     const validarCodigo = async () => {
         if (!institucionSeleccionada) {
-            setError('Por favor seleccione una institución');
+            setError('Por favor seleccione su institución');
             return;
         }
 
@@ -432,7 +432,7 @@ const AccesoSupervisorDirector = () => {
 
     const validarAcceso = async () => {
         if (!institucionSeleccionada || !codigoRol) {
-            setError('Por favor seleccione una institución e ingrese el código de rol');
+            setError('Por favor seleccione su institución');
             return;
         }
 

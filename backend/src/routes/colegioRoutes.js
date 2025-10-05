@@ -6,7 +6,8 @@ const {
     updateColegio, 
     deleteColegio,
     getColegiosByDepartamento,
-    getColegioByCode
+    getColegioByCode,
+    toggleHabilitado
 } = require('../controllers/colegioController');
 
 const router = express.Router();
@@ -31,5 +32,8 @@ router.get('/departamento/:departamento', getColegiosByDepartamento);
 
 // GET /api/colegios/codigo/:codigo
 router.get('/codigo/:codigo', getColegioByCode);
+
+// PATCH /api/colegios/:id/habilitado
+router.patch('/:id/habilitado', toggleHabilitado);
 
 module.exports = router;
