@@ -624,6 +624,7 @@ export default function LoginInstituciones() {
                                         <FormControl fullWidth>
                                             <InputLabel id="departamento-label">Departamento</InputLabel>
                                             <Select
+                                                label="Departamento"
                                                 labelId="departamento-label"
                                                 name="departamento"
                                                 value={formData.departamento}

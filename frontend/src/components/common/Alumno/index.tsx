@@ -13,6 +13,10 @@ import Navbar from "./navbar";
 import Progreso from "./progreso";
 import PruebaT from "./pruebaT";
 
+//Logo de los cursos
+import LogoMatematica from "../../../assets/TortuMate.png";
+import LogoComunicacion from "../../../assets/TortuLenguaje.png";
+
 //Cursos
 import Matematica from "../Matematica/index";
 import Comunicacion from "../Comunicacion/index";
@@ -179,11 +183,11 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                         <CardMedia
                                             component="img"
                                             sx={{
-                                                height: 220,
+                                                height: 420,
                                                 objectFit: "cover",
                                                 p: 2
                                             }}
-                                            image="https://img.freepik.com/vector-premium/ninos-objetos-matematicos_1639-28398.jpg"
+                                            image={LogoMatematica}
                                             alt="Matemáticas"
                                         />
                                         <Divider />
@@ -231,11 +235,11 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                         <CardMedia
                                             component="img"
                                             sx={{
-                                                height: 220,
+                                                height: 420,
                                                 objectFit: "cover",
                                                 p: 2
                                             }}
-                                            image="https://img.freepik.com/vector-gratis/bocadillo-dialogo-libro-lectura-nina_1308-105700.jpg"
+                                            image={LogoComunicacion}
                                             alt="Comunicación y Lenguaje"
                                         />
                                         <Divider />

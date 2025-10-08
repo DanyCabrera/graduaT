@@ -86,10 +86,19 @@ const login = async (req, res) => {
         // Respuesta exitosa (sin incluir la contraseña)
         const { Contraseña, ...userWithoutPassword } = user;
         
+        // Incluir datos específicos del rol si están disponibles
+        let completeUserData = userWithoutPassword;
+        if (userRoleData) {
+            completeUserData = {
+                ...userWithoutPassword,
+                ...userRoleData
+            };
+        }
+        
         res.json({
             message: 'Login exitoso',
             token,
-            user: userWithoutPassword
+            user: completeUserData
         });
 
     } catch (error) {
