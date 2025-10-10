@@ -10,10 +10,18 @@ router.get('/student/history', testAssignmentController.getTestHistory);
 router.get('/student/results', testAssignmentController.getStudentTestResults);
 
 // Rutas para maestros
+router.get('/teacher/info', testAssignmentController.getMaestroInfo);
 router.get('/teacher/results', testAssignmentController.getTeacherStudentTestResults);
 router.get('/teacher/notifications', testAssignmentController.getNotifications);
 router.get('/teacher/assigned', testAssignmentController.getAssignedTestsForTeacher);
 router.put('/teacher/notifications/:notificationId/read', testAssignmentController.markNotificationAsRead);
 router.delete('/teacher/clear-all', testAssignmentController.clearAllTestAssignments);
+
+// Rutas de debugging
+router.get('/debug/assignments-by-institution', testAssignmentController.getAssignmentsByInstitutionDebug);
+
+// Rutas para directores
+router.get('/director/info', testAssignmentController.getDirectorInfo);
+router.get('/director/performance', testAssignmentController.getStudentPerformanceStats);
 
 module.exports = router;

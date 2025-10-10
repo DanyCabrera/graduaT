@@ -9,9 +9,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Fade from "@mui/material/Fade";
 import { FooterAlumno } from "../../layout/footer";
 import Divider from '@mui/material/Divider';
+import Button from "@mui/material/Button";
 import Navbar from "./navbar";
 import Progreso from "./progreso";
-import PruebaT from "./pruebaT";
 
 //Logo de los cursos
 import LogoMatematica from "../../../assets/TortuMate.png";
@@ -112,60 +112,110 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
 
     const renderContent = () => {
         switch (currentSection) {
-            case 'pruebaT':
-                return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <PruebaT />
-                    </Box>
-                );
             case 'progreso':
                 return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Box sx={{ 
+                        p: { xs: 1, sm: 2, md: 4 }, 
+                        textAlign: 'center',
+                        maxWidth: "1200px", 
+                        margin: "0 auto"
+                    }}>
                         <Progreso />
                     </Box>
                 );
             case 'matematicas':
                 return (
-                    <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh" }}>
+                    <Box sx={{ 
+                        flexGrow: 1, 
+                        p: { xs: 2, sm: 3, md: 5 }, 
+                        maxWidth: "1200px", 
+                        margin: "0 auto", 
+                        minHeight: "60vh" 
+                    }}>
                         <Matematica />
                     </Box>
                 );
             case 'comunicacion':
                 return (
-                    <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh" }}>
+                    <Box sx={{ 
+                        flexGrow: 1, 
+                        p: { xs: 2, sm: 3, md: 5 }, 
+                        maxWidth: "1200px", 
+                        margin: "0 auto", 
+                        minHeight: "60vh" 
+                    }}>
                         <Comunicacion />
                     </Box>
                 );
             default:
                 return (
-                    <Box sx={{ flexGrow: 1, p: 5, maxWidth: "1200px", margin: "0 auto", minHeight: "60vh", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <Box sx={{ 
+                        flexGrow: 1, 
+                        p: { xs: 2, sm: 3, md: 5 }, 
+                        mb: { xs: 12, sm: 12, md: 4 },
+                        maxWidth: "1200px", 
+                        margin: "0 auto", 
+                        minHeight: "60vh", 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        justifyContent: 'center' 
+                    }}>
 
                         {/* Saludo */}
-                        <Box sx={{ mb: 4 }}>
-                            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333" }}>
+                        <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
+                            <Typography variant="h4" sx={{ 
+                                fontWeight: "bold", 
+                                color: "#333",
+                                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                            }}>
                                 Bienvenido, {userData ? `${userData.Nombre}` : 'Estudiante'}
                             </Typography>
-                            <Typography variant="body1" sx={{ color: "#666", mt: 1 }}>
+                            <Typography variant="body1" sx={{ 
+                                color: "#666", 
+                                mt: 1,
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                            }}>
                                 {userData?.Nombre_Institución || 'tu institución'}
                             </Typography>
                         </Box>
 
                         {/* Título de cursos */}
-                        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3, textAlign: 'center' }}>
+                        <Typography variant="h5" sx={{ 
+                            fontWeight: "bold", 
+                            mb: { xs: 2, sm: 3 }, 
+                            textAlign: 'center',
+                            fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' }
+                        }}>
                             Mis cursos
                         </Typography>
 
                         {/* Grid de cursos */}
                         {loadingMaestros ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-                                <CircularProgress />
-                                <Typography sx={{ ml: 2 }}>Cargando información de maestros...</Typography>
+                            <Box sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'center', 
+                                alignItems: 'center', 
+                                py: 4,
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                gap: { xs: 1, sm: 2 }
+                            }}>
+                                <CircularProgress size={24} />
+                                <Typography sx={{ 
+                                    ml: { xs: 0, sm: 2 },
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                }}>
+                                    Cargando información de maestros...
+                                </Typography>
                             </Box>
                         ) : (
                             <Box sx={{
                                 display: "grid",
-                                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                                gap: 4
+                                gridTemplateColumns: { 
+                                    xs: "1fr", 
+                                    sm: "repeat(auto-fit, minmax(280px, 1fr))",
+                                    md: "repeat(auto-fit, minmax(300px, 1fr))"
+                                },
+                                gap: { xs: 2, sm: 3, md: 4 }
                             }}>
                                 {/* Curso 1: Matemáticas */}
                                 <Card sx={{
@@ -175,34 +225,36 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                     border: 1,
                                     borderColor: '#e0e0e0',
                                     '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                                        transform: { xs: 'none', sm: 'translateY(-4px)' },
+                                        boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', sm: '0 12px 24px rgba(0,0,0,0.1)' }
                                     }
                                 }}>
                                     <CardActionArea onClick={() => handleNavigation('matematicas')}>
                                         <CardMedia
                                             component="img"
                                             sx={{
-                                                height: 420,
+                                                height: { xs: 380, sm: 300, md: 420 },
                                                 objectFit: "cover",
-                                                p: 2
+                                                p: { xs: 1, sm: 2 }
                                             }}
                                             image={LogoMatematica}
                                             alt="Matemáticas"
                                         />
                                         <Divider />
-                                        <Box sx={{ p: 3 }}>
+                                        <Box sx={{ p: { xs: 2, sm: 3 } }}>
                                             <Typography variant="h6" sx={{
                                                 fontWeight: 600,
                                                 mb: 1,
-                                                color: '#2c3e50'
+                                                color: '#2c3e50',
+                                                fontSize: { xs: '1rem', sm: '1.25rem' }
                                             }}>
                                                 Matemáticas
                                             </Typography>
                                             <Typography variant="body2" sx={{
                                                 color: '#34495e',
                                                 mb: 2,
-                                                fontWeight: 500
+                                                fontWeight: 500,
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                             }}>
                                                 {maestrosPorCurso['Matemáticas']?.length > 0
                                                     ? `Prof. ${maestrosPorCurso['Matemáticas'][0].nombre}`
@@ -211,10 +263,21 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                             </Typography>
                                             <Typography variant="body2" sx={{
                                                 color: '#7f8c8d',
-                                                lineHeight: 1.6
+                                                lineHeight: 1.6,
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                             }}>
                                                 Curso fundamental que desarrolla el pensamiento lógico y habilidades para resolver problemas matemáticos.
                                             </Typography>
+                                            <Button
+                                                fullWidth
+                                                variant="outlined"
+                                                color= 'success'
+                                                sx={{
+                                                    mt: 2
+                                                }}
+                                            >
+                                                Test
+                                            </Button>
                                         </Box>
                                     </CardActionArea>
                                 </Card>
@@ -227,34 +290,36 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                     border: 1,
                                     borderColor: '#e0e0e0',
                                     '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
+                                        transform: { xs: 'none', sm: 'translateY(-4px)' },
+                                        boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', sm: '0 12px 24px rgba(0,0,0,0.1)' }
                                     }
                                 }}>
                                     <CardActionArea onClick={() => handleNavigation('comunicacion')}>
                                         <CardMedia
                                             component="img"
                                             sx={{
-                                                height: 420,
+                                                height: { xs: 380, sm: 300, md: 420 },
                                                 objectFit: "cover",
-                                                p: 2
+                                                p: { xs: 1, sm: 2 }
                                             }}
                                             image={LogoComunicacion}
                                             alt="Comunicación y Lenguaje"
                                         />
                                         <Divider />
-                                        <Box sx={{ p: 3 }}>
+                                        <Box sx={{ p: { xs: 2, sm: 3 } }}>
                                             <Typography variant="h6" sx={{
                                                 fontWeight: 600,
                                                 mb: 1,
-                                                color: '#2c3e50'
+                                                color: '#2c3e50',
+                                                fontSize: { xs: '1rem', sm: '1.25rem' }
                                             }}>
                                                 Comunicación y Lenguaje
                                             </Typography>
                                             <Typography variant="body2" sx={{
                                                 color: '#34495e',
                                                 mb: 2,
-                                                fontWeight: 500
+                                                fontWeight: 500,
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                             }}>
                                                 {maestrosPorCurso['Comunicación y lenguaje']?.length > 0
                                                     ? `Prof. ${maestrosPorCurso['Comunicación y lenguaje'][0].nombre}`
@@ -263,10 +328,21 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                             </Typography>
                                             <Typography variant="body2" sx={{
                                                 color: '#7f8c8d',
-                                                lineHeight: 1.6
+                                                lineHeight: 1.6,
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                             }}>
                                                 Curso que desarrolla habilidades de comunicación efectiva, comprensión lectora y expresión escrita.
                                             </Typography>
+                                            <Button
+                                                fullWidth
+                                                variant="outlined"
+                                                color= 'success'
+                                                sx={{
+                                                    mt: 2
+                                                }}
+                                            >
+                                                Test
+                                            </Button>
                                         </Box>
                                     </CardActionArea>
                                 </Card>

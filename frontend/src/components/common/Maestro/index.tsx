@@ -7,13 +7,20 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
 import Fade from "@mui/material/Fade";
+import Button from "@mui/material/Button";
+
 import { FooterMaestro }  from '../../layout/footer';
 
+//Secciones del maestro
 import Navbar from "./navbar";
 import Agenda from "./agenda";
 import Alumno from "./alumnos";
 import Historial from "./historial";
 import Test from "./test";
+
+//Logo de los cursos
+import LogoMatematica from "../../../assets/TortuMate.png";
+import LogoComunicacion from "../../../assets/TortuLenguaje.png";
 
 interface UserData {
     Usuario: string;
@@ -55,13 +62,13 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
         'Matemáticas': {
             titulo: 'Matemáticas',
             descripcion: 'Curso de matemáticas básicas',
-            imagen: 'https://media.istockphoto.com/id/1026884078/es/vector/ni%C3%B1os-ni%C3%B1o-y-ni%C3%B1a-aprender-matem%C3%A1ticas-con-la-ilustraci%C3%B3n-de-libros-abiertos.jpg?s=612x612&w=0&k=20&c=ZoKy5yqnbLyHkdCvXOyWY_wrAx9yvwdBGjJHZj14lwY=',
+            imagen: LogoMatematica,
             url: 'https://es.khanacademy.org/math'
         },
         'Comunicación y lenguaje': {
             titulo: 'Comunicación y Lenguaje',
             descripcion: 'Curso de lectura y escritura',
-            imagen: 'https://i.pinimg.com/736x/9f/1d/9a/9f1d9ab4830d2e82efe8ed95cd4be5eb.jpg',
+            imagen: LogoComunicacion,
             url: 'https://es.khanacademy.org/humanities/grammar'
         }
     };
@@ -202,6 +209,7 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                                 borderRadius: 4,
                                                 border: 1,
                                                 borderColor: '#e2e8f0',
+                                                mb: {xs: 8, sm: 4, md: 4}
                                             }} 
                                             >
                                             <CardActionArea
@@ -236,6 +244,16 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                                     <Typography color="text.secondary">
                                                         {cursoInfo.descripcion}
                                                     </Typography>
+                                                    <Button
+                                                        fullWidth
+                                                        variant="outlined"
+                                                        color="success"
+                                                        sx={{
+                                                            mt: 2
+                                                        }}
+                                                    >
+                                                        Agenda
+                                                    </Button>
                                                 </CardContent>
                                             </CardActionArea>
                                         </Card>

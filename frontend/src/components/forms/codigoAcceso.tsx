@@ -18,6 +18,8 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setAccessToken } from '../../utils/authUtils';
+import { setSession } from '../../utils/sessionManager';
 
 export default function CodigoAcceso() {
     const [codigo, setCodigo] = useState('');
@@ -60,8 +62,27 @@ export default function CodigoAcceso() {
                 setTimeout(() => {
                     setLoading(false);
                     if (codigoEncontrado.tipo === 'ROL') {
+                        // Crear sesión para el panel de roles
+                        const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        const sessionUser = {
+                            id: 'temp_user',
+                            nombre: 'Usuario Temporal',
+                            email: 'temp@example.com',
+                            codigoAcceso: codigoEncontrado.codigo
+                        };
+                        const sessionRole = 'TEMP_ROLE'; // Rol temporal hasta que seleccione uno
+                        
+                        // Crear sesión
+                        setSession(sessionToken, sessionUser, sessionRole);
+                        console.log('✅ Sesión creada para código de localStorage:', sessionToken);
+                        
+                        // Guardar token de acceso para el panel de roles
+                        setAccessToken('ROL', 30);
+                        console.log('✅ Token de acceso guardado para ROL');
                         navigate('/panelRol', { replace: true });
                     } else {
+                        // Guardar token de acceso para registro
+                        setAccessToken('INSTITUCION', 30);
                         navigate('/registro', { replace: true });
                     }
                 }, 1000);
@@ -69,6 +90,8 @@ export default function CodigoAcceso() {
             }
 
             // Si no se encuentra en localStorage, intentar con la API (códigos del backend)
+            console.log('🔍 Verificando código en el backend:', codigo.trim());
+            
             const response = await fetch('http://localhost:3001/api/codigos-acceso/verificar', {
                 method: 'POST',
                 headers: {
@@ -77,25 +100,54 @@ export default function CodigoAcceso() {
                 body: JSON.stringify({ codigo: codigo.trim() }),
             });
 
-            const result = await response.json();
-            
-            if (result.success) {
+            console.log('📡 Respuesta del backend:', response.status);
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('✅ Código verificado exitosamente:', result);
+                
                 // Verificar si es un código de rol
                 if (result.data.tipo === 'ROL') {
+                    // Crear sesión para el panel de roles
+                    const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    const sessionUser = {
+                        id: 'temp_user',
+                        nombre: 'Usuario Temporal',
+                        email: 'temp@example.com',
+                        codigoAcceso: result.data.codigo,
+                        institucion: result.data.nombreInstitucion || 'Institución'
+                    };
+                    const sessionRole = 'TEMP_ROLE'; // Rol temporal hasta que seleccione uno
+                    
+                    // Crear sesión
+                    setSession(sessionToken, sessionUser, sessionRole);
+                    console.log('✅ Sesión creada para código del backend:', sessionToken);
+                    
+                    // Guardar token de acceso para el panel de roles
+                    setAccessToken('ROL', 30);
+                    console.log('✅ Token de acceso guardado para ROL');
                     setTimeout(() => {
                         setLoading(false);
                         navigate('/panelRol', { replace: true });
                     }, 1000);
-                } else {
-                    // Si es código de institución, redirigir a otra página
+                } else if (result.data.tipo === 'INSTITUCION') {
+                    // Guardar token de acceso para registro
+                    setAccessToken('INSTITUCION', 30);
+                    // Si es código de institución, redirigir a registro
                     setTimeout(() => {
                         setLoading(false);
                         navigate('/registro', { replace: true });
                     }, 1000);
+                } else {
+                    setError(true);
+                    setErrorMessage('Tipo de código no reconocido');
+                    setLoading(false);
                 }
             } else {
+                const errorData = await response.json();
+                console.error('❌ Error del backend:', errorData);
                 setError(true);
-                setErrorMessage(result.message || 'Código de acceso inválido');
+                setErrorMessage(errorData.message || 'Código de acceso inválido');
                 setLoading(false);
             }
 
@@ -233,21 +285,6 @@ export default function CodigoAcceso() {
                             </CardContent>
                         </Card>
 
-                        {/* Instrucciones */}
-                        <Alert 
-                            severity="info" 
-                            sx={{ 
-                                mt: 4,
-                                backgroundColor: "#eff6ff", 
-                                border: "1px solid #bfdbfe",
-                                borderRadius: 2,
-                            }}
-                        >
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                💡 <strong>Información:</strong> El código de acceso debe ser proporcionado por el Director. 
-                                Ingresa el código exacto para acceder al sistema.
-                            </Typography>
-                        </Alert>
                         <Button onClick={handleBackToPanel} fullWidth sx={{mt: 2}}>
                             <ArrowBackIcon />
                             Volver

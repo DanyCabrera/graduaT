@@ -20,10 +20,6 @@ import {
     AdminPanelSettings,
     Login as LoginIcon,
     PersonAdd,
-    Security,
-    Dashboard,
-    School,
-    Analytics,
     ArrowBack,
 } from "@mui/icons-material";
 import { useState, useCallback, useEffect } from "react";
@@ -83,36 +79,74 @@ const LoginForm: React.FC<LoginFormProps> = ({
 }) => (
     <Fade in timeout={800}>
         <Paper
-            elevation={1}
+            elevation={0}
             sx={{
                 p: 4,
-                borderRadius: 2,
+                borderRadius: 3,
                 maxWidth: 400,
                 width: '100%',
                 border: '1px solid #e0e0e0',
                 backgroundColor: '#ffffff',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
             }}
         >
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
+            {/* Header con logo */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 4,
+                    pb: 3,
+                    borderBottom: '1px solid #f0f0f0',
+                }}
+            >
                 <Avatar
                     sx={{
-                        width: 64,
-                        height: 64,
-                        mx: 'auto',
-                        mb: 2,
-                        bgcolor: '#f5f5f5',
-                        color: '#666',
+                        width: 48,
+                        height: 48,
+                        mr: 2,
+                        bgcolor: '#1a1a1a',
+                        color: 'white',
                     }}
                 >
-                    <AdminPanelSettings sx={{ fontSize: 32 }} />
+                    <AdminPanelSettings sx={{ fontSize: 24 }} />
                 </Avatar>
-                <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: '#333' }}>
+                <Typography 
+                    variant="h5" 
+                    sx={{ 
+                        fontWeight: 600, 
+                        color: '#1a1a1a',
+                        letterSpacing: '-0.5px',
+                    }}
+                >
                     Administrador
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                    Accede al panel de administración
-                </Typography>
             </Box>
+
+            {/* Título */}
+            <Typography
+                variant="h6"
+                sx={{
+                    fontWeight: 600,
+                    color: '#1a1a1a',
+                    mb: 1,
+                    textAlign: 'center',
+                }}
+            >
+                Iniciar Sesión
+            </Typography>
+            
+            <Typography
+                variant="body2"
+                sx={{
+                    color: '#666',
+                    mb: 4,
+                    textAlign: 'center',
+                }}
+            >
+                Accede al panel de administración
+            </Typography>
 
             <form onSubmit={handleLogin}>
                 <TextField
@@ -121,18 +155,32 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     variant="outlined"
                     value={formData.username}
                     onChange={handleInputChange('username')}
+                    placeholder="Ingresa tu usuario"
                     sx={{
                         mb: 3,
                         '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                                borderColor: '#e0e0e0',
+                            borderRadius: 2,
+                            backgroundColor: '#fafafa',
+                            '&:hover': {
+                                backgroundColor: '#f5f5f5',
                             },
-                            '&:hover fieldset': {
-                                borderColor: '#bdbdbd',
+                            '&.Mui-focused': {
+                                backgroundColor: 'white',
                             },
-                            '&.Mui-focused fieldset': {
-                                borderColor: '#1976d2',
-                            },
+                        },
+                        '& .MuiInputLabel-root': {
+                            color: '#666',
+                            fontWeight: 500,
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#e0e0e0',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#ccc',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#1a1a1a',
+                            borderWidth: 2,
                         },
                     }}
                 />
@@ -144,13 +192,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     variant="outlined"
                     value={formData.password}
                     onChange={handleInputChange('password')}
+                    placeholder="Ingresa tu contraseña"
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
                                 <IconButton
                                     onClick={handleClickShowPassword}
                                     edge="end"
-                                    sx={{ color: '#666' }}
+                                    sx={{ color: '#999' }}
                                 >
                                     {showPassword ? <VisibilityOff /> : <Visibility />}
                                 </IconButton>
@@ -160,15 +209,28 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     sx={{
                         mb: 4,
                         '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                                borderColor: '#e0e0e0',
+                            borderRadius: 2,
+                            backgroundColor: '#fafafa',
+                            '&:hover': {
+                                backgroundColor: '#f5f5f5',
                             },
-                            '&:hover fieldset': {
-                                borderColor: '#bdbdbd',
+                            '&.Mui-focused': {
+                                backgroundColor: 'white',
                             },
-                            '&.Mui-focused fieldset': {
-                                borderColor: '#1976d2',
-                            },
+                        },
+                        '& .MuiInputLabel-root': {
+                            color: '#666',
+                            fontWeight: 500,
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#e0e0e0',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#ccc',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#1a1a1a',
+                            borderWidth: 2,
                         },
                     }}
                 />
@@ -183,12 +245,18 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     sx={{
                         py: 1.5,
                         mb: 3,
-                        backgroundColor: '#1976d2',
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        backgroundColor: '#1a1a1a',
+                        color: 'white',
                         '&:hover': {
-                            backgroundColor: '#1565c0',
+                            backgroundColor: '#333',
                         },
                         '&:disabled': {
-                            backgroundColor: '#e0e0e0',
+                            backgroundColor: '#ccc',
+                            color: '#999',
                         },
                     }}
                 >
@@ -196,7 +264,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 </Button>
             </form>
 
-            <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 3, borderColor: '#f0f0f0' }} />
 
             <Button
                 fullWidth
@@ -204,11 +272,15 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 startIcon={<PersonAdd />}
                 onClick={toggleRegister}
                 sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 500,
                     borderColor: '#e0e0e0',
                     color: '#666',
                     '&:hover': {
-                        borderColor: '#bdbdbd',
-                        backgroundColor: '#f5f5f5',
+                        borderColor: '#1a1a1a',
+                        backgroundColor: '#fafafa',
+                        color: '#1a1a1a',
                     },
                 }}
             >
@@ -233,36 +305,74 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 }) => (
     <Fade in timeout={800}>
         <Paper
-            elevation={1}
+            elevation={0}
             sx={{
-                p: 6,
-                borderRadius: 2,
-                maxWidth: 600,
+                p: 4,
+                borderRadius: 3,
+                maxWidth: 500,
                 width: '100%',
                 border: '1px solid #e0e0e0',
                 backgroundColor: '#ffffff',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
             }}
         >
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
+            {/* Header con logo */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 4,
+                    pb: 3,
+                    borderBottom: '1px solid #f0f0f0',
+                }}
+            >
                 <Avatar
                     sx={{
-                        width: 64,
-                        height: 64,
-                        mx: 'auto',
-                        mb: 2,
-                        bgcolor: '#f5f5f5',
-                        color: '#666',
+                        width: 48,
+                        height: 48,
+                        mr: 2,
+                        bgcolor: '#1a1a1a',
+                        color: 'white',
                     }}
                 >
-                    <PersonAdd sx={{ fontSize: 32 }} />
+                    <PersonAdd sx={{ fontSize: 24 }} />
                 </Avatar>
-                <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: '#333' }}>
+                <Typography 
+                    variant="h5" 
+                    sx={{ 
+                        fontWeight: 600, 
+                        color: '#1a1a1a',
+                        letterSpacing: '-0.5px',
+                    }}
+                >
                     Registro
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                    Crea una nueva cuenta de administrador
-                </Typography>
             </Box>
+
+            {/* Título */}
+            <Typography
+                variant="h6"
+                sx={{
+                    fontWeight: 600,
+                    color: '#1a1a1a',
+                    mb: 1,
+                    textAlign: 'center',
+                }}
+            >
+                Crear Cuenta
+            </Typography>
+            
+            <Typography
+                variant="body2"
+                sx={{
+                    color: '#666',
+                    mb: 4,
+                    textAlign: 'center',
+                }}
+            >
+                Crea una nueva cuenta de administrador
+            </Typography>
 
             <form onSubmit={handleRegister}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -375,12 +485,18 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                         py: 1.5,
                         mt: 4,
                         mb: 3,
-                        backgroundColor: '#1976d2',
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        backgroundColor: '#1a1a1a',
+                        color: 'white',
                         '&:hover': {
-                            backgroundColor: '#1565c0',
+                            backgroundColor: '#333',
                         },
                         '&:disabled': {
-                            backgroundColor: '#e0e0e0',
+                            backgroundColor: '#ccc',
+                            color: '#999',
                         },
                     }}
                 >
@@ -388,7 +504,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 </Button>
             </form>
 
-            <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 3, borderColor: '#f0f0f0' }} />
 
             <Button
                 fullWidth
@@ -396,11 +512,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 startIcon={<ArrowBack />}
                 onClick={toggleRegister}
                 sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 500,
                     borderColor: '#e0e0e0',
                     color: '#666',
                     '&:hover': {
-                        borderColor: '#bdbdbd',
-                        backgroundColor: '#f5f5f5',
+                        borderColor: '#1a1a1a',
+                        backgroundColor: '#fafafa',
+                        color: '#1a1a1a',
                     },
                 }}
             >
@@ -413,15 +533,28 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 // Estilos para los TextFields
 const textFieldStyles = {
     '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-            borderColor: '#e0e0e0',
+        borderRadius: 2,
+        backgroundColor: '#fafafa',
+        '&:hover': {
+            backgroundColor: '#f5f5f5',
         },
-        '&:hover fieldset': {
-            borderColor: '#bdbdbd',
+        '&.Mui-focused': {
+            backgroundColor: 'white',
         },
-        '&.Mui-focused fieldset': {
-            borderColor: '#1976d2',
-        },
+    },
+    '& .MuiInputLabel-root': {
+        color: '#666',
+        fontWeight: 500,
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#e0e0e0',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#ccc',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#1a1a1a',
+        borderWidth: 2,
     },
 };
 
@@ -746,12 +879,6 @@ export default function LoginAdmin() {
     }, []);
 
 
-    const features = [
-        { icon: <Dashboard />, title: 'Dashboard', description: 'Vista general del sistema' },
-        { icon: <School />, title: 'Instituciones', description: 'Gestión de centros educativos' },
-        { icon: <Analytics />, title: 'Reportes', description: 'Análisis y estadísticas' },
-        { icon: <Security />, title: 'Seguridad', description: 'Control de acceso' },
-    ];
 
     return (
         <>
@@ -765,121 +892,32 @@ export default function LoginAdmin() {
                     p: 2,
                 }}
             >
-                <Container maxWidth="lg">
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 6, alignItems: 'center' }}>
-                        {/* Panel de características */}
-                        <Box sx={{ flex: 1 }}>
-                            <Box sx={{ textAlign: 'center', mb: 6 }}>
-                                <Typography
-                                    variant="h3"
-                                    sx={{
-                                        fontWeight: 700,
-                                        color: '#333',
-                                        mb: 2,
-                                    }}
-                                >
-                                    GraduaT
-                                </Typography>
-                                <Typography
-                                    variant="h6"
-                                    sx={{
-                                        color: '#666',
-                                        mb: 4,
-                                        fontWeight: 300,
-                                    }}
-                                >
-                                    Sistema de Gestión Educativa
-                                </Typography>
-                            </Box>
-
-                            <Box sx={{
-                                display: 'grid',
-                                gridTemplateColumns: {
-                                    xs: '1fr',
-                                    sm: '1fr',
-                                    md: '1fr 1fr'
-                                },
-                                gap: 3
-                            }}>
-                                {features.map((feature, index) => (
-                                    <Paper
-                                        key={index}
-                                        elevation={2}
-                                        sx={{
-                                            p: 3,
-                                            borderRadius: 2,
-                                            backgroundColor: '#ffffff',
-                                            border: '1px solid #e0e0e0',
-                                            transition: 'all 0.3s ease',
-                                            '&:hover': {
-                                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                                transform: 'translateY(-2px)',
-                                            }
-                                        }}
-                                    >
-                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                            <Avatar
-                                                sx={{
-                                                    bgcolor: '#f5f5f5',
-                                                    mr: 2,
-                                                    width: 40,
-                                                    height: 40,
-                                                    color: '#666',
-                                                }}
-                                            >
-                                                {feature.icon}
-                                            </Avatar>
-                                            <Typography
-                                                variant="h6"
-                                                sx={{
-                                                    color: '#333',
-                                                    fontWeight: 600,
-                                                }}
-                                            >
-                                                {feature.title}
-                                            </Typography>
-                                        </Box>
-                                        <Typography
-                                            variant="body2"
-                                            sx={{
-                                                color: '#666',
-                                                lineHeight: 1.6,
-                                            }}
-                                        >
-                                            {feature.description}
-                                        </Typography>
-                                    </Paper>
-                                ))}
-                            </Box>
-                        </Box>
-
-                        {/* Formulario de login/registro */}
-                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                            {isRegistering ? (
-                                <RegisterForm
-                                    formData={formData}
-                                    errors={errors}
-                                    showPassword={showPassword}
-                                    showConfirmPassword={showConfirmPassword}
-                                    isLoading={isLoading}
-                                    handleInputChange={handleInputChange}
-                                    handleClickShowPassword={handleClickShowPassword}
-                                    handleClickShowConfirmPassword={handleClickShowConfirmPassword}
-                                    handleRegister={handleRegister}
-                                    toggleRegister={toggleRegister}
-                                />
-                            ) : (
-                                <LoginForm
-                                    formData={formData}
-                                    showPassword={showPassword}
-                                    isLoading={isLoading}
-                                    handleInputChange={handleInputChange}
-                                    handleClickShowPassword={handleClickShowPassword}
-                                    handleLogin={handleLogin}
-                                    toggleRegister={toggleRegister}
-                                />
-                            )}
-                        </Box>
+                <Container maxWidth="sm">
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        {isRegistering ? (
+                            <RegisterForm
+                                formData={formData}
+                                errors={errors}
+                                showPassword={showPassword}
+                                showConfirmPassword={showConfirmPassword}
+                                isLoading={isLoading}
+                                handleInputChange={handleInputChange}
+                                handleClickShowPassword={handleClickShowPassword}
+                                handleClickShowConfirmPassword={handleClickShowConfirmPassword}
+                                handleRegister={handleRegister}
+                                toggleRegister={toggleRegister}
+                            />
+                        ) : (
+                            <LoginForm
+                                formData={formData}
+                                showPassword={showPassword}
+                                isLoading={isLoading}
+                                handleInputChange={handleInputChange}
+                                handleClickShowPassword={handleClickShowPassword}
+                                handleLogin={handleLogin}
+                                toggleRegister={toggleRegister}
+                            />
+                        )}
                     </Box>
                 </Container>
             </Box>

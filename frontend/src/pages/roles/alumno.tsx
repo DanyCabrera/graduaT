@@ -35,7 +35,7 @@ export default function Alumno() {
     const fetchUserData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3001/api/auth/verify', {
+            const response = await fetch('http://localhost:3001/api/auth/verify-with-role-data', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -44,6 +44,8 @@ export default function Alumno() {
             if (response.ok) {
                 const data = await response.json();
                 setUserData(data.user);
+            } else {
+                console.error('Error al obtener datos del usuario:', response.status);
             }
         } catch (error) {
             console.error('Error al obtener datos del usuario:', error);

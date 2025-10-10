@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import IndexMaestro from '../../components/common/Maestro/index';
+import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
 
 interface UserData {
     Usuario: string;
@@ -19,18 +20,33 @@ export default function Maestro() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        // Primero intentar obtener datos de la sesión actual
+        const sessionUser = getSessionUser();
+        const sessionRole = getSessionRole();
         
-        if (token) {
-            fetchUserData();
-        } else {
+        if (sessionUser && sessionRole === 'Maestro') {
+            setUserData(sessionUser);
             setLoading(false);
+        } else {
+            // Si no hay sesión válida, intentar obtener del localStorage
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetchUserData();
+            } else {
+                setLoading(false);
+            }
         }
     }, []);
 
     const fetchUserData = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = getSessionToken() || localStorage.getItem('token');
+            
+            if (!token) {
+                console.error('No hay token disponible');
+                setLoading(false);
+                return;
+            }
             
             const response = await fetch('http://localhost:3001/api/auth/verify-with-role-data', {
                 headers: {

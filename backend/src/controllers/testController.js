@@ -150,7 +150,88 @@ class TestController {
                 });
             }
 
+            // Verificar autenticación del maestro
+            const token = req.headers.authorization?.replace('Bearer ', '');
+            if (!token) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token de acceso requerido'
+                });
+            }
+
+            const jwt = require('jsonwebtoken');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
+            const maestroUsuario = decoded.usuario;
+            const userRole = decoded.rol;
+
+            if (userRole !== 'Maestro') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Acceso denegado. Solo los maestros pueden asignar tests.'
+                });
+            }
+
             const db = await getDB();
+            
+            // Obtener información del maestro
+            let maestro = await db.collection('maestros').findOne({ usuario: maestroUsuario });
+            if (!maestro) {
+                maestro = await db.collection('Maestros').findOne({ Usuario: maestroUsuario });
+            }
+            if (!maestro) {
+                maestro = await db.collection('Maestros').findOne({ Correo: maestroUsuario });
+            }
+
+            if (!maestro) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Maestro no encontrado'
+                });
+            }
+
+            const codigoInstitucionMaestro = maestro.Código_Institución;
+            console.log('🏫 Institución del maestro que asigna:', codigoInstitucionMaestro);
+
+            if (!codigoInstitucionMaestro) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Maestro no tiene código de institución asignado'
+                });
+            }
+
+            // Verificar que todos los estudiantes pertenezcan a la misma institución del maestro
+            const estudiantes = await db.collection('Alumnos').find({
+                Usuario: { $in: studentIds }
+            }).toArray();
+
+            console.log('👥 Estudiantes encontrados para verificar:', estudiantes.length);
+
+            // Verificar que todos los estudiantes sean de la misma institución
+            const estudiantesInstitucion = estudiantes.filter(est => 
+                est.Código_Institución === codigoInstitucionMaestro
+            );
+
+            console.log('✅ Estudiantes de la misma institución:', estudiantesInstitucion.length);
+            console.log('❌ Estudiantes de otras instituciones:', estudiantes.length - estudiantesInstitucion.length);
+
+            if (estudiantesInstitucion.length !== studentIds.length) {
+                const estudiantesOtrasInstituciones = estudiantes.filter(est => 
+                    est.Código_Institución !== codigoInstitucionMaestro
+                );
+                
+                console.log('🚫 Estudiantes de otras instituciones encontrados:', estudiantesOtrasInstituciones.map(est => ({
+                    Usuario: est.Usuario,
+                    Nombre: est.Nombre,
+                    Código_Institución: est.Código_Institución
+                })));
+
+                return res.status(403).json({
+                    success: false,
+                    message: 'No puedes asignar tests a estudiantes de otras instituciones. Solo puedes asignar a estudiantes de tu propia institución.',
+                    detalles: `Se encontraron ${estudiantes.length - estudiantesInstitucion.length} estudiantes de otras instituciones`
+                });
+            }
+
             const assignments = [];
 
             // Crear una asignación para cada test
@@ -162,6 +243,8 @@ class TestController {
                     fechaAsignacion: fechaAsignacion || new Date(),
                     fechaVencimiento: fechaVencimiento || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días por defecto
                     estado: 'asignado',
+                    maestroId: maestroUsuario,
+                    institucionId: codigoInstitucionMaestro,
                     createdAt: new Date(),
                     updatedAt: new Date()
                 };
@@ -206,6 +289,55 @@ class TestController {
             });
         } catch (error) {
             console.error('Error al obtener asignaciones:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: error.message
+            });
+        }
+    }
+
+    // Endpoint de debugging para verificar asignaciones por institución
+    async getAssignmentsByInstitution(req, res) {
+        try {
+            const db = await getDB();
+            
+            // Obtener todas las asignaciones
+            const assignments = await db.collection('testAssignments').find({}).toArray();
+            
+            // Obtener información de estudiantes para cada asignación
+            const assignmentsWithDetails = await Promise.all(assignments.map(async (assignment) => {
+                const estudiantes = await db.collection('Alumnos').find({
+                    Usuario: { $in: assignment.studentIds }
+                }).toArray();
+                
+                return {
+                    assignmentId: assignment._id,
+                    testId: assignment.testId,
+                    testType: assignment.testType,
+                    estado: assignment.estado,
+                    maestroId: assignment.maestroId,
+                    institucionId: assignment.institucionId,
+                    fechaAsignacion: assignment.fechaAsignacion,
+                    studentIds: assignment.studentIds,
+                    estudiantes: estudiantes.map(est => ({
+                        Usuario: est.Usuario,
+                        Nombre: est.Nombre,
+                        Código_Institución: est.Código_Institución
+                    }))
+                };
+            }));
+            
+            res.json({
+                success: true,
+                data: {
+                    totalAsignaciones: assignmentsWithDetails.length,
+                    asignaciones: assignmentsWithDetails
+                },
+                message: 'Asignaciones con detalles obtenidas exitosamente'
+            });
+        } catch (error) {
+            console.error('Error al obtener asignaciones con detalles:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error interno del servidor',

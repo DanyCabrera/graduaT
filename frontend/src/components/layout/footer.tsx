@@ -49,8 +49,8 @@ export function FooterMaestro() {
                         sx={{
                             height: 180,
                             position: 'absolute',
-                            right: 70,
-                            bottom: 41,
+                            right: 150,
+                            bottom: {xs: 200, sm: 80, md: 120},
                             zIndex: 10,
                             transform: 'rotate(-10deg)',
                             pointerEvents: 'none',

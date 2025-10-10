@@ -430,6 +430,22 @@ const AccesoSupervisorDirector = () => {
         }
     };
 
+    const handleToClearInput = () => {
+        setInstitucionSeleccionada('');
+        setCodigoRol('');
+        setError('');
+        setSuccess('');
+    }
+
+    const handleCancelRegistration = () => {
+        // Limpiar datos del localStorage
+        localStorage.removeItem('userData');
+        localStorage.removeItem('verificationToken');
+        
+        // Redirigir al registro
+        navigate('/panelRol');
+    }
+
     const validarAcceso = async () => {
         if (!institucionSeleccionada || !codigoRol) {
             setError('Por favor seleccione su institución');
@@ -513,7 +529,59 @@ const AccesoSupervisorDirector = () => {
 
                     if (emailResponse.ok) {
                         const emailData = await emailResponse.json();
-                        setSuccess('Registro exitoso.');
+                        
+                        // Obtener o generar código de acceso para roles de la institución
+                        try {
+                            const codigoResponse = await fetch('http://localhost:3001/api/codigos-acceso/obtener-rol-institucion', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    codigoInstitucion: institucion.Código_Institución,
+                                    nombreInstitucion: institucion.Nombre_Completo
+                                }),
+                            });
+
+                            if (codigoResponse.ok) {
+                                const codigoData = await codigoResponse.json();
+                                console.log('✅ Código de ROL obtenido:', codigoData.data.codigo);
+                                
+                                // Guardar el código en localStorage para uso inmediato
+                                const codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
+                                
+                                // Verificar si el código ya existe en localStorage
+                                const codigoExistente = codigosValidos.find((c: any) => 
+                                    c.codigoInstitucion === institucion.Código_Institución && c.tipo === 'ROL'
+                                );
+                                
+                                if (!codigoExistente) {
+                                    const nuevoCodigo = {
+                                        codigo: codigoData.data.codigo,
+                                        tipo: 'ROL',
+                                        activo: true,
+                                        fechaCreacion: codigoData.data.fechaCreacion || new Date().toISOString(),
+                                        codigoInstitucion: institucion.Código_Institución,
+                                        nombreInstitucion: institucion.Nombre_Completo
+                                    };
+                                    
+                                    const codigosActualizados = [nuevoCodigo, ...codigosValidos];
+                                    localStorage.setItem('codigosValidos', JSON.stringify(codigosActualizados));
+                                }
+                                
+                                const mensaje = codigoData.esNuevo 
+                                    ? `Registro exitoso. Nuevo código de acceso para roles generado: ${codigoData.data.codigo}`
+                                    : `Registro exitoso. Código de acceso para roles de la institución: ${codigoData.data.codigo}`;
+                                
+                                setSuccess(mensaje);
+                            } else {
+                                console.warn('⚠️ No se pudo obtener código de acceso para roles, pero el registro fue exitoso');
+                                setSuccess('Registro exitoso.');
+                            }
+                        } catch (codigoError) {
+                            console.warn('⚠️ Error al obtener código de acceso para roles:', codigoError);
+                            setSuccess('Registro exitoso.');
+                        }
 
                         // Si hay un token en la respuesta (para testing), guardarlo
                         if (emailData.token) {
@@ -524,7 +592,7 @@ const AccesoSupervisorDirector = () => {
                             navigate('/verify-email');
                         }, 3000);
                     } else {
-                        setError('Error');
+                        setError('Error al enviar correo de verificación');
                     }
                 } else {
                     setError(`Código de rol inválido`);
@@ -681,6 +749,40 @@ const AccesoSupervisorDirector = () => {
                                 >
                                     {loading ? 'Entrando...' : 'Entrar al panel'}
                                 </Button>
+
+                                {/* Botones de Limpiar y Cancelar */}
+                                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        onClick={handleToClearInput}
+                                        disabled={loading}
+                                        sx={{ 
+                                            flex: 1,
+                                            py: 1.5,
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        Limpiar
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={handleCancelRegistration}
+                                        disabled={loading}
+                                        sx={{ 
+                                            flex: 1,
+                                            py: 1.5,
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        Cancelar Registro
+                                    </Button>
+                                </Box>
                             </Box>
                         </Paper>
                     </Box>

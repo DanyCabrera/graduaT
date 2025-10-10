@@ -26,7 +26,7 @@ const login = async (req, res) => {
 
         if (!usuario || !contraseña) {
             return res.status(400).json({
-                error: 'Usuario y contraseña son requeridos'
+                error: 'campos requeridos'
             });
         }
 
@@ -71,7 +71,7 @@ const login = async (req, res) => {
             // Verificar si el usuario está deshabilitado
             if (userRoleData && userRoleData.habilitado === false) {
                 return res.status(403).json({
-                    error: 'Su cuenta ha sido deshabilitada. Contacte al administrador.'
+                    error: 'Su cuenta ha sido deshabilitada.'
                 });
             }
 
@@ -114,12 +114,7 @@ const register = async (req, res) => {
     try {
         const userData = req.body;
         
-        // Log de los datos recibidos
-        console.log('Datos recibidos en registro:', JSON.stringify(userData, null, 2));
-        console.log('Rol del usuario:', userData.Rol);
 
-        // Verificar si el usuario ya existe
-        console.log('Verificando si el usuario ya existe:', userData.Usuario);
         const existingUser = await Login.findByUsuario(userData.Usuario);
         if (existingUser) {
             console.log('Usuario ya existe:', existingUser.Usuario);

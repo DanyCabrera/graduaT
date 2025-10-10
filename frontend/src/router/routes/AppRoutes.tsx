@@ -14,6 +14,7 @@ import Login from '../../pages/auth/login/login';
 import CodigoAcceso from '../../components/forms/codigoAcceso';
 import PanelRol from '../../components/ui/panelCardRol';
 import VerifyEmail from '../../pages/auth/verify-email';
+import ProtectedRoute from '../../components/auth/ProtectedRoute';
 
 // Importar sub-routers
 import AdminRoutes from './AdminRoutes';
@@ -30,7 +31,11 @@ export default function AppRoutes() {
       <Route path={ROUTES.HOME} element={<Login />} />
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path={ROUTES.CODIGO_ACCESO} element={<CodigoAcceso />} />
-      <Route path={ROUTES.PANEL_ROL} element={<PanelRol />} />
+      <Route path={ROUTES.PANEL_ROL} element={
+        <ProtectedRoute requiredAccess="ROL">
+          <PanelRol />
+        </ProtectedRoute>
+      } />
       <Route path={ROUTES.REGISTROL} element={<RegistroLogin />} />
       <Route path={ROUTES.ACCESO} element={<Acceso />} />
       <Route path="/verify-email" element={<VerifyEmail />} />

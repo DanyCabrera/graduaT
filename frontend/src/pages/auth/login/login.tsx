@@ -51,13 +51,16 @@ export default function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                // Guardar token y datos del usuario
+                // Usar el nuevo sistema de sesiones
+                const { setSession } = await import('../../../utils/sessionManager');
+                setSession(data.token, data.user, data.user.Rol);
+
+                // También guardar en localStorage para compatibilidad con código existente
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.setItem('auth_token', data.token);
                 localStorage.setItem('user_data', JSON.stringify(data.user));
                 localStorage.setItem('user_role', data.user.Rol);
-
 
                 // Redirigir según el rol
                 switch (data.user.Rol) {
@@ -104,10 +107,10 @@ export default function Login() {
                         width: "100%",
                         maxWidth: { xs: "100%", sm: "900px", md: "1000px" },
                         borderRadius: 4,
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-                        border: "none",
                         backgroundColor: "white",
                         overflow: "hidden",
+                        border: 1,
+                        borderColor: "#e5e7eb",
                     }}>
                     <Box
                         sx={{
@@ -232,52 +235,6 @@ export default function Login() {
                                     }}
                                 />
 
-                                {/* Opciones */}
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        mb: 3,
-                                    }}
-                                >
-                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                        <input
-                                            type="checkbox"
-                                            id="keepLoggedIn"
-                                            style={{
-                                                marginRight: 8,
-                                                accentColor: "#38b000",
-                                            }}
-                                        />
-                                        <Typography
-                                            variant="body2"
-                                            sx={{
-                                                color: "#374151",
-                                                fontSize: "0.875rem",
-                                            }}
-                                        >
-                                            Mantener sesión iniciada
-                                        </Typography>
-                                    </Box>
-                                    <Button
-                                        variant="text"
-                                        sx={{
-                                            color: "black",
-                                            textTransform: "none",
-                                            fontSize: "0.875rem",
-                                            fontWeight: 500,
-                                            p: 0,
-                                            "&:hover": {
-                                                backgroundColor: "transparent",
-                                                textDecoration: "underline",
-                                            },
-                                        }}
-                                    >
-                                        ¿Olvidaste tu contraseña?
-                                    </Button>
-                                </Box>
-
                                 {/* Botón de login */}
                                 <Button
                                     type="submit"
@@ -292,7 +249,7 @@ export default function Login() {
                                         textTransform: "none",
                                         fontSize: "1rem",
                                         fontWeight: 600,
-                                        bgcolor: '#38b000',
+                                        bgcolor: '#184e77',
                                         '&:disabled': {
                                             bgcolor: '#a0a0a0'
                                         }

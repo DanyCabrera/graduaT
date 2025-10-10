@@ -1,31 +1,12 @@
 const express = require('express');
-const { 
-    getAllSupervisores, 
-    getSupervisorById, 
-    createSupervisor, 
-    updateSupervisor, 
-    deleteSupervisor,
-    getSupervisoresByDepartamento
-} = require('../controllers/supervisorController');
-
 const router = express.Router();
+const supervisorController = require('../controllers/supervisorController');
 
-// GET /api/supervisores
-router.get('/', getAllSupervisores);
-
-// GET /api/supervisores/:id
-router.get('/:id', getSupervisorById);
-
-// POST /api/supervisores
-router.post('/', createSupervisor);
-
-// PUT /api/supervisores/:id
-router.put('/:id', updateSupervisor);
-
-// DELETE /api/supervisores/:id
-router.delete('/:id', deleteSupervisor);
-
-// GET /api/supervisores/departamento/:departamento
-router.get('/departamento/:departamento', getSupervisoresByDepartamento);
+// Rutas para supervisor
+router.get('/all-collections-info', supervisorController.getAllCollectionsInfo);
+router.get('/database-info', supervisorController.getDatabaseInfo);
+router.get('/retalhuleu-data', supervisorController.getRetalhuleuData);
+router.get('/performance-stats/:departamento', supervisorController.getDepartmentPerformanceStats);
+router.get('/institution-stats/:departamento', supervisorController.getInstitutionStatsByDepartment);
 
 module.exports = router;

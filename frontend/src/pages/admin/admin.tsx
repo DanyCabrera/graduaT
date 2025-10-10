@@ -2,19 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
-    Container,
     Typography,
     Button,
     Card,
     CardContent,
-    AppBar,
     Toolbar,
-    IconButton,
     Avatar,
-    Menu,
-    MenuItem,
     Divider,
-    Paper,
     Chip,
     Table,
     TableBody,
@@ -23,16 +17,21 @@ import {
     TableHead,
     TableRow,
     CircularProgress,
-    Alert
+    Alert,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    CssBaseline
 } from '@mui/material';
 import {
     Dashboard,
     School,
-    Settings,
     Logout,
     AdminPanelSettings,
     Person,
-    Email,
     Business,
     Refresh,
     CheckCircle,
@@ -75,7 +74,6 @@ interface Institucion {
 export default function AdminPanel() {
     const navigate = useNavigate();
     const [user, setUser] = useState<AdminUser | null>(null);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [currentView, setCurrentView] = useState<'dashboard' | 'codigos' | 'instituciones' | 'todos-codigos'>('dashboard');
     const [instituciones, setInstituciones] = useState<Institucion[]>([]);
     const [loadingInstituciones, setLoadingInstituciones] = useState(false);
@@ -110,13 +108,6 @@ export default function AdminPanel() {
         navigate('/admin');
     };
 
-    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
 
     const cargarInstituciones = async () => {
         setLoadingInstituciones(true);
@@ -198,121 +189,209 @@ export default function AdminPanel() {
         );
     }
 
+    const drawerWidth = 280;
+
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            {/* AppBar */}
-            <AppBar position="static" sx={{ backgroundColor: '#212529' }}>
+        <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            {/* Sidebar */}
+            <Drawer
+                variant="permanent"
+                sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: drawerWidth,
+                        boxSizing: 'border-box',
+                        backgroundColor: '#f8f9fa',
+                        borderRight: '1px solid #e9ecef',
+                    },
+                }}
+            >
                 <Toolbar>
-                    <AdminPanelSettings sx={{ mr: 2 }} />
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Panel de Administración - GraduaT
-                    </Typography>
-                    
-                    <IconButton
-                        size="large"
-                        onClick={handleMenuOpen}
-                        color="inherit"
-                    >
-                        <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                            <Person />
-                        </Avatar>
-                    </IconButton>
-                    
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
-                    >
-                        <MenuItem disabled>
-                            <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                                    {user.Nombre} {user.Apellido}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    {user.Usuario}
-                                </Typography>
-                            </Box>
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleMenuClose}>
-                            <Person sx={{ mr: 1 }} />
-                            Perfil
-                        </MenuItem>
-                        <MenuItem onClick={handleMenuClose}>
-                            <Settings sx={{ mr: 1 }} />
-                            Configuración
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleLogout}>
-                            <Logout sx={{ mr: 1 }} />
-                            Cerrar Sesión
-                        </MenuItem>
-                    </Menu>
-                </Toolbar>
-            </AppBar>
-
-            <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-                {/* Información del Usuario */}
-                <Paper 
-                    sx={{ 
-                        p: 3, 
-                        mb: 4, 
-                        backgroundColor: '#006d77',
-                        borderRadius: 3
-                    }}
-                    >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Avatar sx={{ bgcolor: '#83c5be', mr: 2, width: 56, height: 56 }}>
-                            <AdminPanelSettings />
-                        </Avatar>
-                        <Box>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#fff' }}>
-                                Bienvenido, {user.Nombre} {user.Apellido}
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                                <Email sx={{ fontSize: 16, color: '#fff' }} />
-                                <Typography variant="body2" color="text.secondary" sx={{ color: '#fff' }}>
-                                    {user.Correo}
-                                </Typography>
-                            </Box>
-                        </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                        <AdminPanelSettings sx={{ mr: 2, color: '#212529' }} />
+                        <Typography variant="h6" sx={{ color: '#212529', fontWeight: 'bold' }}>
+                            Administrador
+                        </Typography>
                     </Box>
-                </Paper>
-
+                </Toolbar>
+                
+                <Divider />
+                
                 {/* Navegación */}
-                <Box sx={{ mb: 3 }}>
-                    <Button
-                        variant={currentView === 'dashboard' ? 'contained' : 'outlined'}
-                        onClick={() => setCurrentView('dashboard')}
-                        sx={{ mr: 2 }}
-                        startIcon={<Dashboard />}
-                    >
-                        Dashboard
-                    </Button>
-                    <Button
-                        variant={currentView === 'instituciones' ? 'contained' : 'outlined'}
-                        onClick={() => setCurrentView('instituciones')}
-                        sx={{ mr: 2 }}
-                        startIcon={<Business />}
-                    >
-                        Gestionar Instituciones ({instituciones.length})
-                    </Button>
-                    <Button
-                        variant={currentView === 'todos-codigos' ? 'contained' : 'outlined'}
-                        onClick={() => setCurrentView('todos-codigos')}
-                        sx={{ mr: 2 }}
-                        startIcon={<School />}
-                    >
-                        Todos los Códigos
-                    </Button>
-                    <Button
-                        variant={currentView === 'codigos' ? 'contained' : 'outlined'}
-                        onClick={() => setCurrentView('codigos')}
-                        startIcon={<AdminPanelSettings />}
-                    >
-                        Generar Códigos
-                    </Button>
+                <List sx={{ px: 1 }}>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={currentView === 'dashboard'}
+                            onClick={() => setCurrentView('dashboard')}
+                            sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&.Mui-selected': {
+                                    backgroundColor: '#006d77',
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: '#005a61',
+                                    },
+                                    '& .MuiListItemIcon-root': {
+                                        color: 'white',
+                                    },
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <Dashboard />
+                            </ListItemIcon>
+                            <ListItemText primary="Dashboard" />
+                        </ListItemButton>
+                    </ListItem>
+                    
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={currentView === 'instituciones'}
+                            onClick={() => setCurrentView('instituciones')}
+                            sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&.Mui-selected': {
+                                    backgroundColor: '#006d77',
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: '#005a61',
+                                    },
+                                    '& .MuiListItemIcon-root': {
+                                        color: 'white',
+                                    },
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <Business />
+                            </ListItemIcon>
+                            <ListItemText 
+                                primary="Instituciones" 
+                                secondary={`${instituciones.length} registradas`}
+                            />
+                        </ListItemButton>
+                    </ListItem>
+                    
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={currentView === 'todos-codigos'}
+                            onClick={() => setCurrentView('todos-codigos')}
+                            sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&.Mui-selected': {
+                                    backgroundColor: '#006d77',
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: '#005a61',
+                                    },
+                                    '& .MuiListItemIcon-root': {
+                                        color: 'white',
+                                    },
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <School />
+                            </ListItemIcon>
+                            <ListItemText primary="Todos los Códigos" />
+                        </ListItemButton>
+                    </ListItem>
+                    
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={currentView === 'codigos'}
+                            onClick={() => setCurrentView('codigos')}
+                            sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&.Mui-selected': {
+                                    backgroundColor: '#006d77',
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: '#005a61',
+                                    },
+                                    '& .MuiListItemIcon-root': {
+                                        color: 'white',
+                                    },
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <AdminPanelSettings />
+                            </ListItemIcon>
+                            <ListItemText primary="Generar Códigos" />
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+                
+                {/* Sección de Usuario/Configuración */}
+                <Box sx={{ mt: 'auto', p: 1 }}>
+                    <Divider sx={{ mb: 1 }} />
+                    <List sx={{ px: 1 }}>
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                onClick={() => {/* Función de perfil */}}
+                                sx={{
+                                    borderRadius: 1,
+                                    mb: 0.5,
+                                    '&:hover': {
+                                        backgroundColor: '#e9ecef',
+                                    },
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Avatar sx={{ bgcolor: '#006d77', width: 32, height: 32 }}>
+                                        <Person sx={{ fontSize: 18 }} />
+                                    </Avatar>
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary={user.Nombre}
+                                    secondary="Administrador"
+                                    primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                    secondaryTypographyProps={{ fontSize: '0.75rem' }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                        
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                onClick={handleLogout}
+                                sx={{
+                                    borderRadius: 1,
+                                    mb: 0.5,
+                                    '&:hover': {
+                                        backgroundColor: '#f8d7da',
+                                    },
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Logout sx={{ color: '#dc3545' }} />
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary="Cerrar Sesión"
+                                    primaryTypographyProps={{ fontSize: '0.85rem', color: '#dc3545' }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
                 </Box>
+            </Drawer>
+
+            {/* Contenido Principal */}
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: 3,
+                    width: { sm: `calc(100% - ${drawerWidth}px)` },
+                }}
+            >
+                <Toolbar />
 
                 {/* Contenido */}
                 {currentView === 'dashboard' ? (
@@ -477,7 +556,7 @@ export default function AdminPanel() {
                 ) : (
                     <CodigoAcceso />
                 )}
-            </Container>
+            </Box>
         </Box>
     );
 }

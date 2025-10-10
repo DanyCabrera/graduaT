@@ -44,7 +44,21 @@ export default function Codigo() {
         // Guardar en localStorage para validación
         localStorage.setItem('codigosGenerados', JSON.stringify(nuevosCodigos));
         
+        // También guardar en el formato de códigos válidos para el sistema de acceso
+        const codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
+        const nuevoCodigoValido = {
+            codigo: codigo,
+            tipo: 'ROL',
+            activo: true,
+            fechaCreacion: new Date().toISOString(),
+            generadoPor: 'admin'
+        };
+        
+        const nuevosCodigosValidos = [nuevoCodigoValido, ...codigosValidos];
+        localStorage.setItem('codigosValidos', JSON.stringify(nuevosCodigosValidos));
+        
         console.log('Código generado:', codigo);
+        console.log('Código guardado en sistema de acceso:', nuevoCodigoValido);
     };
 
     const copiarCodigo = (codigo: string) => {
@@ -56,6 +70,11 @@ export default function Codigo() {
     const limpiarCodigos = () => {
         setCodigosGenerados([]);
         localStorage.removeItem('codigosGenerados');
+        
+        // También limpiar los códigos válidos del sistema de acceso
+        const codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
+        const codigosFiltrados = codigosValidos.filter((codigo: any) => codigo.tipo !== 'ROL');
+        localStorage.setItem('codigosValidos', JSON.stringify(codigosFiltrados));
     };
 
     return (
@@ -101,7 +120,7 @@ export default function Codigo() {
                                     fontWeight: 400,
                                 }}
                             >
-                                Genera y gestiona códigos de acceso a Director
+                                Genera y gestiona códigos de acceso para el panel de roles
                             </Typography>
                         </Box>
 
@@ -271,8 +290,8 @@ export default function Codigo() {
                             }}
                         >
                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                💡 <strong>Para Administradores:</strong> Los códigos generados son de 6 letras mayúsculas. 
-                                Haz clic en el icono de copiar para copiar cada código al portapapeles.
+                                💡 <strong>Para Administradores:</strong> Los códigos generados son de 6 letras mayúsculas y permiten acceso al panel de selección de roles. 
+                                Comparte estos códigos con los usuarios que necesiten registrarse en el sistema.
                             </Typography>
                         </Alert>
                     </Box>

@@ -14,5 +14,6 @@ router.get('/:tipo/:id', testController.getTestById);
 // Rutas para asignación de tests
 router.post('/assign', testController.assignTestToStudents);
 router.get('/assignments', testController.getTestAssignments);
+router.get('/assignments/debug', testController.getAssignmentsByInstitution);
 
 module.exports = router;

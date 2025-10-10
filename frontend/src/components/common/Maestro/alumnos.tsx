@@ -16,6 +16,7 @@ import {
     Tab,
 } from '@mui/material';
 import { testAssignmentService } from '../../../services/testAssignmentService';
+import { getSessionToken } from '../../../utils/authUtils';
 
 interface Alumno {
     Nombre: string;
@@ -38,6 +39,8 @@ interface TestResult {
     totalPoints: number;
     pointsPerQuestion: number;
     submittedAt: string;
+    fechaAsignacion: string;
+    fechaVencimiento: string;
     studentInfo: {
         nombre: string;
         apellido: string;
@@ -70,7 +73,7 @@ export default function Alumnos() {
 
     const fetchAlumnos = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = getSessionToken() || localStorage.getItem('token');
             if (!token) {
                 throw new Error('No se encontró el token de autenticación');
             }
@@ -152,6 +155,20 @@ export default function Alumnos() {
         if (score >= 70) return 'Satisfactorio';
         if (score >= 60) return 'Aceptable';
         return 'Necesita mejorar';
+    };
+
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return 'No disponible';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        } catch (error) {
+            return 'Fecha inválida' + error;
+        }
     };
 
     if (loading) {
@@ -308,7 +325,7 @@ export default function Alumnos() {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                {['Estudiante', 'Test', 'Semana', 'Puntuación', 'Calificación', 'Respuestas', 'Fecha'].map((header) => (
+                                {['Estudiante', 'Test asignado', 'Semana', 'Puntuación', 'Calificación', 'Respuestas', 'Fecha Asignación', 'Fecha Finalización', 'Fecha Vencimiento'].map((header) => (
                                     <TableCell
                                         key={header}
                                         sx={{
@@ -373,14 +390,20 @@ export default function Alumnos() {
                                             {result.correctAnswers}/{result.totalQuestions}
                                         </TableCell>
                                         <TableCell sx={{ color: '#64748b' }}>
-                                            {new Date(result.submittedAt).toLocaleDateString()}
+                                            {formatDate(result.fechaAsignacion)}
+                                        </TableCell>
+                                        <TableCell sx={{ color: '#64748b' }}>
+                                            {formatDate(result.submittedAt)}
+                                        </TableCell>
+                                        <TableCell sx={{ color: '#64748b' }}>
+                                            {formatDate(result.fechaVencimiento)}
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={8}
+                                        colSpan={9}
                                         sx={{
                                             textAlign: 'center',
                                             py: 8,

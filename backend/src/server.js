@@ -15,6 +15,7 @@ const userAdminRoutes = require('./routes/userAdminRoutes');
 const agendaRoutes = require('./routes/agendaRoutes');
 const testRoutes = require('./routes/testRoutes');
 const testAssignmentRoutes = require('./routes/testAssignmentRoutes');
+const codigoAccesoRoutes = require('./routes/codigoAccesoRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -40,6 +41,8 @@ app.use('/api/useradmin', userAdminRoutes);
 app.use('/api/agenda', agendaRoutes);
 app.use('/api/tests', testRoutes);
 app.use('/api/test-assignments', testAssignmentRoutes);
+app.use('/api/codigos-acceso', codigoAccesoRoutes);
+app.use('/api/supervisor-stats', supervisorRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -58,7 +61,9 @@ app.get('/', (req, res) => {
             useradmin: '/api/useradmin',
             agenda: '/api/agenda',
             tests: '/api/tests',
-            testAssignments: '/api/test-assignments'
+            testAssignments: '/api/test-assignments',
+            codigosAcceso: '/api/codigos-acceso',
+            supervisorStats: '/api/supervisor-stats'
         }
     });
 });

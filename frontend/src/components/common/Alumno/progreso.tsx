@@ -17,7 +17,6 @@ import {
     Avatar
 } from '@mui/material';
 import {
-    TrendingUp,
     Quiz,
     CheckCircle,
     Schedule,
@@ -38,10 +37,21 @@ export default function Progreso() {
         loadProgressData();
     }, []);
 
+    // Evitar recargas innecesarias
+    const [lastLoadTime, setLastLoadTime] = useState<number>(0);
+
     const loadProgressData = async () => {
         try {
+            // Evitar recargas muy frecuentes (máximo cada 5 segundos)
+            const now = Date.now();
+            if (now - lastLoadTime < 5000) {
+                console.log('⏭️ Saltando recarga - muy reciente');
+                return;
+            }
+            
             setLoading(true);
             setError('');
+            setLastLoadTime(now);
             console.log('🔄 Cargando datos de progreso...');
             
             // Cargar tests asignados
@@ -113,12 +123,18 @@ export default function Progreso() {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Dashboard de Progreso
+        <Container maxWidth="lg" sx={{ py: { xs: 1, sm: 2 } }}>
+            <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ 
+                    fontWeight: 'bold', 
+                    color: '#1e293b',
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                }}>
+                    Progreso
                 </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
+                <Typography variant="subtitle1" color="text.secondary" sx={{
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                }}>
                     Aquí puedes ver tu progreso en los tests asignados
                 </Typography>
             </Box>
@@ -126,75 +142,105 @@ export default function Progreso() {
             {/* Estadísticas Generales */}
             <Box sx={{ 
                 display: 'grid', 
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' },
-                gap: 3,
-                mb: 4 
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                gap: { xs: 2, sm: 3 },
+                mb: { xs: 3, sm: 4 },
             }}>
                 <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center' }}>
-                        <Avatar sx={{ bgcolor: 'primary.main', mx: 'auto', mb: 2 }}>
-                            <Quiz />
+                    <CardContent sx={{ textAlign: 'center', p: { xs: 2, sm: 3 } }}>
+                        <Avatar sx={{ 
+                            bgcolor: 'primary.main', 
+                            mx: 'auto', 
+                            mb: 2,
+                            width: { xs: 40, sm: 56 },
+                            height: { xs: 40, sm: 56 }
+                        }}>
+                            <Quiz sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                         </Avatar>
-                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="h4" component="div" sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: { xs: '1.5rem', sm: '2rem' }
+                        }}>
                             {totalTests}
                         </Typography>
-                        <Typography color="text.secondary">
+                        <Typography color="text.secondary" sx={{
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        }}>
                             Tests Asignados
                         </Typography>
                     </CardContent>
                 </Card>
 
                 <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center' }}>
-                        <Avatar sx={{ bgcolor: 'success.main', mx: 'auto', mb: 2 }}>
-                            <CheckCircle />
+                    <CardContent sx={{ textAlign: 'center', p: { xs: 2, sm: 3 } }}>
+                        <Avatar sx={{ 
+                            bgcolor: 'success.main', 
+                            mx: 'auto', 
+                            mb: 2,
+                            width: { xs: 40, sm: 56 },
+                            height: { xs: 40, sm: 56 }
+                        }}>
+                            <CheckCircle sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                         </Avatar>
-                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="h4" component="div" sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: { xs: '1.5rem', sm: '2rem' }
+                        }}>
                             {completedTests}
                         </Typography>
-                        <Typography color="text.secondary">
+                        <Typography color="text.secondary" sx={{
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        }}>
                             Tests Completados
                         </Typography>
                     </CardContent>
                 </Card>
 
                 <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center' }}>
-                        <Avatar sx={{ bgcolor: 'warning.main', mx: 'auto', mb: 2 }}>
-                            <Schedule />
+                    <CardContent sx={{ textAlign: 'center', p: { xs: 2, sm: 3 } }}>
+                        <Avatar sx={{ 
+                            bgcolor: 'warning.main', 
+                            mx: 'auto', 
+                            mb: 2,
+                            width: { xs: 40, sm: 56 },
+                            height: { xs: 40, sm: 56 }
+                        }}>
+                            <Schedule sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                         </Avatar>
-                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="h4" component="div" sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: { xs: '1.5rem', sm: '2rem' }
+                        }}>
                             {pendingTests}
                         </Typography>
-                        <Typography color="text.secondary">
+                        <Typography color="text.secondary" sx={{
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        }}>
                             Tests Pendientes
                         </Typography>
                     </CardContent>
                 </Card>
 
                 <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center' }}>
-                        <Avatar sx={{ bgcolor: 'info.main', mx: 'auto', mb: 2 }}>
-                            <TrendingUp />
+                    <CardContent sx={{ textAlign: 'center', p: { xs: 2, sm: 3 } }}>
+                        <Avatar sx={{ 
+                            bgcolor: 'success.main', 
+                            mx: 'auto', 
+                            mb: 2,
+                            width: { xs: 40, sm: 56 },
+                            height: { xs: 40, sm: 56 }
+                        }}>
+                            <EmojiEvents sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                         </Avatar>
-                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                            {completionRate}%
-                        </Typography>
-                        <Typography color="text.secondary">
-                            Progreso General
-                        </Typography>
-                    </CardContent>
-                </Card>
-
-                <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ textAlign: 'center' }}>
-                        <Avatar sx={{ bgcolor: 'success.main', mx: 'auto', mb: 2 }}>
-                            <EmojiEvents />
-                        </Avatar>
-                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="h4" component="div" sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: { xs: '1.5rem', sm: '2rem' }
+                        }}>
                             {averageScore}%
                         </Typography>
-                        <Typography color="text.secondary">
+                        <Typography color="text.secondary" sx={{
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        }}>
                             Puntaje Promedio
                         </Typography>
                     </CardContent>
@@ -202,23 +248,42 @@ export default function Progreso() {
             </Box>
 
             {/* Barra de Progreso General */}
-            <Card sx={{ mb: 4 }}>
-                <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Assessment />
+            <Card sx={{ mb: { xs: 3, sm: 4 } }}>
+                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                    <Typography variant="h6" gutterBottom sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 1,
+                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}>
+                        <Assessment sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                         Progreso General
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: { xs: 1, sm: 2 }, 
+                        mb: 1 
+                    }}>
                         <LinearProgress 
                             variant="determinate" 
                             value={completionRate} 
-                            sx={{ flexGrow: 1, height: 8, borderRadius: 4 }}
+                            sx={{ 
+                                flexGrow: 1, 
+                                height: { xs: 6, sm: 8 }, 
+                                borderRadius: 4 
+                            }}
                         />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" sx={{
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                            minWidth: 'fit-content'
+                        }}>
                             {completedTests}/{totalTests}
                         </Typography>
                     </Box>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}>
                         Has completado {completedTests} de {totalTests} tests asignados
                     </Typography>
                 </CardContent>
@@ -228,30 +293,43 @@ export default function Progreso() {
             <Box sx={{ 
                 display: 'grid', 
                 gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
-                gap: 3,
-                mb: 4 
+                gap: { xs: 2, sm: 3 },
+                mb: { xs: 3, sm: 4 } 
             }}>
                 <Card sx={{ height: '100%' }}>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <School sx={{ color: 'primary.main' }} />
+                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Typography variant="h6" gutterBottom sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 1,
+                            fontSize: { xs: '1rem', sm: '1.25rem' }
+                        }}>
+                            <School sx={{ color: 'primary.main', fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                             Matemáticas
                         </Typography>
                         <Box sx={{ mb: 2 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography variant="body2">Progreso</Typography>
-                                <Typography variant="body2">
+                                <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                    Progreso
+                                </Typography>
+                                <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                                     {mathTests.filter(t => t.estado === 'completado').length}/{mathTests.length}
                                 </Typography>
                             </Box>
                             <LinearProgress 
                                 variant="determinate" 
                                 value={mathTests.length > 0 ? (mathTests.filter(t => t.estado === 'completado').length / mathTests.length) * 100 : 0}
-                                sx={{ height: 6, borderRadius: 3 }}
+                                sx={{ height: { xs: 4, sm: 6 }, borderRadius: 3 }}
                             />
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                <Typography variant="body2" color="text.secondary">Promedio:</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 600, color: mathAverage >= 80 ? 'success.main' : mathAverage >= 60 ? 'warning.main' : 'error.main' }}>
+                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                    Promedio:
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontWeight: 600, 
+                                    color: mathAverage >= 80 ? 'success.main' : mathAverage >= 60 ? 'warning.main' : 'error.main',
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                }}>
                                     {mathAverage}%
                                 </Typography>
                             </Box>
@@ -264,6 +342,7 @@ export default function Progreso() {
                                     size="small"
                                     color={test.estado === 'completado' ? 'success' : 'default'}
                                     variant={test.estado === 'completado' ? 'filled' : 'outlined'}
+                                    sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                                 />
                             ))}
                         </Box>
@@ -271,26 +350,39 @@ export default function Progreso() {
                 </Card>
 
                 <Card sx={{ height: '100%' }}>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <School sx={{ color: 'secondary.main' }} />
+                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Typography variant="h6" gutterBottom sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 1,
+                            fontSize: { xs: '1rem', sm: '1.25rem' }
+                        }}>
+                            <School sx={{ color: 'secondary.main', fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                             Comunicación
                         </Typography>
                         <Box sx={{ mb: 2 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography variant="body2">Progreso</Typography>
-                                <Typography variant="body2">
+                                <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                    Progreso
+                                </Typography>
+                                <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                                     {commTests.filter(t => t.estado === 'completado').length}/{commTests.length}
                                 </Typography>
                             </Box>
                             <LinearProgress 
                                 variant="determinate" 
                                 value={commTests.length > 0 ? (commTests.filter(t => t.estado === 'completado').length / commTests.length) * 100 : 0}
-                                sx={{ height: 6, borderRadius: 3 }}
+                                sx={{ height: { xs: 4, sm: 6 }, borderRadius: 3 }}
                             />
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                <Typography variant="body2" color="text.secondary">Promedio:</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 600, color: commAverage >= 80 ? 'success.main' : commAverage >= 60 ? 'warning.main' : 'error.main' }}>
+                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                    Promedio:
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontWeight: 600, 
+                                    color: commAverage >= 80 ? 'success.main' : commAverage >= 60 ? 'warning.main' : 'error.main',
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                }}>
                                     {commAverage}%
                                 </Typography>
                             </Box>
@@ -303,6 +395,7 @@ export default function Progreso() {
                                     size="small"
                                     color={test.estado === 'completado' ? 'success' : 'default'}
                                     variant={test.estado === 'completado' ? 'filled' : 'outlined'}
+                                    sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                                 />
                             ))}
                         </Box>
@@ -311,7 +404,11 @@ export default function Progreso() {
             </Box>
 
             {/* Lista de Tests */}
-            <Card>
+            <Card
+                sx={{
+                    mb: { xs: 10, sm: 10, md: 4 }
+                }}
+            >
                 <CardContent>
                     <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <EmojiEvents />
@@ -335,7 +432,7 @@ export default function Progreso() {
                                 const testResult = testResults.find(result => 
                                     result.testId === test.testId && result.testType === test.testType
                                 );
-                                
+
                                 return (
                                     <div key={index}>
                                         <ListItem>
@@ -365,7 +462,7 @@ export default function Progreso() {
                                                 secondary={
                                                     <Box>
                                                         <Typography variant="body2" color="text.secondary">
-                                                            Semana {test.test?.semana || 'N/A'} • {test.test?.preguntas?.length || 0} preguntas
+                                                            {test.test?.preguntas?.length || 0} preguntas
                                                         </Typography>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
                                                             <Chip

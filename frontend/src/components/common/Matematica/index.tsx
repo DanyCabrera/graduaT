@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
-import { 
-    Box, 
-    Typography, 
-    Container, 
-    Card, 
-    CardContent, 
-    Button, 
-    Chip, 
-    CircularProgress, 
+import {
+    Box,
+    Typography,
+    Container,
+    Card,
+    CardContent,
+    Button,
+    Chip,
+    CircularProgress,
     Alert,
     Fade
 } from "@mui/material";
-import { 
-    Assignment, 
-    Quiz, 
-    Schedule, 
+import {
+    Assignment,
+    Quiz,
+    Schedule,
     CheckCircle,
     PlayArrow
 } from "@mui/icons-material";
@@ -32,15 +32,26 @@ export default function Matematica() {
         loadAssignedTests();
     }, []);
 
+    // Evitar recargas innecesarias
+    const [lastLoadTime, setLastLoadTime] = useState<number>(0);
+
     const loadAssignedTests = async () => {
         try {
+            // Evitar recargas muy frecuentes (máximo cada 5 segundos)
+            const now = Date.now();
+            if (now - lastLoadTime < 5000) {
+                console.log('⏭️ Saltando recarga de tests - muy reciente');
+                return;
+            }
+            
             setLoading(true);
             setError('');
+            setLastLoadTime(now);
             const response = await testAssignmentService.getAssignedTests();
-            
+
             if (response.success) {
                 // Filtrar solo tests de matemáticas
-                const mathTests = response.data.filter(test => 
+                const mathTests = response.data.filter(test =>
                     test.testType === 'matematicas' && test.test
                 );
                 setAssignedTests(mathTests);
@@ -61,7 +72,7 @@ export default function Matematica() {
             console.log('⚠️ Test ya completado, no se puede abrir nuevamente');
             return;
         }
-        
+
         setSelectedTest(test);
         setTestModalOpen(true);
     };
@@ -102,12 +113,23 @@ export default function Matematica() {
     }
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Typography variant="h3" sx={{ fontWeight: 600, color: 'primary.main', mb: 2 }}>
+        <Container maxWidth="xl" sx={{ py: 0 }}>
+            <Box sx={{ 
+                textAlign: 'center', 
+                mb: { xs: 2, sm: 3, md: 4 },
+                px: { xs: 1, sm: 2 }
+            }}>
+                <Typography variant="h3" sx={{ 
+                    fontWeight: 600, 
+                    color: 'primary.main', 
+                    mb: 2,
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                }}>
                     Matemáticas
                 </Typography>
-                <Typography variant="h6" color="text.secondary">
+                <Typography variant="h6" color="text.secondary" sx={{
+                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                }}>
                     Tests Asignados por tu Maestro
                 </Typography>
             </Box>
@@ -119,110 +141,161 @@ export default function Matematica() {
             )}
 
             {assignedTests.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                    <Assignment sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                    <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                <Box sx={{ 
+                    textAlign: 'center', 
+                    py: { xs: 4, sm: 6, md: 8 },
+                    px: { xs: 2, sm: 4 }
+                }}>
+                    <Assignment sx={{ 
+                        fontSize: { xs: 48, sm: 56, md: 64 }, 
+                        color: 'text.secondary', 
+                        mb: 2 
+                    }} />
+                    <Typography variant="h6" color="text.secondary" sx={{ 
+                        mb: 1,
+                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}>
                         No hay tests asignados
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{
+                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }}>
                         Tu maestro aún no ha asignado tests de matemáticas
                     </Typography>
                 </Box>
             ) : (
                 <Fade in={true} timeout={800}>
-                    <Box sx={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
-                        gap: 3,
-                        mt: 4 
+                    <Box sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { 
+                            xs: '1fr', 
+                            sm: 'repeat(auto-fit, minmax(300px, 1fr))',
+                            md: 'repeat(auto-fit, minmax(350px, 1fr))'
+                        },
+                        gap: { xs: 2, sm: 3 },
+                        mt: { xs: 2, sm: 3, md: 4 },
+                        px: { xs: 1, sm: 2 },
+                        mb: { xs: 12, sm: 12, md: 4 }
                     }}>
                         {assignedTests.map((testAssignment) => (
-                            <Card 
+                            <Card
                                 key={testAssignment._id}
-                                sx={{ 
+                                sx={{
                                     borderRadius: 3,
                                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                                     border: '1px solid #e2e8f0',
                                     transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                                     '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+                                        transform: { xs: 'none', sm: 'translateY(-4px)' },
+                                        boxShadow: { xs: '0 4px 6px rgba(0,0,0,0.1)', sm: '0 8px 25px rgba(0,0,0,0.15)' }
                                     }
                                 }}
                             >
-                                <CardContent sx={{ p: 3 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                                        <Quiz sx={{ color: 'primary.main', fontSize: 32 }} />
+                                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                                    <Box sx={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: { xs: 1, sm: 2 }, 
+                                        mb: 2 
+                                    }}>
+                                        <Quiz sx={{ 
+                                            color: 'primary.main', 
+                                            fontSize: { xs: 24, sm: 32 } 
+                                        }} />
                                         <Box sx={{ flex: 1 }}>
-                                            <Typography 
-                                                variant="h6" 
-                                                sx={{ 
-                                                    fontWeight: 600, 
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontWeight: 600,
                                                     mb: 0.5,
                                                     textDecoration: testAssignment.estado === 'completado' ? 'line-through' : 'none',
                                                     opacity: testAssignment.estado === 'completado' ? 0.7 : 1,
-                                                    color: testAssignment.estado === 'completado' ? 'text.secondary' : 'inherit'
+                                                    color: testAssignment.estado === 'completado' ? 'text.secondary' : 'inherit',
+                                                    fontSize: { xs: '1rem', sm: '1.25rem' }
                                                 }}
                                             >
                                                 {testAssignment.test?.titulo}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary">
+                                            <Typography variant="body2" color="text.secondary" sx={{
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                            }}>
                                                 {testAssignment.test?.descripcion}
                                             </Typography>
                                         </Box>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
-                                        <Chip 
-                                            icon={<Schedule />}
+                                    <Box sx={{ 
+                                        display: 'flex', 
+                                        gap: { xs: 0.5, sm: 1 }, 
+                                        mb: { xs: 2, sm: 3 }, 
+                                        flexWrap: 'wrap' 
+                                    }}>
+                                        <Chip
+                                            icon={<Schedule sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }} />}
                                             label={`Semana ${testAssignment.test?.semana}`}
                                             color="primary"
                                             variant="outlined"
                                             size="small"
+                                            sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                                         />
-                                        <Chip 
+                                        <Chip
                                             label={`${testAssignment.test?.preguntas.length} preguntas`}
                                             color="secondary"
                                             variant="outlined"
                                             size="small"
+                                            sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                                         />
-                                        <Chip 
+                                        <Chip
                                             label={`${testAssignment.test?.duracion} min`}
                                             color="info"
                                             variant="outlined"
                                             size="small"
+                                            sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                                         />
-                                        <Chip 
+                                        <Chip
                                             icon={getStatusIcon(testAssignment.estado)}
                                             label={testAssignment.estado.charAt(0).toUpperCase() + testAssignment.estado.slice(1)}
                                             color={getStatusColor(testAssignment.estado)}
                                             variant="filled"
                                             size="small"
+                                            sx={{ fontSize: { xs: '0.625rem', sm: '0.75rem' } }}
                                         />
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Typography variant="body2" color="text.secondary">
+                                    <Box sx={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'center',
+                                        flexDirection: { xs: 'column', sm: 'row' },
+                                        gap: { xs: 1, sm: 0 }
+                                    }}>
+                                        <Typography variant="body2" color="text.secondary" sx={{
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                            textAlign: { xs: 'center', sm: 'left' }
+                                        }}>
                                             Vence: {new Date(testAssignment.fechaVencimiento).toLocaleDateString()}
                                         </Typography>
-                                        
+
                                         <Button
                                             variant={testAssignment.estado === 'asignado' ? 'contained' : 'outlined'}
                                             startIcon={getStatusIcon(testAssignment.estado)}
                                             onClick={() => handleStartTest(testAssignment)}
                                             disabled={testAssignment.estado === 'completado'}
-                                            sx={{ 
+                                            sx={{
                                                 textTransform: 'none',
                                                 borderRadius: 2,
                                                 textDecoration: testAssignment.estado === 'completado' ? 'line-through' : 'none',
                                                 opacity: testAssignment.estado === 'completado' ? 0.7 : 1,
                                                 color: testAssignment.estado === 'completado' ? 'success.main' : 'inherit',
                                                 borderColor: testAssignment.estado === 'completado' ? 'success.main' : 'inherit',
-                                                cursor: testAssignment.estado === 'completado' ? 'not-allowed' : 'pointer'
+                                                cursor: testAssignment.estado === 'completado' ? 'not-allowed' : 'pointer',
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                                px: { xs: 2, sm: 3 },
+                                                py: { xs: 1, sm: 1.5 }
                                             }}
                                         >
-                                            {testAssignment.estado === 'asignado' ? 'Comenzar Test' : 
-                                             testAssignment.estado === 'completado' ? 'Test Finalizado' : 'Vencido'}
+                                            {testAssignment.estado === 'asignado' ? 'Comenzar Test' :
+                                                testAssignment.estado === 'completado' ? 'Test Finalizado' : 'Vencido'}
                                         </Button>
                                     </Box>
                                 </CardContent>

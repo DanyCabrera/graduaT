@@ -1,5 +1,7 @@
-import { Card, CardContent, Typography, Button, Fade, Box } from '@mui/material';
+import { Card, CardContent, Typography, Button, Fade, Box, IconButton, Tooltip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Logout as LogoutIcon } from '@mui/icons-material';
+import { clearAccessTokens } from '../../utils/authUtils';
 // import Navbar from './navbar';
 
 export default function PanelRol() {
@@ -45,6 +47,14 @@ export default function PanelRol() {
     const handleBackToPanel = () => {
         navigate('/');
     }
+
+    const handleLogout = () => {
+        // Limpiar tokens de acceso
+        clearAccessTokens();
+        
+        // Redirigir al login
+        navigate('/');
+    }
     return (
         <>
             {/* <Navbar /> */}
@@ -56,8 +66,28 @@ export default function PanelRol() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         minHeight: '100vh',
-                        py: 4
+                        py: 4,
+                        position: 'relative'
                     }}>
+                    
+                    {/* Botón de salir */}
+                    <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
+                        <Tooltip title="Salir del panel">
+                            <IconButton
+                                onClick={handleLogout}
+                                sx={{
+                                    backgroundColor: '#ef4444',
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: '#dc2626',
+                                    },
+                                }}
+                            >
+                                <LogoutIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+
                     <Typography variant='h3' 
                         sx={{ 
                             fontWeight: 'bold',

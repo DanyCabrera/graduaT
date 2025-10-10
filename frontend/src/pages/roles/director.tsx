@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { 
     Box, 
-    Card, 
-    CardContent, 
-    Typography, 
-
-    Container
+    Typography
 } from '@mui/material';
 import NavbarDirector from '../../components/common/Director/navbar';
 import InformacionDirector from '../../components/common/Director/informacion';
+import Dashboard from '../../components/common/Director/dashboard';
+import Alumnos from '../../components/common/Director/alumnos';
+import Maestros from '../../components/common/Director/maestros';
+import Cursos from '../../components/common/Director/cursos';
+import Rendimiento from '../../components/common/Director/rendimiento';
+import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
+import { clearSession } from '../../utils/sessionManager';
 
 interface UserData {
     Usuario: string;
@@ -27,6 +30,9 @@ export default function Director() {
     const [currentPage, setCurrentPage] = useState('inicio');
 
     const handleLogout = () => {
+        // Limpiar sesión actual
+        clearSession();
+        
         // Limpiar localStorage
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -47,80 +53,52 @@ export default function Director() {
             case 'informacion':
                 return <InformacionDirector userData={userData} />;
             case 'alumnos':
-                return (
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Gestión de Alumnos
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary">
-                                Aquí podrás gestionar la información de los alumnos de tu institución.
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                );
+                return <Alumnos userData={userData} />;
+            case 'maestros':
+                return <Maestros userData={userData} />;
             case 'cursos':
-                return (
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Gestión de Cursos
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary">
-                                Aquí podrás gestionar los cursos y materias de tu institución.
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                );
-            case 'tests':
-                return (
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Gestión de Tests
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary">
-                                Aquí podrás gestionar los tests y evaluaciones.
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                );
-            case 'historial':
-                return (
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Historial
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary">
-                                Aquí podrás ver el historial de actividades y reportes.
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                );
+                return <Cursos userData={userData} />;
+            case 'rendimiento':
+                return <Rendimiento userData={userData} />;
             default: // 'inicio'
-                return (
-                    <Typography variant='h2'>Bienvenido</Typography>
-                );
+                return <Dashboard userData={userData} />;
         }
     };
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
+        // Primero intentar obtener datos de la sesión actual
+        const sessionUser = getSessionUser();
+        const sessionRole = getSessionRole();
         
-        if (user) {
-            setUserData(JSON.parse(user));
-        } else if (token) {
-            fetchUserData();
+        if (sessionUser && sessionRole === 'Director') {
+            setUserData(sessionUser);
+            setLoading(false);
+        } else {
+            // Si no hay sesión válida, intentar obtener del localStorage
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (user) {
+                setUserData(JSON.parse(user));
+                setLoading(false);
+            } else if (token) {
+                fetchUserData();
+            } else {
+                setLoading(false);
+            }
         }
-        
-        setLoading(false);
     }, []);
 
     const fetchUserData = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = getSessionToken() || localStorage.getItem('token');
+            
+            if (!token) {
+                console.error('No hay token disponible');
+                setLoading(false);
+                return;
+            }
+            
             const response = await fetch('http://localhost:3001/api/auth/verify', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -133,6 +111,8 @@ export default function Director() {
             }
         } catch (error) {
             console.error('Error al obtener datos del usuario:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -155,22 +135,24 @@ export default function Director() {
     return (
         <Box sx={{ 
             minHeight: '100vh', 
-            backgroundColor: '#f5f5f5', 
+            backgroundColor: '#f5f5f5',
+            display: 'flex'
         }}>
-            <Container
-                sx={{
-                    minWidth: '100%',
-                    minHeight: '100%',
-                }}>
-                <NavbarDirector 
-                    onLogout={handleLogout} 
-                    onNavigate={handleNavigation}
-                    currentPage={currentPage}
-                />
+            <NavbarDirector 
+                onLogout={handleLogout} 
+                onNavigate={handleNavigation}
+                currentPage={currentPage}
+            />
+            <Box sx={{ 
+                flex: 1,
+                marginLeft: '280px', // Ancho de la barra lateral
+                minHeight: '100vh',
+                backgroundColor: '#f5f5f5'
+            }}>
                 <Box sx={{ p: 3 }}>
                     {renderPageContent()}
                 </Box>
-            </Container>
+            </Box>
         </Box>
     );
 }

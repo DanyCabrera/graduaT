@@ -72,18 +72,22 @@ export default function FormInst() {
         return codigo;
     };
 
-    // Función para guardar código en localStorage
-    const guardarCodigoEnStorage = (codigo: string) => {
+    // Función para guardar código igual que en el panel de admin
+    const guardarCodigoComoAdmin = (codigo: string) => {
+        // Guardar en localStorage para validación (igual que el admin)
         const codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
-        const nuevoCodigo = {
+        const nuevoCodigoValido = {
             codigo: codigo,
             tipo: 'ROL',
-            descripcion: 'Código temporal para acceso de roles',
+            activo: true,
             fechaCreacion: new Date().toISOString(),
-            activo: true
+            generadoPor: 'formInst'
         };
-        codigosValidos.push(nuevoCodigo);
-        localStorage.setItem('codigosValidos', JSON.stringify(codigosValidos));
+        
+        const nuevosCodigosValidos = [nuevoCodigoValido, ...codigosValidos];
+        localStorage.setItem('codigosValidos', JSON.stringify(nuevosCodigosValidos));
+        
+        console.log('✅ Código guardado en sistema de acceso:', nuevoCodigoValido);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,8 +130,8 @@ export default function FormInst() {
                 const nuevoCodigo = generarCodigoAleatorio();
                 setCodigoGenerado(nuevoCodigo);
 
-                // Guardar código en localStorage para validación posterior
-                guardarCodigoEnStorage(nuevoCodigo);
+                // Guardar código igual que en el panel de admin
+                guardarCodigoComoAdmin(nuevoCodigo);
 
                 setMostrarTablas(true);
                 showAlert('success', '¡Institución Encontrada!', `Se encontró la institución: ${result.data.nombre}`);
@@ -589,7 +593,7 @@ export default function FormInst() {
                                                         </Box>
 
                                                         <Typography variant="body2" sx={{ color: "#64748b", mb: 2 }}>
-                                                            Ve a <strong>/codigo-acceso</strong> e ingresa este código para acceder a <strong>/panelRol</strong>
+                                                            Este código funciona igual que los generados en el panel de admin. Los estudiantes pueden usarlo en <strong>/codigo-acceso</strong> para acceder al panel de roles.
                                                         </Typography>
                                                     </Box>
                                                 </CardContent>

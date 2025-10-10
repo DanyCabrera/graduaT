@@ -1,10 +1,21 @@
-import { Logout } from "@mui/icons-material";
+import { 
+    Logout, 
+    Dashboard, 
+    School, 
+    Person, 
+    Book, 
+    Assessment, 
+    Info 
+} from "@mui/icons-material";
 import { 
     Button,
-    AppBar,
-    Toolbar,
+    Box,
     Typography,
-    Box
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText
 } from "@mui/material";
 
 interface NavbarProps {
@@ -12,6 +23,16 @@ interface NavbarProps {
     onNavigate?: (page: string) => void;
     currentPage?: string;
 }
+
+const menuItems = [
+    { id: 'inicio', label: 'Inicio', icon: <Dashboard /> },
+    { id: 'alumnos', label: 'Alumnos', icon: <School /> },
+    { id: 'maestros', label: 'Maestros', icon: <Person /> },
+    { id: 'cursos', label: 'Cursos', icon: <Book /> },
+    { id: 'rendimiento', label: 'Rendimiento', icon: <Assessment /> },
+    { id: 'informacion', label: 'Información', icon: <Info /> }
+];
+
 export default function NavbarDirector({ onLogout, onNavigate, currentPage }: NavbarProps) {
     const handleNavigation = (page: string) => {
         if (onNavigate) {
@@ -20,90 +41,81 @@ export default function NavbarDirector({ onLogout, onNavigate, currentPage }: Na
     };
 
     return(
-        <>
-            <AppBar position="static" sx={{ backgroundColor: "white", color: "black", boxShadow: "none", borderBottom: "1px solid #e0e0e0" }}>
-                <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="h4" component="div" sx={{ fontWeight: "bold", marginLeft: 3 }}>
-                        Director
-                    </Typography>
+        <Box
+            sx={{
+                width: 280,
+                height: '100vh',
+                backgroundColor: '#ffffff',
+                borderRight: '1px solid #e0e0e0',
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                zIndex: 1000,
+                boxShadow: '2px 0 8px rgba(0,0,0,0.1)'
+            }}
+        >
+            {/* Header */}
+            <Box sx={{ p: 3, borderBottom: '1px solid #e0e0e0' }}>
+                <Typography variant="h5" component="div" sx={{ fontWeight: "bold", color: '#1976d2' }}>
+                    Director
+                </Typography>
+            </Box>
 
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => handleNavigation('inicio')}
-                            sx={{ 
-                                backgroundColor: currentPage === 'inicio' ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                                fontWeight: currentPage === 'inicio' ? 'bold' : 'normal'
-                            }}
-                        >
-                            Inicio
-                        </Button>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => handleNavigation('alumnos')}
-                            sx={{ 
-                                backgroundColor: currentPage === 'alumnos' ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                                fontWeight: currentPage === 'alumnos' ? 'bold' : 'normal'
-                            }}
-                        >
-                            Alumnos
-                        </Button>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => handleNavigation('cursos')}
-                            sx={{ 
-                                backgroundColor: currentPage === 'cursos' ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                                fontWeight: currentPage === 'cursos' ? 'bold' : 'normal'
-                            }}
-                        >
-                            Cursos
-                        </Button>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => handleNavigation('tests')}
-                            sx={{ 
-                                backgroundColor: currentPage === 'tests' ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                                fontWeight: currentPage === 'tests' ? 'bold' : 'normal'
-                            }}
-                        >
-                            Tests
-                        </Button>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => handleNavigation('historial')}
-                            sx={{ 
-                                backgroundColor: currentPage === 'historial' ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                                fontWeight: currentPage === 'historial' ? 'bold' : 'normal'
-                            }}
-                        >
-                            Historial
-                        </Button>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => handleNavigation('informacion')}
-                            sx={{ 
-                                backgroundColor: currentPage === 'informacion' ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
-                                fontWeight: currentPage === 'informacion' ? 'bold' : 'normal'
-                            }}
-                        >
-                            Información
-                        </Button>
-                        <Button 
-                            color="inherit" 
-                            startIcon={<Logout />}
-                            onClick={onLogout}
-                            sx={{ 
-                                color: '#d32f2f',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(211, 47, 47, 0.04)'
-                                }
-                            }}
-                        >
-                            Cerrar Sesión
-                        </Button>
-                    </Box>
-                </Toolbar>
-            </AppBar>
-        </>
+            {/* Navigation Menu */}
+            <Box sx={{ flex: 1, overflow: 'auto' }}>
+                <List sx={{ px: 2, py: 1 }}>
+                    {menuItems.map((item) => (
+                        <ListItem key={item.id} disablePadding sx={{ mb: 0.5 }}>
+                            <ListItemButton
+                                onClick={() => handleNavigation(item.id)}
+                                sx={{
+                                    borderRadius: 2,
+                                    backgroundColor: currentPage === item.id ? '#e3f2fd' : 'transparent',
+                                    color: currentPage === item.id ? '#1976d2' : 'inherit',
+                                    '&:hover': {
+                                        backgroundColor: currentPage === item.id ? '#e3f2fd' : '#f5f5f5'
+                                    }
+                                }}
+                            >
+                                <ListItemIcon sx={{ 
+                                    color: currentPage === item.id ? '#1976d2' : 'inherit',
+                                    minWidth: 40
+                                }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary={item.label}
+                                    primaryTypographyProps={{
+                                        fontWeight: currentPage === item.id ? 'bold' : 'normal'
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+
+            {/* Logout Button */}
+            <Box sx={{ p: 2, borderTop: '1px solid #e0e0e0' }}>
+                <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<Logout />}
+                    onClick={onLogout}
+                    sx={{
+                        color: '#d32f2f',
+                        borderColor: '#d32f2f',
+                        '&:hover': {
+                            backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                            borderColor: '#d32f2f'
+                        }
+                    }}
+                >
+                    Cerrar Sesión
+                </Button>
+            </Box>
+        </Box>
     )
 }  

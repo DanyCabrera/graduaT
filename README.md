@@ -38,25 +38,6 @@ http://localhost:5173/
 📊 Entorno: development
 ```
 
-## Keyri
-### Rediseñar la pagina NotFound
-```
-Ir a:
-/frontend/src/components/ui/NotFound.jsx
-```
-
-## Fernanda
-### Rediseñar los formulario de los roles colocarle una barra de navegacion que tenga solo el logo y nombre de la plataforma y el btn de regresar
-- en cada formulario ya tiene el btn de regresar, solo de moverlo a la barra de navegacion y darle otro tipo de diseño.
-```
-el logo y nombre de la plataforma lo encontraras en la carpeta de: 
-/frontend/src/assets/
-```
-```
-Ir a:
-/frontend/src/pages/auth/login/registro.tsx
-```
-
 # Material UI
 - Ir a esta pagina para buscar los estilos que se van a usar
 ```
