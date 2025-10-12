@@ -10,7 +10,7 @@ export function FooterMaestro() {
             sx={{
                 bgcolor: "#36385fff",
                 color: "white",
-                mt: 10,
+                mt: 8,
                 py: 4,
                 px: 2,
                 position: 'relative',
@@ -45,9 +45,9 @@ export function FooterMaestro() {
                         src={tortuFooter}
                         alt="Tortuga GraduaT"
                         sx={{
-                        height: { xs: 160, sm: 160, md: 160 }, 
+                        height: { xs: 160, sm: 160, md: 140 }, 
                         position: 'absolute',
-                        right: { xs: 140, sm: 290, md: 1304 }, 
+                        right: { xs: 140, sm: 290, md: 670 }, 
                         bottom: { xs: 210, sm: 271, md: 134 }, 
                         zIndex: 10,
                         transform: 'rotate(-5deg)',
@@ -146,9 +146,9 @@ export function FooterAlumno() {
                         src={tortuFooter}
                         alt="Tortuga GraduaT"
                         sx={{
-                             height: { xs: 160, sm: 160, md: 160 }, 
+                             height: { xs: 160, sm: 140, md: 140 }, 
                             position: 'absolute',
-                            right: { xs: 60, sm: 310, md: 280 }, 
+                            right: { xs: 60, sm: 310, md: -350 }, 
                             bottom: { xs: -1, sm: -1, md: 24 }, 
                             zIndex: 10,
                             transform: 'rotate(-5deg)',
