@@ -94,7 +94,7 @@ export default function DashboardPrincipal({ instituciones }: DashboardPrincipal
     ];
 
     return (
-        <Box sx={{ p: 3, backgroundColor: '#83c5be', borderRadius: 3 }}>
+        <Box sx={{ p: 3, backgroundColor: '#ffffffff', borderRadius: 3 }}>
             {/* Header */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1e293b', mb: 1 }}>

@@ -80,7 +80,7 @@ export default function Codigo() {
     return (
         <Box
             sx={{
-                backgroundColor: "#f8fafc",
+                backgroundColor: "#ffffffff",
                 padding: 2,
             }}
         >
@@ -290,8 +290,8 @@ export default function Codigo() {
                             }}
                         >
                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                💡 <strong>Para Administradores:</strong> Los códigos generados son de 6 letras mayúsculas y permiten acceso al panel de selección de roles. 
-                                Comparte estos códigos con los usuarios que necesiten registrarse en el sistema.
+                                💡 <strong>Para Administradores:</strong> Los códigos generados son de 6 letras mayúsculas y permiten el acceso
+                                al panel de registro de institucion, solo es compartido con los Directores de las instituciones.
                             </Typography>
                         </Alert>
                     </Box>

@@ -9,15 +9,17 @@ import {
     InputAdornment,
     Fade,
     Alert,
-    CircularProgress
+    CircularProgress,
+    Divider,
 } from "@mui/material";
 import {
     Visibility,
     VisibilityOff,
-    Login as LoginIcon
+    Email,
+    Lock,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import Logo from '../../../assets/logo.png'
+import { GraduationCap } from "lucide-react"
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +36,9 @@ export default function Login() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError("");
+        setTimeout(() => {
+            setError("");
+        }, 3000)
 
         try {
             const response = await fetch('http://localhost:3001/api/auth/login', {
@@ -98,248 +102,266 @@ export default function Login() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "white", // Fondo
+                backgroundColor: {xs: "#f8f9fa",sm:"#f8f9fa"}, // Fondo gris claro como en la imagen
                 padding: { xs: 2, sm: 1 },
             }}>
             <Fade in timeout={800}>
                 <Card
                     sx={{
                         width: "100%",
-                        maxWidth: { xs: "100%", sm: "900px", md: "1000px" },
-                        borderRadius: 4,
-                        backgroundColor: "white",
-                        overflow: "hidden",
-                        border: 1,
-                        borderColor: "#e5e7eb",
+                        maxWidth: { xs: "100%", sm: "450px" },
+                        borderRadius: 3,
+                        backgroundColor: {xs: "#f8f9fa", sm: "white"},
+                        boxShadow: {xs: "0 0px 0px rgba(0, 0, 0, 0)", sm: "0 4px 6px rgba(0, 0, 0, 0.1)"},
+                        padding: {xs: 2, sm: 4},
                     }}>
+                    {/* Ícono de graduación */}
                     <Box
                         sx={{
                             display: "flex",
-                            minHeight: { xs: "auto", sm: "600px" },
-                            flexDirection: { xs: "column", md: "row" },
+                            justifyContent: "center",
+                            mb: 3,
                         }}
                     >
-                        {/* Sección izquierda - Formulario */}
                         <Box
                             sx={{
-                                flex: 1,
-                                padding: { xs: 3, sm: 4, md: 5 },
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            }}
-                        >
-                            {/* Header */}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    mb: 3,
-                                }}
-                            >
-                                <Box
-                                    component="img"
-                                    src={Logo}
-                                    alt="GraduaT"
-                                    sx={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: 2,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        mr: 2,
-                                    }}
-                                >
-                                </Box>
-                                <Typography
-                                    variant="h5"
-                                    sx={{
-                                        fontWeight: 600,
-                                        color: "#374151",
-                                    }}
-                                >
-                                    GraduaT
-                                </Typography>
-                            </Box>
-
-                            {/* Título de bienvenida */}
-                            <Typography
-                                variant="h3"
-                                sx={{
-                                    fontWeight: 700,
-                                    color: "#1f2937",
-                                    mb: 4,
-                                    fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
-                                }}
-                            >
-                                Bienvenido
-                            </Typography>
-
-
-                            {/* Mostrar error si existe */}
-                            {error && (
-                                <Alert severity="error" sx={{ mb: 2 }}>
-                                    {error}
-                                </Alert>
-                            )}
-
-                            {/* Formulario */}
-                            <Box component="form" onSubmit={handleLogin}>
-                                <TextField
-                                    fullWidth
-                                    label="Dirección de correo"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Dirección de correo"
-                                    sx={{
-                                        mb: 2,
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                            backgroundColor: "white",
-                                        },
-                                        "& .MuiInputLabel-root": {
-                                            color: "#374151",
-                                            fontWeight: 500,
-                                        },
-                                    }}
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Contraseña"
-                                    type={showPassword ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Contraseña"
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton onClick={handleTogglePassword} edge="end">
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        mb: 3,
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                            backgroundColor: "white",
-                                        },
-                                        "& .MuiInputLabel-root": {
-                                            color: "#374151",
-                                            fontWeight: 500,
-                                        },
-                                    }}
-                                />
-
-                                {/* Botón de login */}
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    disabled={loading}
-                                    endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
-                                    sx={{
-                                        py: 1.5,
-                                        mb: 3,
-                                        borderRadius: 2,
-                                        textTransform: "none",
-                                        fontSize: "1rem",
-                                        fontWeight: 600,
-                                        bgcolor: '#184e77',
-                                        '&:disabled': {
-                                            bgcolor: '#a0a0a0'
-                                        }
-                                    }}
-                                >
-                                    {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                                </Button>
-                            </Box>
-
-                            {/* Enlace de registro */}
-                            <Box sx={{ textAlign: "center" }}>
-                                <Typography
-                                    variant="body2"
-                                    sx={{
-                                        color: "#9ca3af",
-                                        fontSize: "0.875rem",
-                                    }}
-                                >
-                                    ¿No tienes cuenta?{" "}
-                                    <Button
-                                        variant="text"
-                                        onClick={() => navigate("/codigo-acceso")}
-                                        sx={{
-                                            color: "#00012",
-                                            textTransform: "none",
-                                            fontWeight: 500,
-                                            p: 0,
-                                            minWidth: "auto",
-                                            fontSize: "0.875rem",
-                                            textDecoration: "underline",
-                                            "&:hover": {
-                                                backgroundColor: "transparent",
-                                                textDecoration: "underline",
-                                            },
-                                        }}
-                                    >
-                                        Regístrate
-                                    </Button>
-                                </Typography>
-                            </Box>
-                        </Box>
-
-                        {/* Sección derecha - Solo imagen */}
-                        <Box
-                            sx={{
-                                flex: 1,
+                                width: 68,
+                                height: 68,
+                                backgroundColor: "#37415112",
+                                borderRadius: 4,
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                position: "relative",
-                                overflow: "hidden",
                             }}
                         >
-                            {/* Gradiente de fondo */}
-                            <Box
-                                sx={{
-                                    position: "absolute",
-                                    top: 0,
-                                    left: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    opacity: 0.8,
-                                }}
-                            />
+                            <GraduationCap size={40} />
+                        </Box>
+                    </Box>
 
-                            {/* Imagen que ocupa toda la sección */}
-                            <Box
+                    {/* Título de bienvenida */}
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            color: "#374151",
+                            textAlign: "center",
+                            mb: 1,
+                            fontSize: { xs: "1.5rem", sm: "1.85rem" },
+                        }}
+                    >
+                        GraduaT
+                    </Typography>
+
+                    {/* Subtítulo */}
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: "#6b7280",
+                            textAlign: "center",
+                            mb: 4,
+                            fontSize: "0.875rem",
+                        }}
+                    >
+                        Inicia sesión en tu cuenta educativa
+                    </Typography>
+
+                    {/* Mostrar error si existe */}
+                    {error && (
+                        <Alert severity="error" sx={{ mb: 3, borderRadius: 4, border: "#c1121e4f 1px solid" }}>
+                            {error}
+                        </Alert>
+
+                    )}
+
+                    {/* Formulario */}
+                    <Box component="form" onSubmit={handleLogin}>
+                        {/* Campo de email */}
+                        <Box sx={{ mb: 3 }}>
+                            <Typography
+                                variant="body2"
                                 sx={{
-                                    position: "relative",
-                                    zIndex: 2,
-                                    width: "100%",
-                                    height: "100%",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    padding: { xs: 2, sm: 3, md: 4 },
+                                    color: "#374151",
+                                    fontWeight: 500,
+                                    mb: 1,
+                                    fontSize: "0.875rem",
                                 }}
                             >
-                                <Box
-                                    component="img"
-                                    src={Logo}
-                                    alt="Vista 3D de libros y educación"
-                                    sx={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "contain",
-                                    }}
-                                />
-                            </Box>
+                                Correo electrónico
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="tu@ejemplo.edu"
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Email sx={{ color: "#9ca3af", fontSize: 20 }} />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        borderRadius: 2,
+                                        backgroundColor: "white",
+                                        "& fieldset": {
+                                            borderColor: "#d1d5db",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#9ca3af",
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#3b82f6",
+                                        },
+                                    },
+                                    "& .MuiInputBase-input": {
+                                        padding: "12px 14px",
+                                        fontSize: "0.875rem",
+                                    },
+                                }}
+                            />
                         </Box>
+
+                        {/* Campo de contraseña */}
+                        <Box sx={{ mb: 2 }}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: "#374151",
+                                        fontWeight: 500,
+                                        fontSize: "0.875rem",
+                                    }}
+                                >
+                                    Contraseña
+                                </Typography>
+                            </Box>
+                            <TextField
+                                fullWidth
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Lock sx={{ color: "#9ca3af", fontSize: 20 }} />
+                                        </InputAdornment>
+                                    ),
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton onClick={handleTogglePassword} edge="end">
+                                                {showPassword ?
+                                                    <VisibilityOff sx={{ color: "#9ca3af", fontSize: 20 }} /> :
+                                                    <Visibility sx={{ color: "#9ca3af", fontSize: 20 }} />
+                                                }
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        borderRadius: 2,
+                                        backgroundColor: "white",
+                                        "& fieldset": {
+                                            borderColor: "#d1d5db",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#9ca3af",
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#3b82f6",
+                                        },
+                                    },
+                                    "& .MuiInputBase-input": {
+                                        padding: "12px 14px",
+                                        fontSize: "0.875rem",
+                                    },
+                                }}
+                            />
+                        </Box>
+
+                        {/* Botón de login */}
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            disabled={loading}
+                            sx={{
+                                py: 1.5,
+                                mb: 3,
+                                borderRadius: 2,
+                                textTransform: "none",
+                                fontSize: "0.875rem",
+                                fontWeight: 600,
+                                backgroundColor: "#1a202c",
+                                "&:hover": {
+                                    backgroundColor: "#2d3748",
+                                },
+                                "&:disabled": {
+                                    backgroundColor: "#a0a0a0",
+                                },
+                            }}
+                        >
+                            {loading ? (
+                                <CircularProgress size={20} color="inherit" />
+                            ) : (
+                                "Iniciar sesión"
+                            )}
+                        </Button>
+                    </Box>
+
+                    {/* Separador */}
+                    <Box sx={{ position: "relative", mb: 3 }}>
+                        <Divider />
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                backgroundColor: "white",
+                                px: 2,
+                                color: "#6b7280",
+                                fontSize: "0.875rem",
+                            }}
+                        >
+                            O
+                        </Typography>
+                    </Box>
+
+                    {/* Enlace de registro */}
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                color: "#374151",
+                                fontSize: "0.875rem",
+                            }}
+                        >
+                            ¿No tienes una cuenta?{" "}
+                            <Button
+                                variant="text"
+                                onClick={() => navigate("/codigo-acceso")}
+                                sx={{
+                                    color: "#374151",
+                                    textTransform: "none",
+                                    fontWeight: 600,
+                                    p: 0,
+                                    minWidth: "auto",
+                                    fontSize: "0.875rem",
+                                    textDecoration: "underline",
+                                    "&:hover": {
+                                        backgroundColor: "transparent",
+                                        textDecoration: "underline",
+                                    },
+                                }}
+                            >
+                                Regístrate
+                            </Button>
+                        </Typography>
                     </Box>
                 </Card>
             </Fade>

@@ -11,7 +11,7 @@ class UserAdmin {
         this.Telefono = data.Telefono;
         this.Contraseña = data.Contraseña;
         this.Confirmar_Contraseña = data.Confirmar_Contraseña;
-        this.emailVerificado = data.emailVerificado || false;
+        this.emailVerificado = data.emailVerificado || true; // Verificado por defecto
         this.tokenVerificacion = data.tokenVerificacion || null;
         this.fechaCreacion = data.fechaCreacion || new Date();
         this.fechaActualizacion = data.fechaActualizacion || new Date();
@@ -92,17 +92,17 @@ class UserAdmin {
         try {
             const userAdmin = new UserAdmin(data);
             const validationErrors = userAdmin.validate();
-            
+
             if (validationErrors.length > 0) {
                 throw new Error(`Errores de validación: ${validationErrors.join(', ')}`);
             }
 
             await userAdmin.encryptPassword();
-            userAdmin.generateVerificationToken();
-            
+            // No generar token de verificación - email verificado por defecto
+
             const db = await getDB();
             const result = await db.collection('UserAdmin').insertOne(userAdmin);
-            
+
             return {
                 success: true,
                 data: {
@@ -171,13 +171,13 @@ class UserAdmin {
             const db = await getDB();
             const userAdmin = new UserAdmin(updateData);
             const validationErrors = userAdmin.validate();
-            
+
             if (validationErrors.length > 0) {
                 throw new Error(`Errores de validación: ${validationErrors.join(', ')}`);
             }
 
             await userAdmin.encryptPassword();
-            
+
             const result = await db.collection('UserAdmin').updateOne(
                 { _id: new ObjectId(id) },
                 { $set: userAdmin }
@@ -200,7 +200,7 @@ class UserAdmin {
         try {
             const db = await getDB();
             const result = await db.collection('UserAdmin').deleteOne({ _id: new ObjectId(id) });
-            
+
             return {
                 success: result.deletedCount > 0,
                 deletedCount: result.deletedCount
@@ -246,12 +246,12 @@ class UserAdmin {
             const db = await getDB();
             const result = await db.collection('UserAdmin').updateOne(
                 { tokenVerificacion: token },
-                { 
-                    $set: { 
+                {
+                    $set: {
                         emailVerificado: true,
                         tokenVerificacion: null,
                         fechaActualizacion: new Date()
-                    } 
+                    }
                 }
             );
             return result.modifiedCount > 0;

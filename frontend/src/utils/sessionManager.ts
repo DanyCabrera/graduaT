@@ -14,13 +14,11 @@ class SessionManager {
     private currentTabId: string;
 
     constructor() {
-        // Generar un ID único para esta pestaña
-        this.currentTabId = this.generateTabId();
+        // Intentar recuperar el tabId existente o generar uno nuevo
+        this.currentTabId = this.getOrCreateTabId();
         
-        // Escuchar cuando se cierra la pestaña para limpiar la sesión
-        window.addEventListener('beforeunload', () => {
-            this.clearCurrentSession();
-        });
+        // No limpiar sesión automáticamente en beforeunload para permitir recarga de página
+        // La sesión se mantendrá hasta que expire o se limpie explícitamente
 
         // Escuchar cambios en localStorage de otras pestañas
         window.addEventListener('storage', (e) => {
@@ -31,6 +29,20 @@ class SessionManager {
 
         // Sincronizar sesiones al cargar
         this.syncSessions();
+    }
+
+    private getOrCreateTabId(): string {
+        // Intentar recuperar un tabId existente del localStorage
+        const existingTabId = localStorage.getItem('currentTabId');
+        if (existingTabId) {
+            return existingTabId;
+        }
+        
+        // Si no existe, generar uno nuevo y guardarlo
+        const newTabId = this.generateTabId();
+        localStorage.setItem('currentTabId', newTabId);
+        console.log('🔍 Generando nuevo tabId:', newTabId);
+        return newTabId;
     }
 
     private generateTabId(): string {
@@ -96,6 +108,7 @@ class SessionManager {
     }
 
     public clearCurrentSession(): void {
+        console.log('🔍 Limpiando sesión actual para tabId:', this.currentTabId);
         this.sessions.delete(this.currentTabId);
         this.saveSessions();
 
@@ -105,6 +118,7 @@ class SessionManager {
             localStorage.removeItem('user');
             localStorage.removeItem('user_role');
             localStorage.removeItem('currentSessions');
+            localStorage.removeItem('currentTabId');
         }
     }
 
@@ -114,22 +128,37 @@ class SessionManager {
         localStorage.removeItem('user');
         localStorage.removeItem('user_role');
         localStorage.removeItem('currentSessions');
+        localStorage.removeItem('currentTabId');
     }
 
     public hasValidSession(): boolean {
         const session = this.getCurrentSession();
-        if (!session) return false;
+        console.log('🔍 hasValidSession - Sesión actual:', session);
+        
+        if (!session) {
+            console.log('❌ No hay sesión actual');
+            return false;
+        }
 
         // Verificar si la sesión no ha expirado (24 horas)
         const now = Date.now();
         const sessionAge = now - session.timestamp;
         const maxAge = 24 * 60 * 60 * 1000; // 24 horas
 
+        console.log('🔍 Verificación de expiración:', {
+            now: new Date(now).toLocaleString(),
+            sessionTimestamp: new Date(session.timestamp).toLocaleString(),
+            sessionAge: Math.round(sessionAge / (1000 * 60)) + ' minutos',
+            maxAge: Math.round(maxAge / (1000 * 60 * 60)) + ' horas'
+        });
+
         if (sessionAge > maxAge) {
+            console.log('❌ Sesión expirada, limpiando');
             this.clearCurrentSession();
             return false;
         }
 
+        console.log('✅ Sesión válida');
         return true;
     }
 

@@ -20,7 +20,9 @@ export default function ProtectedRoute({ children, requiredAccess = 'ROL' }: Pro
 
     const checkAccess = () => {
         try {
+            console.log('🔍 Verificando acceso para:', requiredAccess);
             const isValid = hasValidAccessToken(requiredAccess);
+            console.log('✅ Token de acceso válido:', isValid);
             
             // Para acceso de rol, también verificar que tenemos datos de sesión
             if (requiredAccess === 'ROL' && isValid) {
@@ -28,49 +30,28 @@ export default function ProtectedRoute({ children, requiredAccess = 'ROL' }: Pro
                 const user = getSessionUser();
                 const role = getSessionRole();
                 
+                console.log('🔍 Datos de sesión:', { token: !!token, user: !!user, role });
+                
                 if (!token || !user || !role) {
-                    console.warn('Sesión incompleta, redirigiendo al login');
+                    console.warn('❌ Sesión incompleta, redirigiendo al login');
                     setIsAuthorized(false);
                     setLoading(false);
                     return;
                 }
             }
             
+            console.log('✅ Acceso autorizado:', isValid);
             setIsAuthorized(isValid);
         } catch (error) {
-            console.error('Error checking access:', error);
+            console.error('❌ Error checking access:', error);
             setIsAuthorized(false);
         } finally {
             setLoading(false);
         }
     };
 
-    // Limpiar tokens cuando el usuario navega fuera del panel
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            // Limpiar tokens cuando el usuario cierra la pestaña o navega
-            if (requiredAccess === 'ROL') {
-                clearAccessTokens();
-            }
-        };
-
-        const handlePopState = () => {
-            // Limpiar tokens cuando el usuario usa el botón atrás
-            if (requiredAccess === 'ROL') {
-                clearAccessTokens();
-            }
-        };
-
-        // Agregar event listeners
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        window.addEventListener('popstate', handlePopState);
-
-        // Cleanup
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            window.removeEventListener('popstate', handlePopState);
-        };
-    }, [requiredAccess]);
+    // No limpiar tokens automáticamente para permitir recarga de página
+    // Los tokens se limpiarán solo cuando el usuario haga logout explícitamente
 
     const handleGoToAccess = () => {
         navigate('/codigo-acceso');

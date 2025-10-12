@@ -21,9 +21,6 @@ class Login {
         try {
             const db = await getDB();
             
-            // Log de los datos antes de crear el objeto
-            console.log('Datos recibidos en Login.create:', JSON.stringify(loginData, null, 2));
-            
             // Encriptar contraseña
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(loginData.Contraseña, saltRounds);
@@ -32,9 +29,6 @@ class Login {
                 ...loginData,
                 Contraseña: hashedPassword
             });
-            
-            // Log del objeto Login creado
-            console.log('Objeto Login creado:', JSON.stringify(login, null, 2));
             
             const result = await db.collection('Login').insertOne(login);
             return result;

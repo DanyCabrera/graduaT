@@ -41,7 +41,7 @@ export default function Director() {
         localStorage.removeItem('user_role');
         
         // Redirigir al inicio
-        window.location.href = 'http://localhost:5173';
+        window.location.href = '/';
     };
 
     const handleNavigation = (page: string) => {

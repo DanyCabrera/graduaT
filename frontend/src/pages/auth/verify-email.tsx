@@ -17,12 +17,13 @@ export default function VerifyEmail() {
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
     const [isVerified, setIsVerified] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false); // Prevenir múltiples verificaciones
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Si ya se verificó exitosamente, no hacer nada más
-        if (isVerified) return;
+        // Si ya se verificó exitosamente o está en proceso, no hacer nada más
+        if (isVerified || isVerifying) return;
         
         const token = searchParams.get('token') || localStorage.getItem('verificationToken');
         
@@ -34,23 +35,32 @@ export default function VerifyEmail() {
         }
 
         verifyEmail(token);
-    }, [searchParams, isVerified]);
+    }, [searchParams]); // Removido isVerified de las dependencias
 
     const verifyEmail = async (token: string) => {
-        // Si ya se verificó exitosamente, no hacer nada
-        if (isVerified) return;
+        // Si ya se verificó exitosamente o está en proceso, no hacer nada
+        if (isVerified || status === 'success' || isVerifying) return;
+        
+        setIsVerifying(true);
         
         try {
+            console.log('🔍 Iniciando verificación con token:', token);
             
             // Intentar primero con el endpoint de userAdmin (para administradores)
             let response = await fetch(`http://localhost:3001/api/useradmin/verify-email/${token}`);
             
             if (response.ok) {
+                const adminData = await response.json();
+                console.log('✅ Verificación de admin exitosa:', adminData);
                 
                 setIsVerified(true);
                 setStatus('success');
                 setMessage('¡Email verificado exitosamente!');
                 setLoading(false);
+                setIsVerifying(false);
+                
+                // Limpiar el token del localStorage después de verificación exitosa
+                localStorage.removeItem('verificationToken');
                 
                 // Redirigir al login de administrador después de 3 segundos
                 setTimeout(() => {
@@ -67,25 +77,33 @@ export default function VerifyEmail() {
             
             if (response.ok) {
                 const userData = await response.json();
+                console.log('✅ Verificación de usuario exitosa:', userData);
                 
                 // Guardar token y datos del usuario
                 localStorage.setItem('token', userData.token);
                 localStorage.setItem('user', JSON.stringify(userData.user));
+                
+                // Limpiar el token del localStorage después de verificación exitosa
+                localStorage.removeItem('verificationToken');
+                setIsVerifying(false);
                 
                 // Redirigir inmediatamente al panel correspondiente sin mostrar el panel de verificación
                 redirectToPanel(userData.user.Rol);
                 return;
             } else {
                 const errorData = await response.json();
+                console.log('❌ Error en verificación de usuario:', errorData);
                 setStatus('error');
                 setMessage(errorData.error || errorData.message || 'Error al verificar el email');
                 setLoading(false);
+                setIsVerifying(false);
             }
         } catch (error) {
             console.error('💥 Error al verificar email:', error);
             setStatus('error');
             setMessage('Error de conexión. Intenta de nuevo.');
             setLoading(false);
+            setIsVerifying(false);
         }
     };
 
@@ -199,18 +217,6 @@ export default function VerifyEmail() {
                                     No se pudo verificar tu email.
                                 </Alert>
                                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => navigate('/acceso')}
-                                        sx={{
-                                            py: 1.5,
-                                            px: 3,
-                                            borderRadius: 2,
-                                            textTransform: 'none'
-                                        }}
-                                    >
-                                        Intentar de Nuevo
-                                    </Button>
                                     <Button
                                         variant="contained"
                                         onClick={() => navigate('/admin')}

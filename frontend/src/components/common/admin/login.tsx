@@ -785,12 +785,10 @@ export default function LoginAdmin() {
             });
 
             const data = await response.json();
-            console.log('Respuesta del servidor:', data);
-
             if (response.ok && data.success) {
                 setSnackbar({
                     open: true,
-                    message: 'Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
+                    message: 'Registro exitoso! Ya puedes iniciar sesión. Revisa tu correo para el mensaje de bienvenida.',
                     severity: 'success'
                 });
 
@@ -816,10 +814,10 @@ export default function LoginAdmin() {
                     confirmPassword: ''
                 });
 
-                // Cambiar a login después de 3 segundos
+                // Cambiar a login después de 2 segundos
                 setTimeout(() => {
                     setIsRegistering(false);
-                }, 3000);
+                }, 2000);
             } else {
                 // Mostrar errores específicos si están disponibles
                 let errorMessage = data.message || 'Error en el registro';

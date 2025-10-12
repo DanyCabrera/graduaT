@@ -11,16 +11,67 @@ export const clearAccessTokens = () => {
 
 export const hasValidAccessToken = (requiredType: string = 'ROL'): boolean => {
     try {
-        // Primero verificar si tenemos una sesión válida
-        if (!hasValidSession()) {
-            return false;
-        }
-
+        console.log('🔍 hasValidAccessToken - Tipo requerido:', requiredType);
+        console.log('🔍 localStorage completo:', {
+            accessToken: localStorage.getItem('accessToken'),
+            accessType: localStorage.getItem('accessType'),
+            accessExpiry: localStorage.getItem('accessExpiry'),
+            token: localStorage.getItem('token'),
+            user: localStorage.getItem('user'),
+            user_role: localStorage.getItem('user_role'),
+            currentSessions: localStorage.getItem('currentSessions')
+        });
+        
         // Verificar el tipo de acceso requerido
         if (requiredType === 'ROL') {
-            // Para acceso de rol, verificar que tenemos un rol válido
+            // Para acceso de rol, verificar que tenemos una sesión válida Y un token de acceso válido
+            const hasSession = hasValidSession();
             const currentRole = getCurrentRole();
-            return currentRole !== null && currentRole !== undefined;
+            
+            console.log('🔍 Verificaciones de sesión:', { hasSession, currentRole });
+            
+            // Verificar token de acceso tradicional
+            const accessToken = localStorage.getItem('accessToken');
+            const accessType = localStorage.getItem('accessType');
+            const accessExpiry = localStorage.getItem('accessExpiry');
+
+            console.log('🔍 Token de acceso:', { 
+                hasToken: !!accessToken, 
+                type: accessType, 
+                hasExpiry: !!accessExpiry,
+                expiryTime: accessExpiry ? new Date(parseInt(accessExpiry)).toLocaleString() : 'N/A'
+            });
+
+            if (!accessToken || !accessType || !accessExpiry) {
+                console.log('❌ Faltan datos del token de acceso');
+                return false;
+            }
+
+            // Verificar si el token ha expirado
+            const now = new Date().getTime();
+            const expiryTime = parseInt(accessExpiry);
+            
+            if (now > expiryTime) {
+                console.log('❌ Token expirado - Ahora:', new Date(now).toLocaleString(), 'Expira:', new Date(expiryTime).toLocaleString());
+                // Token expirado, limpiar
+                clearAccessTokens();
+                return false;
+            }
+
+            // Verificar si el tipo de acceso coincide
+            const hasValidAccess = accessType === requiredType;
+            
+            console.log('🔍 Validaciones finales:', { 
+                hasValidAccess, 
+                hasSession, 
+                hasRole: currentRole !== null && currentRole !== undefined 
+            });
+            
+            // Para el panel de roles, necesitamos tanto el token de acceso como una sesión válida
+            // El rol puede ser TEMP_ROLE (temporal) o un rol específico
+            const result = hasValidAccess && hasSession && currentRole !== null && currentRole !== undefined;
+            console.log('✅ Resultado final:', result);
+            return result;
         }
 
         // Para otros tipos de acceso, usar el sistema anterior

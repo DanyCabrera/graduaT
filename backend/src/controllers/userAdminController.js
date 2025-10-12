@@ -100,32 +100,20 @@ const createUserAdmin = async (req, res) => {
         });
 
         if (result.success) {
-            // Verificar que la contraseña se guardó hasheada (solo para debug)
-            const userAdmin = await UserAdmin.findByUsuario(Usuario);
-            if (userAdmin) {
-                console.log('✅ Usuario creado exitosamente');
-                console.log('🔐 Contraseña hasheada:', userAdmin.Contraseña.substring(0, 20) + '...');
-                console.log('📧 Email verificado:', userAdmin.emailVerificado);
-                console.log('🔑 Token generado:', userAdmin.tokenVerificacion ? 'Sí' : 'No');
-            }
-
-            // Enviar email de verificación
+            // Enviar email de felicitaciones (sin verificación)
             try {
-                if (userAdmin && userAdmin.tokenVerificacion) {
-                    await emailService.sendVerificationEmail(
-                        Correo, 
-                        userAdmin.tokenVerificacion, 
-                        Nombre
-                    );
-                }
+                await emailService.sendWelcomeEmail(
+                    Correo, 
+                    Nombre
+                );
             } catch (emailError) {
-                console.error('Error al enviar email de verificación:', emailError);
+                console.error('Error al enviar email de bienvenida:', emailError);
                 // No fallar el registro si el email falla
             }
 
             res.status(201).json({
                 success: true,
-                message: 'Administrador creado exitosamente. Revisa tu correo para confirmar tu cuenta.',
+                message: 'Administrador creado exitosamente. Ya puedes iniciar sesión.',
                 data: result.data
             });
         } else {
@@ -249,7 +237,7 @@ const loginUserAdmin = async (req, res) => {
         if (!Usuario || !Contraseña) {
             return res.status(400).json({
                 success: false,
-                message: 'Usuario y contraseña son requeridos'
+                message: 'Campos requeridos'
             });
         }
 
@@ -266,7 +254,7 @@ const loginUserAdmin = async (req, res) => {
         if (!userAdmin.emailVerificado) {
             return res.status(401).json({
                 success: false,
-                message: 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.'
+                message: 'Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada.'
             });
         }
 

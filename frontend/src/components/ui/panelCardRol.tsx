@@ -1,57 +1,48 @@
-import { Card, CardContent, Typography, Button, Fade, Box, IconButton, Tooltip } from '@mui/material';
+import { Card, CardContent, Typography, Button, Fade, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Logout as LogoutIcon } from '@mui/icons-material';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { clearAccessTokens } from '../../utils/authUtils';
 // import Navbar from './navbar';
+import logo from "../../assets/LogoColor1.png";
+import IconRol from "../../assets/logo.png";
+import { AppBar, Toolbar } from "@mui/material";
 
 export default function PanelRol() {
     // Configuración de roles con estilo infográfico
     const rolesConfig = [
         {
-            numero: '01',
             nombre: 'Supervisor',
-            descripcion: 'Supervisa y gestiona todas las operaciones del sistema educativo con control total.',
-            color: '#d90429',
-            imagen: "https://cdn-icons-png.freepik.com/512/10992/10992894.png"
+            descripcion: 'Supervisa todas las instituciones.',
+            imagen: IconRol
         },
         {
-            numero: '02', 
             nombre: 'Director',
-            descripcion: 'Administra la institución educativa y toma decisiones estratégicas importantes.',
-            color: '#00b894',
-            imagen: "https://cdn-icons-png.freepik.com/512/10992/10992894.png"
+            descripcion: 'Supervisa a sus maestro y alumnos.',
+            imagen: IconRol
         },
         {
-            numero: '03',
-            nombre: 'Maestro', 
-            descripcion: 'Evalúa estudiantes y gestiona el proceso de enseñanza-aprendizaje.',
-            color: '#1b4965',
-            imagen: "https://cdn-icons-png.freepik.com/512/10992/10992894.png"
+            nombre: 'Maestro',
+            descripcion: 'Asigna test a los alumnos y crea su agenda de la semana.',
+            imagen: IconRol
         },
         {
-            numero: '04',
             nombre: 'Alumno',
-            descripcion: 'Accede a contenidos educativos, consulta calificaciones y participa en actividades.',
-            color: '#3a86ff',
-            imagen: "https://cdn-icons-png.freepik.com/512/10992/10992894.png"
+            descripcion: 'Realiza test semanales.',
+            imagen: IconRol
         }
     ];
 
     // Función para manejar el clic en una tarjeta
     const navigate = useNavigate();
-        const handleCardClick = (rol: string) => {
+    const handleCardClick = (rol: string) => {
         localStorage.setItem('selectedRol', rol);
         navigate("/registrol");
     };
 
-    const handleBackToPanel = () => {
-        navigate('/');
-    }
-
     const handleLogout = () => {
         // Limpiar tokens de acceso
         clearAccessTokens();
-        
+
         // Redirigir al login
         navigate('/');
     }
@@ -67,55 +58,60 @@ export default function PanelRol() {
                         justifyContent: 'center',
                         minHeight: '100vh',
                         py: 4,
-                        position: 'relative'
+                        position: 'relative',
+                        bgcolor: '#f8f9fa'
                     }}>
-                    
-                    {/* Botón de salir */}
-                    <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
-                        <Tooltip title="Salir del panel">
-                            <IconButton
+                        
+                    {/* Barra de navegación */}
+                    <AppBar
+                        position="fixed"
+                        sx={{
+                            backgroundColor: "white",
+                            color: "black",
+                            boxShadow: "none",
+                            borderBottom: "1px solid #e0e0e0",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: 1100,
+                        }}
+                    >
+                        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+                            {/* Logo a la izquierda */}
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <img src={logo} alt="Logo" style={{ height: "28px", width: "auto" }} />
+                            </Box>
+
+                            {/* Botón de regresar a la derecha */}
+                            <Button
+                                color="info"
+                                startIcon={<LogoutIcon />}
                                 onClick={handleLogout}
                                 sx={{
-                                    backgroundColor: '#ef4444',
-                                    color: 'white',
-                                    '&:hover': {
-                                        backgroundColor: '#dc2626',
+                                    textTransform: "none",
+                                    fontWeight: "medium",
+                                    fontSize: "0.9rem",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                                        boxShadow: "none",
                                     },
                                 }}
                             >
-                                <LogoutIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
+                                Iniciar Sesión
+                            </Button>
+                        </Toolbar>
+                    </AppBar>
 
-                    <Typography variant='h3' 
-                        sx={{ 
-                            fontWeight: 'bold',
-                            fontSize: {md: '2.5rem', xs: '1.8rem'},
-                            color: '#2c3e50',
-                            textAlign: 'center',
-                            mb: 2
-                        }}>
-                        Selecciona tu Rol
-                    </Typography>
-                    <Typography variant='h6' 
-                        sx={{ 
-                            color: '#7f8c8d',
-                            textAlign: 'center',
-                            maxWidth: '600px',
-                            fontSize: {md: '1.3rem', xs: '1.2rem'},
-                        }}>
-                        Elige el tipo de usuario que mejor describa tu función en el sistema educativo
-                    </Typography>
-                    <Box className="container-card" 
+                    <Box className="container-card"
                         sx={{
-                            minHeight: {md: '70vh', xs: '60vh'},
+                            minHeight: { md: '70vh', xs: '60vh' },
                             width: '100%',
                             display: 'flex',
                             flexWrap: 'wrap',
                             justifyContent: 'center', // Centra horizontalmente
                             alignItems: 'center', // Centra verticalmente
                             backgroundColor: 'rgba(13, 62, 237, 0)',
+                            mt: {xs: 4, sm: 4}
                             // '& > *': { para estilizar cada tarjeta
                             //     border: '3px solid red',
                             // }
@@ -128,12 +124,12 @@ export default function PanelRol() {
                                     width: 300,
                                     height: 420,
                                     margin: '.8rem',
-                                    borderRadius: '20px',                                    
+                                    borderRadius: '20px',
+                                    border: 1,
+                                    borderColor: '#e9edc9',
                                     position: 'relative',
                                     cursor: 'pointer',
                                     background: 'white',
-                                    border: `3px solid ${rol.color}20`,
-                                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
                                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     overflow: 'hidden',
                                     '&::before': {
@@ -143,46 +139,14 @@ export default function PanelRol() {
                                         left: 0,
                                         right: 0,
                                         height: '6px',
-                                        background: rol.color,
                                         borderRadius: '20px 20px 0 0'
                                     },
                                     '&:hover': {
-                                        transform: 'translateY(-10px)',
-                                        boxShadow: `0 20px 40px ${rol.color}30`,
-                                        border: `3px solid ${rol.color}40`
+                                        transform: 'translateY(-4px)',
                                     },
                                 }}
                                 onClick={() => handleCardClick(rol.nombre)}
                             >
-                                {/* Número en la esquina */}
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 20,
-                                        right: 20,
-                                        width: 50,
-                                        height: 50,
-                                        borderRadius: '50%',
-                                        background: rol.color,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        zIndex: 2,
-                                        boxShadow: `0 4px 15px ${rol.color}40`
-                                    }}
-                                >
-                                    <Typography
-                                        variant='h6'
-                                        sx={{
-                                            color: 'white',
-                                            fontWeight: 'bold',
-                                            fontSize: '1.2rem'
-                                        }}
-                                    >
-                                        {rol.numero}
-                                    </Typography>
-                                </Box>
-
                                 <CardContent
                                     sx={{
                                         display: 'flex',
@@ -196,15 +160,13 @@ export default function PanelRol() {
                                     {/* Imagen */}
                                     <Box
                                         sx={{
-                                            width: 120,
-                                            height: 120,
+                                            width: 200,
+                                            height: 200,
                                             borderRadius: '50%',
-                                            background: `${rol.color}10`,
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             mb: 3,
-                                            border: `2px solid ${rol.color}30`,
                                             overflow: 'hidden'
                                         }}
                                     >
@@ -212,17 +174,19 @@ export default function PanelRol() {
                                             src={rol.imagen}
                                             alt={rol.nombre}
                                             style={{
-                                                width: "80px",
-                                                height: "80px",
+                                                width: "180px",
+                                                height: "180px",
                                                 objectFit: 'contain'
                                             }}
                                         />
                                     </Box>
 
+
                                     {/* Título */}
-                                    <Typography 
-                                        variant='h5'
+                                    <Typography
+                                        variant='button'
                                         sx={{
+                                            fontSize: '1.3rem',
                                             fontWeight: 'bold',
                                             color: '#2c3e50',
                                             mb: 2,
@@ -231,9 +195,9 @@ export default function PanelRol() {
                                     >
                                         {rol.nombre}
                                     </Typography>
-
+                                    
                                     {/* Descripción */}
-                                    <Typography 
+                                    <Typography
                                         variant='body2'
                                         sx={{
                                             textAlign: 'center',
@@ -249,20 +213,17 @@ export default function PanelRol() {
 
                                     {/* Botón */}
                                     <Button
-                                        variant='contained'
+                                        variant='outlined'
+                                        color='success'
                                         fullWidth
                                         sx={{
                                             mt: 'auto',
-                                            py: 1.5,
+                                            py: 1,
                                             borderRadius: '12px',
-                                            background: rol.color,
                                             fontWeight: 'bold',
                                             fontSize: '1rem',
                                             textTransform: 'none',
-                                            boxShadow: `0 4px 15px ${rol.color}40`,
                                             '&:hover': {
-                                                background: rol.color,
-                                                boxShadow: `0 6px 20px ${rol.color}50`,
                                                 filter: 'brightness(1.1)'
                                             }
                                         }}
@@ -273,33 +234,6 @@ export default function PanelRol() {
                             </Card>
                         ))}
                     </Box>
-                        <Box sx={{ 
-                            display: 'flex', 
-                            flexDirection: 'row', 
-                            alignItems: 'center', 
-                            gap: 2,
-                        }}>
-                            <Typography variant='body2'
-                                sx={{
-                                    color: '#7f8c8d',
-                                    textAlign: 'center'
-                                }}>
-                                ¿Ya tienes una cuenta?
-                            </Typography>
-                            <Button 
-                                onClick={handleBackToPanel}
-                                sx={{
-                                    borderColor: '#3498db',
-                                    color: '#3498db',
-                                    px: 2,
-                                    borderRadius: '12px',
-                                    fontWeight: 'bold',
-                                    textTransform: 'none',
-                                }}
-                            >
-                                Iniciar Sesión
-                            </Button>
-                        </Box>
                 </Box>
             </Fade>
             <style>
