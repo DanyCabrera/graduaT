@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 import { testAssignmentService, type TestAssignment } from '../../../services/testAssignmentService';
 import TestModal from './TestModal';
+import StyledAlert from '../../ui/StyledAlert';
 
 export default function Matematica() {
     const [assignedTests, setAssignedTests] = useState<TestAssignment[]>([]);
@@ -27,6 +28,15 @@ export default function Matematica() {
     const [error, setError] = useState('');
     const [selectedTest, setSelectedTest] = useState<TestAssignment | null>(null);
     const [testModalOpen, setTestModalOpen] = useState(false);
+    const [resultModalOpen, setResultModalOpen] = useState(false);
+    const [testResults, setTestResults] = useState<{
+        score: number;
+        correctAnswers: number;
+        totalQuestions: number;
+        earnedPoints: number;
+        totalPoints: number;
+        pointsPerQuestion: number;
+    } | null>(null);
 
     useEffect(() => {
         loadAssignedTests();
@@ -47,14 +57,51 @@ export default function Matematica() {
             setLoading(true);
             setError('');
             setLastLoadTime(now);
-            const response = await testAssignmentService.getAssignedTests();
+            // Obtener tests asignados y resultados en paralelo
+            const [testsResponse, resultsResponse] = await Promise.all([
+                testAssignmentService.getAssignedTests(),
+                testAssignmentService.getStudentTestResults()
+            ]);
 
-            if (response.success) {
+            if (testsResponse.success) {
                 // Filtrar solo tests de matemáticas
-                const mathTests = response.data.filter(test =>
+                let mathTests = testsResponse.data.filter(test =>
                     test.testType === 'matematicas' && test.test
                 );
+                
+                // Combinar con resultados si están disponibles
+                if (resultsResponse.success && resultsResponse.data.length > 0) {
+                    const resultsMap = new Map();
+                    resultsResponse.data.forEach((result: any) => {
+                        const key = `${result.testId}_${result.testType}`;
+                        resultsMap.set(key, result);
+                    });
+                    
+                    // Agregar resultados a los tests correspondientes
+                    mathTests = mathTests.map(test => {
+                        const resultKey = `${test.testId}_${test.testType}`;
+                        const result = resultsMap.get(resultKey);
+                        if (result) {
+                            return {
+                                ...test,
+                                result: {
+                                    score: result.score,
+                                    correctAnswers: result.correctAnswers,
+                                    totalQuestions: result.totalQuestions,
+                                    earnedPoints: result.earnedPoints,
+                                    totalPoints: result.totalPoints,
+                                    pointsPerQuestion: result.pointsPerQuestion,
+                                    timeSpent: result.timeSpent,
+                                    completedAt: result.completedAt
+                                }
+                            };
+                        }
+                        return test;
+                    });
+                }
+                
                 setAssignedTests(mathTests);
+                console.log('✅ Tests de matemáticas cargados:', mathTests.length);
             } else {
                 setError('Error al cargar los tests asignados');
             }
@@ -80,7 +127,31 @@ export default function Matematica() {
     const handleCloseTestModal = () => {
         setTestModalOpen(false);
         setSelectedTest(null);
-        // Recargar tests después de completar uno
+    };
+
+    const handleTestCompleted = (results?: {
+        score: number;
+        correctAnswers: number;
+        totalQuestions: number;
+        earnedPoints: number;
+        totalPoints: number;
+        pointsPerQuestion: number;
+    }) => {
+        if (results) {
+            setTestResults(results);
+            setResultModalOpen(true);
+        }
+        
+        // No recargar automáticamente para evitar que se cierre el modal de resultados
+        console.log('🎉 Test completado');
+    };
+
+    const handleCloseResultModal = () => {
+        setResultModalOpen(false);
+        setTestResults(null);
+        
+        // Recargar la lista de tests después de cerrar el modal de resultados
+        console.log('🔄 Recargando lista de tests...');
         loadAssignedTests();
     };
 
@@ -170,7 +241,7 @@ export default function Matematica() {
                         gridTemplateColumns: { 
                             xs: '1fr', 
                             sm: 'repeat(auto-fit, minmax(300px, 1fr))',
-                            md: 'repeat(auto-fit, minmax(350px, 1fr))'
+                            md: 'repeat(auto-fit, minmax(750px, 1fr))'
                         },
                         gap: { xs: 2, sm: 3 },
                         mt: { xs: 2, sm: 3, md: 4 },
@@ -211,7 +282,7 @@ export default function Matematica() {
                                                     textDecoration: testAssignment.estado === 'completado' ? 'line-through' : 'none',
                                                     opacity: testAssignment.estado === 'completado' ? 0.7 : 1,
                                                     color: testAssignment.estado === 'completado' ? 'text.secondary' : 'inherit',
-                                                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                                                    fontSize: { xs: '1.1rem', sm: '1.25rem' }
                                                 }}
                                             >
                                                 {testAssignment.test?.titulo}
@@ -223,6 +294,42 @@ export default function Matematica() {
                                             </Typography>
                                         </Box>
                                     </Box>
+
+                                    {/* Mostrar resultado si el test está completado */}
+                                    {testAssignment.estado === 'completado' && testAssignment.result && (
+                                        <Box sx={{ 
+                                            mb: 2, 
+                                            p: 2, 
+                                            backgroundColor: '#f0f9ff', 
+                                            borderRadius: 2, 
+                                            border: '1px solid #3b82f6' 
+                                        }}>
+                                            <Typography variant="subtitle2" sx={{ 
+                                                fontWeight: 600, 
+                                                color: '#1e40af', 
+                                                mb: 1,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1
+                                            }}>
+                                                <CheckCircle sx={{ fontSize: 16 }} />
+                                                Resultado del Test
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ 
+                                                color: '#1e40af',
+                                                fontWeight: 500
+                                            }}>
+                                                Puntuación: {testAssignment.result.correctAnswers}/{testAssignment.result.totalQuestions} ({testAssignment.result.score}%)
+                                            </Typography>
+                                            <Typography variant="caption" sx={{ 
+                                                color: '#1e40af',
+                                                display: 'block',
+                                                mt: 0.5
+                                            }}>
+                                                Puntos: {testAssignment.result.earnedPoints}/{testAssignment.result.totalPoints}
+                                            </Typography>
+                                        </Box>
+                                    )}
 
                                     <Box sx={{ 
                                         display: 'flex', 
@@ -311,14 +418,20 @@ export default function Matematica() {
                     open={testModalOpen}
                     onClose={handleCloseTestModal}
                     testAssignment={selectedTest}
-                    onTestCompleted={() => {
-                        console.log('🎉 Test completado, recargando lista...');
-                        setTimeout(() => {
-                            loadAssignedTests();
-                        }, 1000); // Pequeño delay para asegurar que el backend haya procesado
-                    }}
+                    onTestCompleted={handleTestCompleted}
                 />
             )}
+
+            {/* Modal de resultados */}
+            <StyledAlert
+                open={resultModalOpen}
+                onClose={handleCloseResultModal}
+                type="success"
+                title="¡Test Completado!"
+                message={testResults ? `Has obtenido ${testResults.score}% de puntuación` : ''}
+                details={testResults ? `📊 Resultados detallados:\n• Puntos por pregunta: ${testResults.pointsPerQuestion}\n• Puntos obtenidos: ${testResults.earnedPoints}/${testResults.totalPoints}\n• Respuestas correctas: ${testResults.correctAnswers}/${testResults.totalQuestions}` : ''}
+                showDetails={!!testResults}
+            />
         </Container>
     );
 }

@@ -28,13 +28,13 @@ import { agendaService, type AgendaSemana } from '../../../services/agendaServic
 
 export default function Agenda() {
     const [agenda, setAgenda] = useState<AgendaSemana[]>([]);
-    const [materia, setMateria] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [generating, setGenerating] = useState<boolean>(false);
     const [siguienteSemana, setSiguienteSemana] = useState<number>(1);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedWeek, setSelectedWeek] = useState<AgendaSemana | null>(null);
+    const [limiteAlcanzado, setLimiteAlcanzado] = useState<boolean>(false);
 
     // Cargar agenda inicial desde localStorage o vacía
     useEffect(() => {
@@ -52,12 +52,10 @@ export default function Agenda() {
 
 
                 const savedAgenda = localStorage.getItem(`maestro_agenda_${userKey}`);
-                const savedMateria = localStorage.getItem(`maestro_materia_${userKey}`);
                 const savedSiguienteSemana = localStorage.getItem(`maestro_siguiente_semana_${userKey}`);
 
-                if (savedAgenda && savedMateria && savedSiguienteSemana) {
+                if (savedAgenda && savedSiguienteSemana) {
                     setAgenda(JSON.parse(savedAgenda));
-                    setMateria(savedMateria);
                     setSiguienteSemana(parseInt(savedSiguienteSemana));
                 } else {
                     console.log('📂 No hay agenda guardada para el usuario:', userKey, '- Usuario nuevo o primera vez');
@@ -72,7 +70,7 @@ export default function Agenda() {
     }, []);
 
     // Función para guardar la agenda en localStorage
-    const saveAgendaToStorage = (agendaData: AgendaSemana[], materiaData: string, siguienteSemanaData: number) => {
+    const saveAgendaToStorage = (agendaData: AgendaSemana[], siguienteSemanaData: number) => {
         try {
             // Obtener datos del usuario para crear clave única
             const userData = localStorage.getItem('user_data');
@@ -84,7 +82,6 @@ export default function Agenda() {
             const userKey = user.Usuario || user.email || 'unknown';
 
             localStorage.setItem(`maestro_agenda_${userKey}`, JSON.stringify(agendaData));
-            localStorage.setItem(`maestro_materia_${userKey}`, materiaData);
             localStorage.setItem(`maestro_siguiente_semana_${userKey}`, siguienteSemanaData.toString());
         } catch (error) {
             console.error('Error saving agenda to localStorage:', error);
@@ -101,18 +98,27 @@ export default function Agenda() {
             if (response.success && response.data.agenda) {
                 const nuevaAgenda = [...agenda, response.data.agenda];
                 setAgenda(nuevaAgenda);
-                setMateria(response.data.materia || '');
                 setSiguienteSemana(siguienteSemana + 1);
 
                 // Guardar en localStorage
-                saveAgendaToStorage(nuevaAgenda, response.data.materia || '', siguienteSemana + 1);
+                saveAgendaToStorage(nuevaAgenda, siguienteSemana + 1);
 
             } else {
                 setError('Error al generar nueva agenda');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error generating agenda:', error);
-            setError('Error al generar nueva agenda. Verifica tu conexión.');
+            
+            // Verificar si es un error específico de límite de agenda
+            if (error.message && error.message.includes('No hay agenda disponible')) {
+                setError('¡Has alcanzado el límite de agenda disponible! No hay más semanas para generar.');
+                setLimiteAlcanzado(true);
+            } else if (error.status === 404) {
+                setError('¡Has alcanzado el límite de agenda disponible! No hay más semanas para generar.');
+                setLimiteAlcanzado(true);
+            } else {
+                setError('Error al generar nueva agenda. Verifica tu conexión.');
+            }
         } finally {
             setGenerating(false);
         }
@@ -156,7 +162,7 @@ export default function Agenda() {
                             variant="contained"
                             startIcon={generating ? <CircularProgress size={20} /> : <CalendarTodayIcon />}
                             onClick={handleGenerarNuevaAgenda}
-                            disabled={generating}
+                            disabled={generating || limiteAlcanzado}
                             sx={{
                                 borderRadius: 2,
                                 py: 1.5,
@@ -165,7 +171,9 @@ export default function Agenda() {
                                 fontSize: '1rem'
                             }}
                         >
-                            {generating ? 'Generando...' : agenda.length === 0 ? 'Comenzar Agenda' : 'Generar Agenda semanal'}
+                            {generating ? 'Generando...' : 
+                             limiteAlcanzado ? 'Límite alcanzado' :
+                             agenda.length === 0 ? 'Comenzar Agenda' : 'Generar Agenda semanal'}
                         </Button>
 
                         {agenda.length > 0 && (
@@ -186,12 +194,11 @@ export default function Agenda() {
 
                                         setAgenda([]);
                                         setSiguienteSemana(1);
-                                        setMateria('');
                                         setError('');
+                                        setLimiteAlcanzado(false);
 
                                         // Limpiar localStorage con claves únicas
                                         localStorage.removeItem(`maestro_agenda_${userKey}`);
-                                        localStorage.removeItem(`maestro_materia_${userKey}`);
                                         localStorage.removeItem(`maestro_siguiente_semana_${userKey}`);
                                         console.log('🗑️ Agenda reseteada y localStorage limpiado para usuario:', userKey);
                                     } catch (error) {
@@ -214,8 +221,16 @@ export default function Agenda() {
 
                 {/* Error Alert */}
                 {error && (
-                    <Alert severity="error" sx={{ mb: 3, width: '100%', maxWidth: 600, mx: 'auto' }}>
+                    <Alert 
+                        severity={limiteAlcanzado ? "info" : "error"} 
+                        sx={{ mb: 3, width: '100%', maxWidth: 600, mx: 'auto' }}
+                    >
                         {error}
+                        {limiteAlcanzado && (
+                            <Box sx={{ mt: 1, fontSize: '0.9rem', opacity: 0.8 }}>
+                                Puedes usar el botón "Resetear" para comenzar de nuevo con la agenda.
+                            </Box>
+                        )}
                     </Alert>
                 )}
 

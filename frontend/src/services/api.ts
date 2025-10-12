@@ -40,9 +40,27 @@ class ApiService {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (parseError) {
+          // Si no se puede parsear como JSON, usar el texto plano
+          const errorText = await response.text();
+          if (errorText) {
+            errorMessage = errorText;
+          }
+        }
+        
+        console.error('❌ Error response:', errorMessage);
+        
+        // Crear un error personalizado con el mensaje del backend
+        const customError = new Error(errorMessage);
+        (customError as any).status = response.status;
+        throw customError;
       }
 
       const data = await response.json();
