@@ -4,8 +4,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { clearAccessTokens } from '../../utils/authUtils';
 // import Navbar from './navbar';
 import logo from "../../assets/LogoColor1.png";
-import IconRol from "../../assets/logo.png";
 import { AppBar, Toolbar } from "@mui/material";
+
+//logos de los roles
+import SupervisorT from "../../assets/SupervisorT.png";
+import DirectorT from "../../assets/DirectorT.png";
+import MaestroT from "../../assets/ProfesorT.png";
+import AlumnoT from "../../assets/AlumnoT.png";
 
 export default function PanelRol() {
     // Configuración de roles con estilo infográfico
@@ -13,22 +18,22 @@ export default function PanelRol() {
         {
             nombre: 'Supervisor',
             descripcion: 'Supervisa todas las instituciones.',
-            imagen: IconRol
+            imagen: SupervisorT
         },
         {
             nombre: 'Director',
             descripcion: 'Supervisa a sus maestro y alumnos.',
-            imagen: IconRol
+            imagen: DirectorT
         },
         {
             nombre: 'Maestro',
             descripcion: 'Asigna test a los alumnos y crea su agenda de la semana.',
-            imagen: IconRol
+            imagen: MaestroT
         },
         {
             nombre: 'Alumno',
             descripcion: 'Realiza test semanales.',
-            imagen: IconRol
+            imagen: AlumnoT
         }
     ];
 
@@ -161,8 +166,8 @@ export default function PanelRol() {
                                     <Box
                                         sx={{
                                             width: 200,
-                                            height: 200,
-                                            borderRadius: '50%',
+                                            height: 250,
+                                            borderRadius: '10%',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
@@ -175,7 +180,7 @@ export default function PanelRol() {
                                             alt={rol.nombre}
                                             style={{
                                                 width: "180px",
-                                                height: "180px",
+                                                height: "160px",
                                                 objectFit: 'contain'
                                             }}
                                         />
