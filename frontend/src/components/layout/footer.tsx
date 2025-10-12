@@ -8,9 +8,9 @@ export function FooterMaestro() {
         <Box
             component="footer"
             sx={{
-                bgcolor: "#023047",
+                bgcolor: "#36385fff",
                 color: "white",
-                mt: "auto",
+                mt: 10,
                 py: 4,
                 px: 2,
                 position: 'relative',
@@ -34,10 +34,8 @@ export function FooterMaestro() {
                     }}
                 >
                     <Box
-                        component="img"
-                        src={logo}
-                        alt="GraduaT logo"
-                        sx={{ height: 70 }}
+                        
+                        sx={{ height: 10 }}
                     />
                 </Box>
 
@@ -47,13 +45,14 @@ export function FooterMaestro() {
                         src={tortuFooter}
                         alt="Tortuga GraduaT"
                         sx={{
-                            height: 180,
-                            position: 'absolute',
-                            right: 150,
-                            bottom: {xs: 200, sm: 80, md: 120},
-                            zIndex: 10,
-                            transform: 'rotate(-10deg)',
-                            pointerEvents: 'none',
+                        height: { xs: 160, sm: 160, md: 160 }, 
+                        position: 'absolute',
+                        right: { xs: 140, sm: 290, md: 1304 }, 
+                        bottom: { xs: 210, sm: 271, md: 134 }, 
+                        zIndex: 10,
+                        transform: 'rotate(-5deg)',
+                        pointerEvents: 'none',
+                        m: 0,
                         }}
                     />
 
@@ -66,17 +65,14 @@ export function FooterMaestro() {
                         flexWrap: 'wrap'
                     }}
                 >
-                    {["Inicio", "Alumnos", "Agenda", "Historial", "Test"].map((item) => (
-                        <Link
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            underline="none"
-                            color="inherit"
-                            sx={{ "&:hover": { color: "gray" } }}
-                        >
-                            {item}
-                        </Link>
-                    ))}
+                    <Box
+                        component="img"
+                        src={logo}
+                        alt="GraduaT logo"
+                        sx={{ height: 70 }}
+                    />
+                 
+                    
                 </Box>
 
                 <Box
@@ -100,7 +96,7 @@ export function FooterMaestro() {
 
             <Typography
                 variant="body2"
-                sx={{ textAlign: "center", mt: 3, color: "gray" }}
+                sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
             >
                 © {new Date().getFullYear()} GraduaT. Todos los derechos reservados.
             </Typography>
@@ -117,7 +113,7 @@ export function FooterAlumno() {
 
                 bgcolor: "#36385fff",
                 color: "white",
-                mt: "auto",
+                mt: 4,
                 py: 4,
                 px: 2,
                 position: 'relative',
@@ -141,10 +137,8 @@ export function FooterAlumno() {
                     }}
                 >
                     <Box
-                        component="img"
-                        src={logo}
-                        alt="GraduaT logo"
-                        sx={{ height: 70 }}
+                       
+                        sx={{ height: 10 }}
                     />
                     {/* Tortuga saliendo del footer */}
                     <Box
@@ -152,13 +146,14 @@ export function FooterAlumno() {
                         src={tortuFooter}
                         alt="Tortuga GraduaT"
                         sx={{
-                            height: 180,
+                             height: { xs: 160, sm: 160, md: 160 }, 
                             position: 'absolute',
-                            right: 70,
-                            bottom: 41,
+                            right: { xs: 60, sm: 310, md: 280 }, 
+                            bottom: { xs: -1, sm: -1, md: 24 }, 
                             zIndex: 10,
-                            transform: 'rotate(2deg)',
+                            transform: 'rotate(-5deg)',
                             pointerEvents: 'none',
+                            m: 0,
                         }}
                     />
 
@@ -173,17 +168,13 @@ export function FooterAlumno() {
                         flexWrap: 'wrap'
                     }}
                 >
-                    {["Inicio", "PruebaT", "Progreso"].map((item) => (
-                        <Link
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            underline="none"
-                            color="inherit"
-                            sx={{ "&:hover": { color: "gray" } }}
-                        >
-                            {item}
-                        </Link>
-                    ))}
+                    <Box
+                        component="img"
+                        src={logo}
+                        alt="GraduaT logo"
+                        sx={{ height: 70 }}
+                    />
+                    
                 </Box>
 
                 <Box
@@ -207,7 +198,7 @@ export function FooterAlumno() {
 
             <Typography
                 variant="body2"
-                sx={{ textAlign: "center", mt: 3, color: "gray" }}
+                sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
             >
                 © {new Date().getFullYear()} GraduaT. Todos los derechos reservados.
             </Typography>
