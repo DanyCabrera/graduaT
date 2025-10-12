@@ -19,6 +19,16 @@ export interface TestAssignment {
         semana: number;
         curso: string;
     };
+    result?: {
+        score: number;
+        correctAnswers: number;
+        totalQuestions: number;
+        earnedPoints: number;
+        totalPoints: number;
+        pointsPerQuestion: number;
+        timeSpent?: number;
+        completedAt?: string;
+    };
 }
 
 export interface Pregunta {

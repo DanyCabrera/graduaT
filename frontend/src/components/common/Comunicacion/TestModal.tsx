@@ -36,7 +36,15 @@ interface TestModalProps {
     open: boolean;
     onClose: () => void;
     testAssignment: TestAssignment;
-    onTestCompleted?: () => void;
+    onTestCompleted?: (results?: {
+        score: number;
+        correctAnswers: number;
+        totalQuestions: number;
+        earnedPoints: number;
+        totalPoints: number;
+        pointsPerQuestion: number;
+        timeUsed?: string;
+    }) => void;
 }
 
 function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModalProps) {
@@ -46,6 +54,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
     const [error, setError] = useState('');
     const [timeLeft, setTimeLeft] = useState(0);
     const [testStarted, setTestStarted] = useState(false);
+    const [testCompleted, setTestCompleted] = useState(false);
     const [alertOpen, setAlertOpen] = useState(false);
     const [alertData, setAlertData] = useState({
         type: 'success' as 'success' | 'error' | 'warning' | 'info',
@@ -62,6 +71,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
             // Inicializar el timer con la duración del test en minutos
             setTimeLeft((test.duracion || 30) * 60);
             setTestStarted(true);
+            setTestCompleted(false);
             setCurrentQuestion(0);
             setAnswers({});
             setError('');
@@ -71,7 +81,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
     useEffect(() => {
         let interval: number;
         
-        if (testStarted && timeLeft > 0) {
+        if (testStarted && timeLeft > 0 && !testCompleted) {
             interval = setInterval(() => {
                 setTimeLeft(prev => {
                     if (prev <= 1) {
@@ -87,7 +97,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [testStarted, timeLeft]);
+    }, [testStarted, timeLeft, testCompleted]);
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -126,24 +136,25 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
             );
 
             if (response.success) {
-                // Mostrar resultado con puntuación detallada
-                const { score, correctAnswers, totalQuestions, earnedPoints, totalPoints, pointsPerQuestion } = response.data;
-                showAlert(
-                    'success',
-                    '¡Test Completado!',
-                    `Has obtenido ${score}% de puntuación`,
-                    `📊 Resultados detallados:\n• Puntos obtenidos: ${earnedPoints}/${totalPoints}\n• Respuestas correctas: ${correctAnswers}/${totalQuestions}\n• Puntos por pregunta: ${pointsPerQuestion}\n• Tiempo utilizado: ${formatTime((test?.duracion || 30) * 60 - timeLeft)}`
-                );
+                // Marcar el test como completado para detener el timer
+                setTestCompleted(true);
                 
-                // Llamar al callback para notificar que el test se completó
+                // Llamar al callback para notificar que el test se completó con los resultados
                 if (onTestCompleted) {
-                    onTestCompleted();
+                    const { score, correctAnswers, totalQuestions, earnedPoints, totalPoints, pointsPerQuestion } = response.data;
+                    onTestCompleted({
+                        score,
+                        correctAnswers,
+                        totalQuestions,
+                        earnedPoints,
+                        totalPoints,
+                        pointsPerQuestion,
+                        timeUsed: formatTime((test?.duracion || 30) * 60 - timeLeft)
+                    });
                 }
                 
-                // Cerrar el modal después de un breve delay para que se vea la alerta
-                setTimeout(() => {
-                    onClose();
-                }, 2000);
+                // Cerrar el modal del test inmediatamente
+                onClose();
             } else {
                 setError('Error al enviar el test');
             }
@@ -168,6 +179,10 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
         return answers[questionId] !== undefined;
     };
 
+    const isCurrentQuestionAnswered = () => {
+        return test ? isQuestionAnswered(test.preguntas[currentQuestion]._id) : false;
+    };
+
     const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string, details?: string) => {
         setAlertData({ type, title, message, details: details || '' });
         setAlertOpen(true);
@@ -175,6 +190,8 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
 
     const handleCloseAlert = () => {
         setAlertOpen(false);
+        // Cerrar el modal del test cuando se cierre el modal de resultados
+        onClose();
     };
 
     if (!test) return null;
@@ -363,7 +380,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
                             variant="contained"
                             startIcon={submitting ? <CircularProgress size={20} /> : <Send />}
                             onClick={handleSubmitTest}
-                            disabled={submitting || getAnsweredCount() === 0}
+                            disabled={submitting || !isCurrentQuestionAnswered()}
                             sx={{ 
                                 px: 4,
                                 backgroundColor: '#10b981',
@@ -379,6 +396,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
                             variant="contained"
                             endIcon={<NavigateNext />}
                             onClick={handleNextQuestion}
+                            disabled={!isCurrentQuestionAnswered()}
                             sx={{ 
                                 px: 4,
                                 backgroundColor: '#10b981',

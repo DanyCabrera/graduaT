@@ -61,7 +61,7 @@ class EmailService {
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
                             <p style="color: #888; font-size: 14px; margin: 0;">
-                                © 2024 GraduaT - Sistema de Gestión Educativa<br>
+                                © 2025 GraduaT - Sistema de Gestión Educativa<br>
                                 Este es un email automático, por favor no respondas.
                             </p>
                         </div>
@@ -104,7 +104,7 @@ class EmailService {
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
                             <p style="color: #888; font-size: 14px; margin: 0;">
-                                © 2024 GraduaT - Sistema de Gestión Educativa<br>
+                                © 2025 GraduaT - Sistema de Gestión Educativa<br>
                                 Este es un email automático, por favor no respondas.
                             </p>
                         </div>
@@ -177,7 +177,7 @@ class EmailService {
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
                             <p style="color: #888; font-size: 14px; margin: 0;">
-                                © 2024 GraduaT - Sistema de Gestión Educativa<br>
+                                © 2025 GraduaT - Sistema de Gestión Educativa<br>
                                 Este es un email automático, por favor no respondas.
                             </p>
                         </div>
@@ -220,7 +220,7 @@ class EmailService {
                         
                         <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
                             <p style="color: #888; font-size: 14px; margin: 0;">
-                                © 2024 GraduaT - Sistema de Gestión Educativa<br>
+                                © 2025 GraduaT - Sistema de Gestión Educativa<br>
                                 Este es un email automático, por favor no respondas.
                             </p>
                         </div>
