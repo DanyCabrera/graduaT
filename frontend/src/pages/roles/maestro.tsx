@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import IndexMaestro from '../../components/common/Maestro/index';
 import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
+import { SessionDebugger } from '../../components/common/SessionDebugger';
 
 interface UserData {
     Usuario: string;
@@ -20,19 +21,49 @@ export default function Maestro() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log('🔍 Maestro - Iniciando verificación de sesión...');
+        
         // Primero intentar obtener datos de la sesión actual
         const sessionUser = getSessionUser();
         const sessionRole = getSessionRole();
         
+        console.log('🔍 Maestro - Datos de sesión:', { sessionUser, sessionRole });
+        
         if (sessionUser && sessionRole === 'Maestro') {
+            console.log('✅ Maestro - Usando datos de sesión');
             setUserData(sessionUser);
             setLoading(false);
         } else {
             // Si no hay sesión válida, intentar obtener del localStorage
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user') || localStorage.getItem('user_data');
+            
+            console.log('🔍 Maestro - Datos de localStorage:', { 
+                hasToken: !!token, 
+                hasUser: !!user,
+                token: token?.substring(0, 20) + '...',
+                user: user ? JSON.parse(user) : null
+            });
+            
+            if (user) {
+                try {
+                    const parsedUser = JSON.parse(user);
+                    if (parsedUser.Rol === 'Maestro') {
+                        console.log('✅ Maestro - Usando datos de localStorage');
+                        setUserData(parsedUser);
+                        setLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('❌ Maestro - Error al parsear usuario:', error);
+                }
+            }
+            
             if (token) {
+                console.log('🔄 Maestro - Obteniendo datos del backend...');
                 fetchUserData();
             } else {
+                console.log('❌ Maestro - No hay token disponible');
                 setLoading(false);
             }
         }
@@ -78,8 +109,11 @@ export default function Maestro() {
 
     if (!userData) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-                <Typography color="error">No se encontraron datos del usuario</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', p: 2 }}>
+                <Typography color="error" variant="h5" gutterBottom>
+                    No se encontraron datos del usuario
+                </Typography>
+                <SessionDebugger />
             </Box>
         );
     }

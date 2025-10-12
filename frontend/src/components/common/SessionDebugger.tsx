@@ -1,103 +1,135 @@
-import { useState, useEffect } from 'react';
-import {
-    Box,
-    Card,
-    CardContent,
-    Typography,
-    Chip,
-    Button,
-    Collapse
-} from '@mui/material';
-import {
-    BugReport,
-    ExpandMore,
-    ExpandLess
-} from '@mui/icons-material';
-import sessionManager from '../../utils/sessionManager';
+// Componente para debuggear sesiones aisladas por pestaña
 
-interface SessionDebuggerProps {
-    show?: boolean;
-}
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Card, CardContent, Button, Alert, Chip } from '@mui/material';
+import { sessionManager, getCurrentToken, getCurrentUser, getCurrentRole, hasValidSession } from '../../utils/sessionManager';
+import { apiService } from '../../services/api';
 
-export default function SessionDebugger({ show = false }: SessionDebuggerProps) {
-    const [sessions, setSessions] = useState<any[]>([]);
-    const [expanded, setExpanded] = useState(false);
+export const SessionDebugger: React.FC = () => {
+    const [debugInfo, setDebugInfo] = useState<any>({});
+
+    const updateDebugInfo = () => {
+        const info = {
+            sessionManager: sessionManager.getSessionInfo(),
+            localSession: {
+                token: sessionManager.getCurrentToken()?.substring(0, 20) + '...',
+                user: sessionManager.getCurrentUser(),
+                role: sessionManager.getCurrentRole(),
+                isValid: sessionManager.hasValidSession()
+            },
+            localStorage: {
+                token: localStorage.getItem('auth_token')?.substring(0, 20) + '...',
+                user: localStorage.getItem('user_data'),
+                role: localStorage.getItem('user_role')
+            },
+            tabTokenManager: apiService.getTabInfo(),
+            timestamp: new Date().toLocaleString()
+        };
+        setDebugInfo(info);
+    };
 
     useEffect(() => {
-        const updateSessions = () => {
-            const activeSessions = sessionManager.getActiveSessions();
-            setSessions(activeSessions);
-        };
-
-        updateSessions();
-        
-        // Actualizar cada 5 segundos
-        const interval = setInterval(updateSessions, 5000);
-        
+        updateDebugInfo();
+        const interval = setInterval(updateDebugInfo, 2000);
         return () => clearInterval(interval);
     }, []);
 
-    if (!show) return null;
+    const forceUpdate = () => {
+        sessionManager.forceSessionUpdate();
+        updateDebugInfo();
+    };
+
+    const isIsolated = () => {
+        const localToken = sessionManager.getCurrentToken();
+        const storageToken = localStorage.getItem('auth_token');
+        return localToken !== storageToken;
+    };
 
     return (
-        <Card sx={{ 
-            position: 'fixed', 
-            bottom: 16, 
-            right: 16, 
-            zIndex: 1000,
-            maxWidth: 400,
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #dee2e6'
-        }}>
-            <CardContent sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <BugReport sx={{ fontSize: 20, color: '#6c757d' }} />
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        Sesiones Activas ({sessions.length})
-                    </Typography>
-                    <Button
-                        size="small"
-                        onClick={() => setExpanded(!expanded)}
-                        sx={{ minWidth: 'auto', p: 0.5 }}
-                    >
-                        {expanded ? <ExpandLess /> : <ExpandMore />}
+        <Card sx={{ m: 2, maxWidth: 800 }}>
+            <CardContent>
+                <Typography variant="h6" gutterBottom>
+                    🔍 Session Debugger - Aislamiento de Pestañas
+                </Typography>
+                
+                <Alert 
+                    severity={isIsolated() ? "success" : "warning"} 
+                    sx={{ mb: 2 }}
+                >
+                    {isIsolated() 
+                        ? "✅ Sesión aislada correctamente" 
+                        : "⚠️ Sesión compartida con localStorage"
+                    }
+                </Alert>
+
+                <Box sx={{ mb: 2 }}>
+                    <Button variant="contained" onClick={updateDebugInfo} sx={{ mr: 1 }}>
+                        Actualizar Info
+                    </Button>
+                    <Button variant="outlined" onClick={forceUpdate}>
+                        Forzar Actualización
                     </Button>
                 </Box>
 
-                <Collapse in={expanded}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        {sessions.map((session, index) => (
-                            <Box key={index} sx={{ 
-                                p: 1, 
-                                backgroundColor: 'white', 
-                                borderRadius: 1,
-                                border: '1px solid #e9ecef'
-                            }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                                    <Chip 
-                                        label={session.role} 
-                                        size="small" 
-                                        color={session.role === 'Maestro' ? 'primary' : 
-                                               session.role === 'Director' ? 'secondary' : 'default'}
-                                    />
-                                    <Typography variant="caption" sx={{ color: '#6c757d' }}>
-                                        {session.user?.Nombre} {session.user?.Apellido}
-                                    </Typography>
-                                </Box>
-                                <Typography variant="caption" sx={{ color: '#6c757d', fontFamily: 'monospace' }}>
-                                    Tab: {session.tabId.substring(0, 8)}...
-                                </Typography>
-                            </Box>
-                        ))}
-                        
-                        {sessions.length === 0 && (
-                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                                No hay sesiones activas
-                            </Typography>
-                        )}
+                <Typography variant="h6" gutterBottom>
+                    📊 Información de Sesión
+                </Typography>
+                
+                <Box sx={{ 
+                    backgroundColor: '#f5f5f5', 
+                    p: 2, 
+                    borderRadius: 1,
+                    fontFamily: 'monospace',
+                    fontSize: '0.8rem',
+                    maxHeight: '400px',
+                    overflow: 'auto'
+                }}>
+                    <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+                </Box>
+
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                        Estado de Aislamiento:
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <Chip 
+                            label={`Token Local: ${debugInfo.localSession?.token || 'N/A'}`}
+                            color={debugInfo.localSession?.token ? 'success' : 'error'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Token Storage: ${debugInfo.localStorage?.token || 'N/A'}`}
+                            color={debugInfo.localStorage?.token ? 'success' : 'error'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Rol: ${debugInfo.localSession?.role || 'N/A'}`}
+                            color={debugInfo.localSession?.role ? 'primary' : 'error'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Rol Esperado: ${debugInfo.sessionManager?.expectedRole || 'N/A'}`}
+                            color={debugInfo.sessionManager?.expectedRole ? 'info' : 'default'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Rol Coincide: ${debugInfo.sessionManager?.expectedRole === debugInfo.localSession?.role ? 'Sí' : 'No'}`}
+                            color={debugInfo.sessionManager?.expectedRole === debugInfo.localSession?.role ? 'success' : 'error'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Tab ID: ${debugInfo.tabTokenManager?.tabId || 'N/A'}`}
+                            color={debugInfo.tabTokenManager?.tabId ? 'info' : 'default'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Token Aislado: ${debugInfo.tabTokenManager?.hasToken ? 'Sí' : 'No'}`}
+                            color={debugInfo.tabTokenManager?.hasToken ? 'success' : 'error'}
+                            size="small"
+                        />
                     </Box>
-                </Collapse>
+                </Box>
             </CardContent>
         </Card>
     );
-}
+};

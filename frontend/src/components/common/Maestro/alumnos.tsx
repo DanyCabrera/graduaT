@@ -14,7 +14,13 @@ import {
     Chip,
     Tabs,
     Tab,
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
+import { Refresh } from '@mui/icons-material';
 import { testAssignmentService } from '../../../services/testAssignmentService';
 import { getSessionToken } from '../../../utils/authUtils';
 
@@ -55,21 +61,33 @@ interface TestResult {
 export default function Alumnos() {
     const [alumnos, setAlumnos] = useState<Alumno[]>([]);
     const [testResults, setTestResults] = useState<TestResult[]>([]);
+    const [filteredTestResults, setFilteredTestResults] = useState<TestResult[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingTestResults, setLoadingTestResults] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState(0);
+    const [selectedWeek, setSelectedWeek] = useState<string>('all');
 
     useEffect(() => {
         fetchAlumnos();
-        fetchTestResults();
-        
-        // Actualizar resultados de tests cada 10 segundos
-        const testInterval = setInterval(fetchTestResults, 10000);
-        
-        return () => {
-            clearInterval(testInterval);
-        };
-    }, []);
+        // Solo cargar resultados de tests cuando se necesite
+        if (activeTab === 1) {
+            fetchTestResults();
+        }
+    }, [activeTab]);
+
+    // Filtrar resultados de tests por semana
+    useEffect(() => {
+        if (selectedWeek === 'all') {
+            setFilteredTestResults(testResults);
+        } else {
+            const weekNumber = parseInt(selectedWeek);
+            const filtered = testResults.filter(result => 
+                result.testInfo && result.testInfo.semana === weekNumber
+            );
+            setFilteredTestResults(filtered);
+        }
+    }, [testResults, selectedWeek]);
 
     const fetchAlumnos = async () => {
         try {
@@ -121,6 +139,9 @@ export default function Alumnos() {
 
     const fetchTestResults = async () => {
         try {
+            setLoadingTestResults(true);
+            setError(null); // Limpiar errores previos
+            
             const response = await testAssignmentService.getTeacherStudentTestResults();
             if (response.success) {
                 setTestResults(response.data);
@@ -135,12 +156,29 @@ export default function Alumnos() {
         } catch (error) {
             console.error('Error fetching test results:', error);
             setError('Error al cargar los resultados de tests. Verifica tu conexión.');
+        } finally {
+            setLoadingTestResults(false);
         }
     };
 
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
         setActiveTab(newValue);
+        // Si se cambia a la pestaña de resultados de tests y no hay datos, cargarlos
+        if (newValue === 1 && testResults.length === 0) {
+            fetchTestResults();
+        }
+    };
+
+    // Obtener semanas disponibles de los resultados de tests
+    const getAvailableWeeks = () => {
+        const weeks = new Set<number>();
+        testResults.forEach(result => {
+            if (result.testInfo && result.testInfo.semana) {
+                weeks.add(result.testInfo.semana);
+            }
+        });
+        return Array.from(weeks).sort((a, b) => a - b);
     };
 
     const getScoreColor = (score: number) => {
@@ -202,6 +240,22 @@ export default function Alumnos() {
                 >
                     Gestión de Alumnos
                 </Typography>
+                {activeTab === 1 && (
+                    <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        onClick={fetchTestResults}
+                        disabled={loadingTestResults}
+                        sx={{
+                            textTransform: 'none',
+                            borderRadius: 2,
+                            px: 3,
+                            py: 1
+                        }}
+                    >
+                        {loadingTestResults ? 'Actualizando...' : 'Actualizar'}
+                    </Button>
+                )}
             </Box>
 
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
@@ -313,15 +367,61 @@ export default function Alumnos() {
                 </TableContainer>
             ) : (
                 // Tab de Resultados de Tests
-                <TableContainer
-                    component={Paper}
-                    sx={{
-                        borderRadius: 2,
-                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                        overflow: 'hidden',
-                        border: '1px solid #e2e8f0'
-                    }}
-                >
+                <Box>
+                    {loadingTestResults ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                            <CircularProgress size={24} sx={{ mr: 2 }} />
+                            <Typography variant="body2" color="text.secondary">
+                                Cargando resultados de tests...
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Box>
+                            {/* Filtro por semana para resultados de tests */}
+                            {testResults.length > 0 && (
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'center', 
+                                    mb: 3,
+                                    px: { xs: 2, sm: 4 }
+                                }}>
+                                    <FormControl sx={{ minWidth: 200 }}>
+                                        <InputLabel id="week-filter-label-teacher">Filtrar por semana</InputLabel>
+                                        <Select
+                                            labelId="week-filter-label-teacher"
+                                            value={selectedWeek}
+                                            label="Filtrar por semana"
+                                            onChange={(e) => setSelectedWeek(e.target.value)}
+                                            sx={{
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'primary.main',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'primary.dark',
+                                                },
+                                            }}
+                                        >
+                                            <MenuItem value="all">Todas las semanas</MenuItem>
+                                            {getAvailableWeeks().map((week) => (
+                                                <MenuItem key={week} value={week.toString()}>
+                                                    Semana {week}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+                            )}
+
+                            <TableContainer
+                                component={Paper}
+                                sx={{
+                                    borderRadius: 2,
+                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                                    overflow: 'hidden',
+                                    border: '1px solid #e2e8f0'
+                                }}
+                            >
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -343,8 +443,8 @@ export default function Alumnos() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {testResults.length > 0 ? (
-                                testResults.map((result, index) => (
+                            {filteredTestResults.length > 0 ? (
+                                filteredTestResults.map((result, index) => (
                                     <TableRow
                                         key={index}
                                         sx={{
@@ -400,7 +500,7 @@ export default function Alumnos() {
                                         </TableCell>
                                     </TableRow>
                                 ))
-                            ) : (
+                            ) : testResults.length === 0 ? (
                                 <TableRow>
                                     <TableCell
                                         colSpan={9}
@@ -413,10 +513,26 @@ export default function Alumnos() {
                                         No hay resultados de tests disponibles
                                     </TableCell>
                                 </TableRow>
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={9}
+                                        sx={{
+                                            textAlign: 'center',
+                                            py: 8,
+                                            color: '#64748b'
+                                        }}
+                                    >
+                                        No hay resultados de tests para la semana seleccionada
+                                    </TableCell>
+                                </TableRow>
                             )}
                         </TableBody>
                     </Table>
                 </TableContainer>
+                        </Box>
+                    )}
+                </Box>
             )}
 
         </Box>

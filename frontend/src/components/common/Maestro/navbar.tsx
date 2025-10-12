@@ -3,15 +3,17 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { Logout, Home, People, CalendarToday, History, Quiz } from "@mui/icons-material";
+import Badge from "@mui/material/Badge";
+import { Logout, Home, People, CalendarToday, History, Quiz, Notifications } from "@mui/icons-material";
 
 interface NavbarProps {
     onLogout?: () => void;
     onNavigate?: (section: string) => void;
     currentSection?: string;
+    notificationCount?: number; // Contador de notificaciones
 }
 
-export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio' }: NavbarProps) {
+export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio', notificationCount = 0 }: NavbarProps) {
     const handleNavigation = (section: string) => {
         if (onNavigate) {
             onNavigate(section);
@@ -72,7 +74,21 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                     </Button>
                     <Button 
                         color="inherit" 
-                        startIcon={<History />}
+                        startIcon={
+                            <Badge 
+                                badgeContent={notificationCount} 
+                                color="error"
+                                sx={{
+                                    '& .MuiBadge-badge': {
+                                        fontSize: '0.7rem',
+                                        minWidth: '18px',
+                                        height: '18px'
+                                    }
+                                }}
+                            >
+                                <History />
+                            </Badge>
+                        }
                         onClick={() => handleNavigation('historial')}
                         sx={getButtonStyle('historial')}
                     >

@@ -489,6 +489,12 @@ class TestAssignmentController {
             
             console.log('✅ Estado actualizado a completado para estudiante:', studentId, 'test:', testId);
 
+            // Obtener información del estudiante para incluir su institución
+            const student = await db.collection('Alumnos').findOne({ Usuario: studentId });
+            const studentInstitution = student ? student.Código_Institución : null;
+            
+            console.log('🏫 Institución del estudiante:', studentInstitution);
+
             // Crear notificación para el maestro
             const notification = {
                 type: 'test_completed',
@@ -498,6 +504,7 @@ class TestAssignmentController {
                 testId: testId,
                 testType: testType,
                 score: score,
+                studentInstitution: studentInstitution, // Agregar institución del estudiante
                 createdAt: new Date(),
                 read: false
             };
@@ -953,16 +960,22 @@ class TestAssignmentController {
                 });
             }
             
-            // Obtener notificaciones no leídas filtradas por curso del maestro
+            // Obtener notificaciones no leídas filtradas por curso del maestro Y por institución
             const notifications = await db.collection('notifications')
                 .find({ 
                     read: false,
-                    testType: { $in: testTypesPermitidos }
+                    testType: { $in: testTypesPermitidos },
+                    studentInstitution: maestro.Código_Institución // Filtrar por institución del maestro
                 })
                 .sort({ createdAt: -1 })
                 .toArray();
 
             console.log('🔔 Notificaciones encontradas para el maestro:', notifications.length);
+            console.log('🏫 Filtros aplicados:', {
+                testTypesPermitidos,
+                maestroInstitution: maestro.Código_Institución,
+                totalNotifications: notifications.length
+            });
 
             res.json({
                 success: true,
@@ -996,6 +1009,127 @@ class TestAssignmentController {
             });
         } catch (error) {
             console.error('Error al marcar notificación como leída:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: error.message
+            });
+        }
+    }
+
+    // Eliminar notificación completamente
+    async deleteNotification(req, res) {
+        try {
+            const { notificationId } = req.params;
+            const db = await getDB();
+            
+            const result = await db.collection('notifications').deleteOne(
+                { _id: new ObjectId(notificationId) }
+            );
+
+            if (result.deletedCount === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Notificación no encontrada'
+                });
+            }
+
+            res.json({
+                success: true,
+                message: 'Notificación eliminada exitosamente'
+            });
+        } catch (error) {
+            console.error('Error al eliminar notificación:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: error.message
+            });
+        }
+    }
+
+    // Eliminar todas las notificaciones del maestro
+    async deleteAllNotifications(req, res) {
+        try {
+            // Obtener el token del maestro
+            const token = req.headers.authorization?.replace('Bearer ', '');
+            if (!token) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token de acceso requerido'
+                });
+            }
+
+            const jwt = require('jsonwebtoken');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_jwt_secret_muy_seguro_aqui');
+            const maestroUsuario = decoded.usuario;
+            const userRole = decoded.rol;
+
+            // Verificar que el usuario sea un maestro
+            if (userRole !== 'Maestro') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Acceso denegado. Solo los maestros pueden acceder a esta función.'
+                });
+            }
+
+            const db = await getDB();
+            
+            // Verificar que el maestro existe en la base de datos
+            let maestro = await db.collection('maestros').findOne({ usuario: maestroUsuario });
+            
+            if (!maestro) {
+                maestro = await db.collection('Maestros').findOne({ Usuario: maestroUsuario });
+            }
+            
+            if (!maestro) {
+                maestro = await db.collection('Maestros').findOne({ Correo: maestroUsuario });
+            }
+            
+            if (!maestro) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Maestro no encontrado en la base de datos'
+                });
+            }
+
+            // Obtener cursos del maestro para filtrar
+            const cursosMaestro = maestro.CURSO || [];
+            const codigoInstitucionMaestro = maestro.Código_Institución;
+            
+            // Determinar qué tipos de test puede limpiar el maestro
+            const testTypesPermitidos = [];
+            if (cursosMaestro.includes('Matemáticas')) {
+                testTypesPermitidos.push('matematicas');
+            }
+            if (cursosMaestro.includes('Comunicación y lenguaje')) {
+                testTypesPermitidos.push('comunicacion');
+            }
+            
+            // Obtener estudiantes de la institución del maestro para filtrar
+            const estudiantesInstitucion = await db.collection('Alumnos').find({
+                Código_Institución: codigoInstitucionMaestro
+            }).toArray();
+            
+            const studentIdsInstitucion = estudiantesInstitucion.map(est => est.Usuario);
+            
+            // Eliminar solo las notificaciones del curso del maestro Y de su institución
+            const result = await db.collection('notifications').deleteMany({
+                testType: { $in: testTypesPermitidos },
+                studentInstitution: codigoInstitucionMaestro
+            });
+
+            console.log('🧹 Notificaciones eliminadas:', result.deletedCount);
+
+            res.json({
+                success: true,
+                message: 'Todas las notificaciones han sido eliminadas',
+                data: {
+                    deletedCount: result.deletedCount
+                }
+            });
+        } catch (error) {
+            console.error('Error al eliminar todas las notificaciones:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error interno del servidor',

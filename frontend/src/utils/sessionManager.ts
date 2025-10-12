@@ -1,194 +1,324 @@
-// Sistema de gestión de sesiones por pestaña
-// Permite manejar múltiples roles simultáneamente en diferentes pestañas
-
-interface SessionData {
-    token: string;
-    user: any;
-    role: string;
-    timestamp: number;
-    tabId: string;
-}
+// Gestor de sesiones para evitar conflictos entre pestañas
 
 class SessionManager {
-    private sessions: Map<string, SessionData> = new Map();
-    private currentTabId: string;
+  private static instance: SessionManager;
+  private sessionId: string;
+  private isActive: boolean = true;
+  private userRole: string | null = null;
+  private userInstitution: string | null = null;
+  private sessionToken: string | null = null;
+  private sessionUserData: any = null;
+  private expectedRole: string | null = null;
 
-    constructor() {
-        // Intentar recuperar el tabId existente o generar uno nuevo
-        this.currentTabId = this.getOrCreateTabId();
+  private constructor(expectedRole?: string) {
+    // Generar un ID único para esta pestaña
+    this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    this.expectedRole = expectedRole || null;
+    this.initializeSession();
+    this.setupStorageListener();
+  }
+
+  public static getInstance(expectedRole?: string): SessionManager {
+    if (!SessionManager.instance) {
+      SessionManager.instance = new SessionManager(expectedRole);
+    } else if (expectedRole && SessionManager.instance.expectedRole !== expectedRole) {
+      // Si se solicita un rol diferente, crear una nueva instancia
+      console.log(`🔄 Cambiando de rol ${SessionManager.instance.expectedRole} a ${expectedRole}`);
+      SessionManager.instance = new SessionManager(expectedRole);
+    }
+    return SessionManager.instance;
+  }
+
+  private initializeSession() {
+    // Capturar la información del usuario actual al inicializar y almacenarla localmente
+    const userData = localStorage.getItem('user_data');
+    const authToken = localStorage.getItem('auth_token');
+    
+    if (userData && authToken) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        const currentRole = parsedUser.Rol;
         
-        // No limpiar sesión automáticamente en beforeunload para permitir recarga de página
-        // La sesión se mantendrá hasta que expire o se limpie explícitamente
+        // Verificar si el rol coincide con el esperado
+        if (this.expectedRole && currentRole !== this.expectedRole) {
+          console.warn(`⚠️ Rol incorrecto detectado:`, {
+            expected: this.expectedRole,
+            actual: currentRole,
+            sessionId: this.sessionId
+          });
+          
+          // No inicializar la sesión si el rol no coincide
+          console.log('🚫 Sesión no inicializada - rol incorrecto');
+          return;
+        }
+        
+        // Almacenar localmente para esta pestaña
+        this.sessionToken = authToken;
+        this.sessionUserData = parsedUser;
+        this.userRole = currentRole;
+        this.userInstitution = parsedUser.Código_Institución;
+        
+        console.log('🔒 Sesión inicializada y aislada:', {
+          sessionId: this.sessionId,
+          role: this.userRole,
+          expectedRole: this.expectedRole,
+          institution: this.userInstitution,
+          hasToken: !!this.sessionToken
+        });
+      } catch (error) {
+        console.error('Error al parsear datos de usuario:', error);
+      }
+    }
+  }
 
-        // Escuchar cambios en localStorage de otras pestañas
+  private setupStorageListener() {
+    // Escuchar cambios en localStorage desde otras pestañas
         window.addEventListener('storage', (e) => {
-            if (e.key === 'currentSessions') {
-                this.syncSessions();
-            }
-        });
+      console.log('🔄 Cambio detectado en localStorage:', e.key, e.newValue);
+      
+      // Solo reaccionar a cambios críticos que puedan afectar esta sesión
+      if (e.key === 'auth_token' && e.newValue === null) {
+        console.log('⚠️ Token eliminado por otra pestaña, pero manteniendo sesión local');
+        // No hacer nada - mantener la sesión local
+      } else if (e.key === 'user_data' || e.key === 'user_role') {
+        console.log('⚠️ Datos de usuario cambiados por otra pestaña, verificando compatibilidad...');
+        this.handleUserDataChange();
+      }
+    });
 
-        // Sincronizar sesiones al cargar
-        this.syncSessions();
+    // Escuchar cuando la pestaña se cierra
+    window.addEventListener('beforeunload', () => {
+      this.cleanup();
+    });
+
+    // Escuchar cuando la pestaña pierde el foco
+    window.addEventListener('blur', () => {
+      this.isActive = false;
+    });
+
+    // Escuchar cuando la pestaña recupera el foco
+    window.addEventListener('focus', () => {
+      this.isActive = true;
+      this.validateSession();
+    });
+  }
+
+  private handleTokenRemoval() {
+    // No limpiar automáticamente para evitar conflictos entre pestañas
+    console.log('🔄 Token eliminado por otra pestaña, pero manteniendo sesión local para evitar pérdida de contenido');
+    
+    // Verificar si el token realmente existe
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      console.log('⚠️ Token no encontrado - posible conflicto entre pestañas');
+      // No limpiar automáticamente, dejar que el usuario decida
     }
+  }
 
-    private getOrCreateTabId(): string {
-        // Intentar recuperar un tabId existente del localStorage
-        const existingTabId = localStorage.getItem('currentTabId');
-        if (existingTabId) {
-            return existingTabId;
-        }
+  private handleUserDataChange() {
+    const currentUserData = localStorage.getItem('user_data');
+    const currentUserRole = localStorage.getItem('user_role');
+    
+    if (currentUserData && currentUserRole) {
+      try {
+        const parsedUser = JSON.parse(currentUserData);
+        const newRole = parsedUser.Rol;
+        const newInstitution = parsedUser.Código_Institución;
         
-        // Si no existe, generar uno nuevo y guardarlo
-        const newTabId = this.generateTabId();
-        localStorage.setItem('currentTabId', newTabId);
-        console.log('🔍 Generando nuevo tabId:', newTabId);
-        return newTabId;
-    }
-
-    private generateTabId(): string {
-        return `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    private syncSessions(): void {
-        try {
-            const storedSessions = localStorage.getItem('currentSessions');
-            if (storedSessions) {
-                const sessionsData = JSON.parse(storedSessions);
-                this.sessions = new Map(Object.entries(sessionsData));
+        // Verificar si el usuario cambió de rol o institución
+        if (newRole !== this.userRole || newInstitution !== this.userInstitution) {
+          console.log('⚠️ Usuario cambió de rol/institución en otra pestaña:', {
+            oldRole: this.userRole,
+            newRole: newRole,
+            oldInstitution: this.userInstitution,
+            newInstitution: newInstitution,
+            sessionId: this.sessionId
+          });
+          
+          // NO actualizar automáticamente - mantener la sesión original de esta pestaña
+          console.log('🔒 Manteniendo sesión original de esta pestaña para evitar conflictos');
             }
         } catch (error) {
-            console.error('Error syncing sessions:', error);
-        }
+        console.error('Error al procesar cambio de datos de usuario:', error);
+      }
     }
+  }
 
-    private saveSessions(): void {
-        try {
-            const sessionsObject = Object.fromEntries(this.sessions);
-            localStorage.setItem('currentSessions', JSON.stringify(sessionsObject));
-        } catch (error) {
-            console.error('Error saving sessions:', error);
-        }
+  private validateSession() {
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
+    
+    if (!token || !userData) {
+      console.log('⚠️ Sesión inválida detectada, pero manteniendo datos para evitar pérdida de contenido');
+      // No limpiar automáticamente para evitar pérdida de contenido
+      // El usuario puede decidir cuándo cerrar sesión
+    } else {
+      console.log('✅ Sesión válida detectada');
     }
+  }
 
-    public setSession(token: string, user: any, role: string): void {
-        const sessionData: SessionData = {
-            token,
-            user,
-            role,
-            timestamp: Date.now(),
-            tabId: this.currentTabId
-        };
-
-        this.sessions.set(this.currentTabId, sessionData);
-        this.saveSessions();
-
-        // También guardar en localStorage para compatibilidad con código existente
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('user_role', role);
-    }
-
-    public getCurrentSession(): SessionData | null {
-        return this.sessions.get(this.currentTabId) || null;
-    }
-
-    public getCurrentToken(): string | null {
-        const session = this.getCurrentSession();
-        return session ? session.token : null;
-    }
-
-    public getCurrentUser(): any | null {
-        const session = this.getCurrentSession();
-        return session ? session.user : null;
-    }
-
-    public getCurrentRole(): string | null {
-        const session = this.getCurrentSession();
-        return session ? session.role : null;
-    }
-
-    public clearCurrentSession(): void {
-        console.log('🔍 Limpiando sesión actual para tabId:', this.currentTabId);
-        this.sessions.delete(this.currentTabId);
-        this.saveSessions();
-
-        // Limpiar localStorage solo si no hay otras sesiones activas
-        if (this.sessions.size === 0) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+  private clearSession() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
             localStorage.removeItem('user_role');
-            localStorage.removeItem('currentSessions');
-            localStorage.removeItem('currentTabId');
-        }
-    }
+    
+    // No redirigir automáticamente para evitar conflictos entre pestañas
+    // El usuario puede decidir cuándo cerrar sesión manualmente
+    console.log('🧹 Sesión limpiada localmente');
+  }
 
-    public clearAllSessions(): void {
-        this.sessions.clear();
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('user_role');
-        localStorage.removeItem('currentSessions');
-        localStorage.removeItem('currentTabId');
-    }
+  public clearSessionManually() {
+    this.clearSession();
+  }
 
-    public hasValidSession(): boolean {
-        const session = this.getCurrentSession();
-        console.log('🔍 hasValidSession - Sesión actual:', session);
+  public isSessionValid(): boolean {
+    // Usar los datos locales de la sesión para validar
+    const hasData = !!(this.sessionToken && this.sessionUserData);
+    
+    // Si hay un rol esperado, verificar que coincida
+    if (this.expectedRole && this.userRole !== this.expectedRole) {
+      console.warn('⚠️ Sesión inválida - rol no coincide:', {
+        expected: this.expectedRole,
+        actual: this.userRole
+      });
+      return false;
+    }
+    
+    return hasData;
+  }
+
+  public getSessionInfo() {
+    return {
+      sessionId: this.sessionId,
+      isActive: this.isActive,
+      isValid: this.isSessionValid(),
+      expectedRole: this.expectedRole,
+      actualRole: this.userRole
+    };
+  }
+
+  public forceRefresh() {
+    this.refreshSession();
+    console.log('🔄 Sesión forzada a refrescar');
+  }
+
+  public getSessionUserRole(): string | null {
+    return this.userRole;
+  }
+
+  public getSessionUserInstitution(): string | null {
+    return this.userInstitution;
+  }
+
+  public isSessionForRole(role: string): boolean {
+    return this.userRole === role;
+  }
+
+  public isSessionForInstitution(institution: string): boolean {
+    return this.userInstitution === institution;
+  }
+
+  public forceSessionUpdate() {
+    // Forzar la actualización de la sesión desde localStorage
+    const userData = localStorage.getItem('user_data');
+    const authToken = localStorage.getItem('auth_token');
+    
+    if (userData && authToken) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        this.sessionToken = authToken;
+        this.sessionUserData = parsedUser;
+        this.userRole = parsedUser.Rol;
+        this.userInstitution = parsedUser.Código_Institución;
         
-        if (!session) {
-            console.log('❌ No hay sesión actual');
-            return false;
-        }
-
-        // Verificar si la sesión no ha expirado (24 horas)
-        const now = Date.now();
-        const sessionAge = now - session.timestamp;
-        const maxAge = 24 * 60 * 60 * 1000; // 24 horas
-
-        console.log('🔍 Verificación de expiración:', {
-            now: new Date(now).toLocaleString(),
-            sessionTimestamp: new Date(session.timestamp).toLocaleString(),
-            sessionAge: Math.round(sessionAge / (1000 * 60)) + ' minutos',
-            maxAge: Math.round(maxAge / (1000 * 60 * 60)) + ' horas'
+        console.log('🔄 Sesión forzada a actualizar:', {
+          sessionId: this.sessionId,
+          role: this.userRole,
+          institution: this.userInstitution
         });
-
-        if (sessionAge > maxAge) {
-            console.log('❌ Sesión expirada, limpiando');
-            this.clearCurrentSession();
-            return false;
-        }
-
-        console.log('✅ Sesión válida');
-        return true;
+      } catch (error) {
+        console.error('Error al forzar actualización de sesión:', error);
+      }
     }
+  }
 
-    public getActiveSessions(): SessionData[] {
-        return Array.from(this.sessions.values());
-    }
+  private cleanup() {
+    // Limpiar listeners y recursos
+    this.isActive = false;
+  }
 
-    public switchToRole(role: string): boolean {
-        // Buscar si ya existe una sesión con este rol
-        for (const [tabId, session] of this.sessions) {
-            if (session.role === role) {
-                // Cambiar a esa sesión
-                this.currentTabId = tabId;
-                this.saveSessions();
-                return true;
-            }
-        }
-        return false;
-    }
+  public getSessionId(): string {
+    return this.sessionId;
+  }
+
+  public isSessionActive(): boolean {
+    return this.isActive;
+  }
+
+  public refreshSession() {
+    // Marcar la sesión como activa
+    this.isActive = true;
+    console.log('🔄 Sesión refrescada para pestaña:', this.sessionId);
+  }
+
+  // Métodos para compatibilidad con authUtils
+  public clearCurrentSession() {
+    this.clearSession();
+  }
+
+  public getCurrentToken(): string | null {
+    // Usar el token local de la sesión para evitar conflictos entre pestañas
+    return this.sessionToken;
+  }
+
+  public getCurrentUser(): any {
+    // Usar los datos locales de la sesión para evitar conflictos entre pestañas
+    return this.sessionUserData;
+  }
+
+  public getCurrentRole(): string | null {
+    // Usar el rol local de la sesión para evitar conflictos entre pestañas
+    return this.userRole;
+  }
+
+  public hasValidSession(): boolean {
+    return this.isSessionValid();
+  }
+
+  public setSession(token: string, user: any, role: string) {
+    // Actualizar localStorage
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('user_data', JSON.stringify(user));
+    localStorage.setItem('user_role', role);
+    
+    // Actualizar datos locales de la sesión
+    this.sessionToken = token;
+    this.sessionUserData = user;
+    this.userRole = role;
+    this.userInstitution = user.Código_Institución;
+    
+    this.refreshSession();
+    console.log('✅ Sesión establecida y aislada:', { 
+      token: token.substring(0, 20) + '...', 
+      role,
+      sessionId: this.sessionId
+    });
+  }
 }
 
-// Crear una instancia singleton
-const sessionManager = new SessionManager();
-
-export default sessionManager;
-
-// Funciones de utilidad para compatibilidad con código existente
+// Funciones de conveniencia para compatibilidad
 export const getCurrentToken = () => sessionManager.getCurrentToken();
 export const getCurrentUser = () => sessionManager.getCurrentUser();
 export const getCurrentRole = () => sessionManager.getCurrentRole();
-export const setSession = (token: string, user: any, role: string) => sessionManager.setSession(token, user, role);
-export const clearSession = () => sessionManager.clearCurrentSession();
 export const hasValidSession = () => sessionManager.hasValidSession();
+export const setSession = (token: string, user: any, role: string) => sessionManager.setSession(token, user, role);
+export const forceSessionUpdate = () => sessionManager.forceSessionUpdate();
+
+// Funciones específicas por rol
+export const getMaestroSession = () => SessionManager.getInstance('Maestro');
+export const getAlumnoSession = () => SessionManager.getInstance('Alumno');
+export const getDirectorSession = () => SessionManager.getInstance('Director');
+export const getSupervisorSession = () => SessionManager.getInstance('Supervisor');
+
+export const sessionManager = SessionManager.getInstance();
+export default sessionManager;

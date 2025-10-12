@@ -22,14 +22,21 @@ import {
     NotificationsActive,
     CheckCircle,
     Quiz,
-    School
+    School,
+    ClearAll
 } from '@mui/icons-material';
 import { testAssignmentService, type Notification } from '../../../services/testAssignmentService';
 
-export default function Historial() {
+interface HistorialProps {
+    refreshTrigger?: number; // Prop para forzar refresh
+    onNotificationCountChange?: (count: number) => void; // Callback para actualizar contador
+}
+
+export default function Historial({ refreshTrigger, onNotificationCountChange }: HistorialProps) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [clearingNotifications, setClearingNotifications] = useState(false);
 
     useEffect(() => {
         fetchNotifications();
@@ -39,15 +46,30 @@ export default function Historial() {
         return () => clearInterval(interval);
     }, []);
 
+    // Efecto para refrescar cuando se limpian los tests
+    useEffect(() => {
+        if (refreshTrigger && refreshTrigger > 0) {
+            console.log('🔄 Historial: Refrescando notificaciones después de limpiar tests...');
+            fetchNotifications();
+        }
+    }, [refreshTrigger]);
+
     const fetchNotifications = async () => {
         try {
             const response = await testAssignmentService.getNotifications();
             if (response.success) {
                 setNotifications(response.data);
+                // Actualizar el contador en el navbar
+                if (onNotificationCountChange) {
+                    onNotificationCountChange(response.data.length);
+                }
             } else {
                 if (response.message?.includes('Acceso denegado')) {
                     console.log('Usuario no es maestro, no se cargarán notificaciones');
                     setNotifications([]);
+                    if (onNotificationCountChange) {
+                        onNotificationCountChange(0);
+                    }
                 } else {
                     setError(response.message || 'Error al cargar las notificaciones');
                 }
@@ -62,11 +84,53 @@ export default function Historial() {
 
     const markNotificationAsRead = async (notificationId: string) => {
         try {
-            await testAssignmentService.markNotificationAsRead(notificationId);
-            // Actualizar la lista de notificaciones
-            setNotifications(prev => prev.filter(n => n._id !== notificationId));
+            // Eliminar la notificación completamente del backend
+            const response = await testAssignmentService.deleteNotification(notificationId);
+            
+            if (response.success) {
+                // Actualizar la lista de notificaciones
+                setNotifications(prev => {
+                    const newNotifications = prev.filter(n => n._id !== notificationId);
+                    // Actualizar el contador en el navbar
+                    if (onNotificationCountChange) {
+                        onNotificationCountChange(newNotifications.length);
+                    }
+                    return newNotifications;
+                });
+                console.log('✅ Notificación eliminada exitosamente');
+            } else {
+                console.error('❌ Error al eliminar notificación:', response.message);
+            }
         } catch (error) {
-            console.error('Error marking notification as read:', error);
+            console.error('Error deleting notification:', error);
+        }
+    };
+
+    const clearAllNotifications = async () => {
+        try {
+            setClearingNotifications(true);
+            console.log('🧹 Eliminando todas las notificaciones...');
+            
+            // Eliminar todas las notificaciones del backend
+            const response = await testAssignmentService.deleteAllNotifications();
+            
+            if (response.success) {
+                // Limpiar la lista local
+                setNotifications([]);
+                
+                // Actualizar el contador en el navbar
+                if (onNotificationCountChange) {
+                    onNotificationCountChange(0);
+                }
+                
+                console.log('✅ Todas las notificaciones han sido eliminadas:', response.data?.deletedCount || 0);
+            } else {
+                console.error('❌ Error al eliminar notificaciones:', response.message);
+            }
+        } catch (error) {
+            console.error('❌ Error al eliminar notificaciones:', error);
+        } finally {
+            setClearingNotifications(false);
         }
     };
 
@@ -114,20 +178,38 @@ export default function Historial() {
                     Historial y Notificaciones
                 </Typography>
                 
-                <Tooltip title="Notificaciones">
-                    <IconButton 
-                        sx={{ 
-                            color: notifications.length > 0 ? '#f59e0b' : '#6b7280',
-                            '&:hover': {
-                                backgroundColor: 'rgba(245, 158, 11, 0.1)'
-                            }
-                        }}
-                    >
-                        <Badge badgeContent={notifications.length} color="error">
-                            {notifications.length > 0 ? <NotificationsActive /> : <Notifications />}
-                        </Badge>
-                    </IconButton>
-                </Tooltip>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {notifications.length > 0 && (
+                        <Button
+                            variant="outlined"
+                            color="warning"
+                            startIcon={<ClearAll />}
+                            onClick={clearAllNotifications}
+                            disabled={clearingNotifications}
+                            sx={{
+                                textTransform: 'none',
+                                fontWeight: 500
+                            }}
+                        >
+                            {clearingNotifications ? 'Limpiando...' : 'Limpiar Notificaciones'}
+                        </Button>
+                    )}
+                    
+                    <Tooltip title="Notificaciones">
+                        <IconButton 
+                            sx={{ 
+                                color: notifications.length > 0 ? '#f59e0b' : '#6b7280',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(245, 158, 11, 0.1)'
+                                }
+                            }}
+                        >
+                            <Badge badgeContent={notifications.length} color="error">
+                                {notifications.length > 0 ? <NotificationsActive /> : <Notifications />}
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+                </Box>
             </Box>
 
             {notifications.length === 0 ? (
@@ -187,6 +269,13 @@ export default function Historial() {
                                                         <Typography variant="caption" color="text.secondary">
                                                             Estudiante: {notification.studentId}
                                                         </Typography>
+                                                        {notification.studentInstitution && (
+                                                            <>
+                                                                <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                                                                    • Institución: {notification.studentInstitution}
+                                                                </Typography>
+                                                            </>
+                                                        )}
                                                         <Quiz sx={{ fontSize: 16, color: '#6b7280', ml: 2 }} />
                                                         <Typography variant="caption" color="text.secondary">
                                                             Test: {notification.testType === 'matematicas' ? 'Matemáticas' : 'Comunicación'}

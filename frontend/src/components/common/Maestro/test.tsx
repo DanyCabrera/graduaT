@@ -39,7 +39,11 @@ import { testAssignmentService } from '../../../services/testAssignmentService';
 import StyledAlert from '../../ui/StyledAlert';
 
 
-export default function Test() {
+interface TestProps {
+    onTestsCleared?: () => void; // Callback para notificar cuando se limpian los tests
+}
+
+export default function Test({ onTestsCleared }: TestProps) {
     const [selectedTab, setSelectedTab] = useState(0);
     const [testsByCourse, setTestsByCourse] = useState<TestsByCourse>({ matematicas: [], comunicacion: [] });
     const [selectedTests, setSelectedTests] = useState<{ [key: string]: boolean }>({});
@@ -220,6 +224,13 @@ export default function Test() {
                     response.message || 'Los tests asignados han sido eliminados del sistema.',
                     `Se eliminaron:\n• ${response.data?.assignmentsDeleted || 0} asignaciones\n• ${response.data?.resultsDeleted || 0} resultados\n• ${response.data?.notificationsDeleted || 0} notificaciones\n• Cursos: ${response.data?.coursesCleaned || 'N/A'}`
                 );
+                
+                // Notificar al componente padre para refrescar el historial
+                if (onTestsCleared) {
+                    console.log('🔄 Notificando que se limpiaron los tests...');
+                    onTestsCleared();
+                }
+                
                 handleCloseClearDialog();
             } else {
                 showAlert(
@@ -745,7 +756,8 @@ export default function Test() {
                                 const dueDate = dueDateInput?.value || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
                                 // Validar que la fecha no sea en el pasado
-                                const selectedDate = new Date(dueDate);
+                                const [year, month, day] = dueDate.split('-').map(Number);
+                                const selectedDate = new Date(year, month - 1, day);
                                 const today = new Date();
                                 today.setHours(0, 0, 0, 0);
 
@@ -760,11 +772,14 @@ export default function Test() {
                                 }
 
                                 // Asignar tests
+                                // Crear fecha sin problemas de zona horaria (usar las mismas variables ya declaradas)
+                                const fechaVencimiento = new Date(year, month - 1, day, 23, 59, 59); // Final del día
+                                
                                 const response = await testService.assignTestToStudents({
                                     testIds,
                                     testType,
                                     studentIds,
-                                    fechaVencimiento: new Date(dueDate)
+                                    fechaVencimiento: fechaVencimiento
                                 });
 
                                 if (response.success) {
@@ -777,7 +792,7 @@ export default function Test() {
                                         'success',
                                         '¡Tests Asignados Exitosamente!',
                                         `Se han asignado ${testIds.length} test(s) a ${studentIds.length} estudiante(s) de tu institución`,
-                                        `Tests asignados: ${selectedTests.map(test => test.titulo).join(', ')}\nEstudiantes: ${studentIds.length} estudiantes\nFecha de vencimiento: ${new Date(dueDate).toLocaleDateString()}`
+                                        `Tests asignados: ${selectedTests.map(test => test.titulo).join(', ')}\nEstudiantes: ${studentIds.length} estudiantes\nFecha de vencimiento: ${fechaVencimiento.toLocaleDateString()}`
                                     );
                                     handleCloseAssign();
                                     // Limpiar selección

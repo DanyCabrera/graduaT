@@ -12,6 +12,9 @@ import Divider from '@mui/material/Divider';
 import Button from "@mui/material/Button";
 import Navbar from "./navbar";
 import Progreso from "./progreso";
+import { SessionErrorHandler } from '../SessionErrorHandler';
+import { apiService } from '../../../services/api';
+// import { getAlumnoSession } from '../../utils/sessionManager';
 
 //Logo de los cursos
 import LogoMatematica from "../../../assets/TortuMate.png";
@@ -50,8 +53,42 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     const [maestrosPorCurso, setMaestrosPorCurso] = useState<MaestrosPorCurso>({});
     const [loadingMaestros, setLoadingMaestros] = useState(true);
     const [currentSection, setCurrentSection] = useState('inicio');
+    const [sessionError, setSessionError] = useState<Error | null>(null);
+
+    // Verificar que el usuario sea alumno
+    useEffect(() => {
+        const checkUserRole = () => {
+            const storedUser = localStorage.getItem('user_data');
+            if (storedUser) {
+                try {
+                    const user = JSON.parse(storedUser);
+                    if (user.Rol !== 'Alumno') {
+                        console.warn('⚠️ Usuario no es alumno:', user.Rol);
+                        setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Alumno`));
+                    } else {
+                        console.log('✅ Usuario es alumno, sesión válida');
+                        setSessionError(null);
+                    }
+                } catch (error) {
+                    console.error('Error al verificar rol de usuario:', error);
+                }
+            }
+        };
+
+        checkUserRole();
+        
+        // Verificar cada vez que cambie el localStorage
+        const handleStorageChange = () => {
+            checkUserRole();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     useEffect(() => {
+        // Forzar la actualización del token al cargar el componente
+        apiService.refreshTabToken();
         fetchMaestros();
     }, []);
 
@@ -108,6 +145,15 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
 
     const handleNavigation = (section: string) => {
         setCurrentSection(section);
+    };
+
+    // const handleSessionError = (error: Error) => {
+    //     console.log('🚨 Error de sesión en alumno:', error);
+    //     setSessionError(error);
+    // };
+
+    const clearSessionError = () => {
+        setSessionError(null);
     };
 
     const renderContent = () => {
@@ -366,6 +412,18 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                     <FooterAlumno />
                 </Box>
             </Fade>
+            
+            <SessionErrorHandler
+                error={sessionError}
+                onRetry={() => {
+                    clearSessionError();
+                    // Recargar la sección actual
+                    window.location.reload();
+                }}
+                onClearError={clearSessionError}
+                context="alumno"
+            />
+            
         </>
     );
 }

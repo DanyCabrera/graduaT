@@ -1,5 +1,5 @@
 // Utilidades para manejo de autenticación y tokens de acceso
-import sessionManager, { getCurrentToken, getCurrentUser, getCurrentRole, hasValidSession } from './sessionManager';
+import { sessionManager, getCurrentToken, getCurrentUser, getCurrentRole, hasValidSession } from './sessionManager';
 
 export const clearAccessTokens = () => {
     localStorage.removeItem('accessToken');

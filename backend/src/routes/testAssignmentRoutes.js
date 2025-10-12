@@ -15,6 +15,8 @@ router.get('/teacher/results', testAssignmentController.getTeacherStudentTestRes
 router.get('/teacher/notifications', testAssignmentController.getNotifications);
 router.get('/teacher/assigned', testAssignmentController.getAssignedTestsForTeacher);
 router.put('/teacher/notifications/:notificationId/read', testAssignmentController.markNotificationAsRead);
+router.delete('/teacher/notifications/:notificationId', testAssignmentController.deleteNotification);
+router.delete('/teacher/notifications', testAssignmentController.deleteAllNotifications);
 router.delete('/teacher/clear-all', testAssignmentController.clearAllTestAssignments);
 
 // Rutas de debugging

@@ -9,7 +9,11 @@ import {
     Chip, 
     CircularProgress, 
     Alert,
-    Fade
+    Fade,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from "@mui/material";
 import { 
     Assignment, 
@@ -24,11 +28,13 @@ import StyledAlert from '../../ui/StyledAlert';
 
 export default function Comunicacion() {
     const [assignedTests, setAssignedTests] = useState<TestAssignment[]>([]);
+    const [filteredTests, setFilteredTests] = useState<TestAssignment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedTest, setSelectedTest] = useState<TestAssignment | null>(null);
     const [testModalOpen, setTestModalOpen] = useState(false);
     const [resultModalOpen, setResultModalOpen] = useState(false);
+    const [selectedWeek, setSelectedWeek] = useState<string>('all');
     const [testResults, setTestResults] = useState<{
         score: number;
         correctAnswers: number;
@@ -43,8 +49,32 @@ export default function Comunicacion() {
         loadAssignedTests();
     }, []);
 
+    // Filtrar tests por semana
+    useEffect(() => {
+        if (selectedWeek === 'all') {
+            setFilteredTests(assignedTests);
+        } else {
+            const weekNumber = parseInt(selectedWeek);
+            const filtered = assignedTests.filter(test => 
+                test.test && test.test.semana === weekNumber
+            );
+            setFilteredTests(filtered);
+        }
+    }, [assignedTests, selectedWeek]);
+
     // Evitar recargas innecesarias
     const [lastLoadTime, setLastLoadTime] = useState<number>(0);
+
+    // Obtener semanas disponibles
+    const getAvailableWeeks = () => {
+        const weeks = new Set<number>();
+        assignedTests.forEach(test => {
+            if (test.test && test.test.semana) {
+                weeks.add(test.test.semana);
+            }
+        });
+        return Array.from(weeks).sort((a, b) => a - b);
+    };
 
     const loadAssignedTests = async () => {
         try {
@@ -214,6 +244,42 @@ export default function Comunicacion() {
                 </Alert>
             )}
 
+            {/* Filtro por semana */}
+            {assignedTests.length > 0 && (
+                <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    mb: 3,
+                    px: { xs: 2, sm: 4 }
+                }}>
+                    <FormControl sx={{ minWidth: 200 }}>
+                        <InputLabel id="week-filter-label-comm">Filtrar por semana</InputLabel>
+                        <Select
+                            labelId="week-filter-label-comm"
+                            value={selectedWeek}
+                            label="Filtrar por semana"
+                            onChange={(e) => setSelectedWeek(e.target.value)}
+                            sx={{
+                                borderRadius: 2,
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'primary.main',
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'primary.dark',
+                                },
+                            }}
+                        >
+                            <MenuItem value="all">Todas las semanas</MenuItem>
+                            {getAvailableWeeks().map((week) => (
+                                <MenuItem key={week} value={week.toString()}>
+                                    Semana {week}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+            )}
+
             {assignedTests.length === 0 ? (
                 <Box sx={{ 
                     textAlign: 'center', 
@@ -237,6 +303,29 @@ export default function Comunicacion() {
                         Tu maestro aún no ha asignado tests de comunicación
                     </Typography>
                 </Box>
+            ) : filteredTests.length === 0 ? (
+                <Box sx={{ 
+                    textAlign: 'center', 
+                    py: { xs: 4, sm: 6, md: 8 },
+                    px: { xs: 2, sm: 4 }
+                }}>
+                    <Assignment sx={{ 
+                        fontSize: { xs: 48, sm: 56, md: 64 }, 
+                        color: 'text.secondary', 
+                        mb: 2 
+                    }} />
+                    <Typography variant="h6" color="text.secondary" sx={{ 
+                        mb: 1,
+                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}>
+                        No hay tests para la semana seleccionada
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{
+                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }}>
+                        Selecciona otra semana o "Todas las semanas" para ver más tests
+                    </Typography>
+                </Box>
             ) : (
                 <Fade in={true} timeout={800}>
                     <Box sx={{
@@ -251,7 +340,7 @@ export default function Comunicacion() {
                         px: { xs: 1, sm: 2 },
                         mb: { xs: 12, sm: 12, md: 4 }
                     }}>
-                        {assignedTests.map((testAssignment) => (
+                        {filteredTests.map((testAssignment) => (
                             <Card 
                                 key={testAssignment._id}
                                 sx={{ 

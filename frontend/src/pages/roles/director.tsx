@@ -11,7 +11,7 @@ import Maestros from '../../components/common/Director/maestros';
 import Cursos from '../../components/common/Director/cursos';
 import Rendimiento from '../../components/common/Director/rendimiento';
 import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
-import { clearSession } from '../../utils/sessionManager';
+import { sessionManager } from '../../utils/sessionManager';
 
 interface UserData {
     Usuario: string;
@@ -31,7 +31,7 @@ export default function Director() {
 
     const handleLogout = () => {
         // Limpiar sesión actual
-        clearSession();
+        sessionManager.clearSessionManually();
         
         // Limpiar localStorage
         localStorage.removeItem('token');

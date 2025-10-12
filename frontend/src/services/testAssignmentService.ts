@@ -67,6 +67,7 @@ export interface Notification {
     testId: string;
     testType: string;
     score: number;
+    studentInstitution?: string; // Agregar institución del estudiante
     createdAt: string;
     read: boolean;
 }
@@ -124,6 +125,16 @@ class TestAssignmentService {
     // Marcar notificación como leída
     async markNotificationAsRead(notificationId: string): Promise<{ success: boolean; message: string }> {
         return apiService.put<{ success: boolean; message: string }>(`/test-assignments/teacher/notifications/${notificationId}/read`);
+    }
+
+    // Eliminar notificación completamente
+    async deleteNotification(notificationId: string): Promise<{ success: boolean; message: string }> {
+        return apiService.delete<{ success: boolean; message: string }>(`/test-assignments/teacher/notifications/${notificationId}`);
+    }
+
+    // Eliminar todas las notificaciones
+    async deleteAllNotifications(): Promise<{ success: boolean; message: string; data?: { deletedCount: number } }> {
+        return apiService.delete<{ success: boolean; message: string; data?: { deletedCount: number } }>('/test-assignments/teacher/notifications');
     }
 
     // Limpiar todos los tests asignados

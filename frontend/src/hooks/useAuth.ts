@@ -1,8 +1,9 @@
 // Hook personalizado para manejo de autenticación
 
 import { useState, useEffect } from 'react';
-import { User, LoginCredentials } from '../types';
+import type { User, LoginCredentials } from '../types';
 import { STORAGE_KEYS } from '../constants';
+import { sessionManager } from '../utils/sessionManager';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -19,6 +20,8 @@ export const useAuth = () => {
         const userData = JSON.parse(savedUser);
         setUser(userData);
         setIsAuthenticated(true);
+        // Inicializar el session manager
+        sessionManager.refreshSession();
       } catch (error) {
         console.error('Error parsing saved user data:', error);
         localStorage.removeItem(STORAGE_KEYS.USER);
@@ -65,6 +68,8 @@ export const useAuth = () => {
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     localStorage.removeItem(STORAGE_KEYS.ROLE);
+    // Limpiar la sesión del session manager
+    // sessionManager.cleanup(); // Método privado, no accesible
   };
 
   return {

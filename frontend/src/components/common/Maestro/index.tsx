@@ -1,5 +1,5 @@
 // maestro.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -10,6 +10,9 @@ import Fade from "@mui/material/Fade";
 import Button from "@mui/material/Button";
 
 import { FooterMaestro }  from '../../layout/footer';
+import { SessionErrorHandler } from '../SessionErrorHandler';
+import { apiService } from '../../../services/api';
+// import { getMaestroSession } from '../../utils/sessionManager';
 
 //Secciones del maestro
 import Navbar from "./navbar";
@@ -40,6 +43,45 @@ interface IndexMaestroProps {
 
 const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
     const [currentSection, setCurrentSection] = useState('inicio');
+    const [historialRefreshTrigger, setHistorialRefreshTrigger] = useState(0);
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [sessionError, setSessionError] = useState<Error | null>(null);
+
+    // Verificar que el usuario sea maestro
+    useEffect(() => {
+        const checkUserRole = () => {
+            const storedUser = localStorage.getItem('user_data');
+            if (storedUser) {
+                try {
+                    const user = JSON.parse(storedUser);
+                    if (user.Rol !== 'Maestro') {
+                        console.warn('⚠️ Usuario no es maestro:', user.Rol);
+                        setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Maestro`));
+                    } else {
+                        console.log('✅ Usuario es maestro, sesión válida');
+                        setSessionError(null);
+                    }
+                } catch (error) {
+                    console.error('Error al verificar rol de usuario:', error);
+                }
+            }
+        };
+
+        checkUserRole();
+        
+        // Verificar cada vez que cambie el localStorage
+        const handleStorageChange = () => {
+            checkUserRole();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    // Forzar la actualización del token al cargar el componente
+    useEffect(() => {
+        apiService.refreshTabToken();
+    }, []);
 
     const handleLogout = () => {
         // Limpiar localStorage
@@ -55,6 +97,24 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
 
     const handleNavigation = (section: string) => {
         setCurrentSection(section);
+    };
+
+    const refreshHistorial = () => {
+        console.log('🔄 Refrescando historial...');
+        setHistorialRefreshTrigger(prev => prev + 1);
+    };
+
+    const updateNotificationCount = (count: number) => {
+        setNotificationCount(count);
+    };
+
+    // const handleSessionError = (error: Error) => {
+    //     console.log('🚨 Error de sesión en maestro:', error);
+    //     setSessionError(error);
+    // };
+
+    const clearSessionError = () => {
+        setSessionError(null);
     };
 
     // Definir información de cursos disponibles
@@ -89,13 +149,16 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
             case 'historial':
                 return (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <Historial />
+                        <Historial 
+                            refreshTrigger={historialRefreshTrigger} 
+                            onNotificationCountChange={updateNotificationCount}
+                        />
                     </Box>
                 );
             case 'tests':
                 return (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <Test />
+                        <Test onTestsCleared={refreshHistorial} />
                     </Box>
                 );
             case 'mate':
@@ -283,11 +346,24 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                         onLogout={handleLogout} 
                         onNavigate={handleNavigation}
                         currentSection={currentSection}
+                        notificationCount={notificationCount}
                     />
                     {renderContent()}
                     <FooterMaestro />
                 </Box>
             </Fade>
+            
+            <SessionErrorHandler
+                error={sessionError}
+                onRetry={() => {
+                    clearSessionError();
+                    // Recargar la sección actual
+                    window.location.reload();
+                }}
+                onClearError={clearSessionError}
+                context="maestro"
+            />
+            
         </>
     );
 };
