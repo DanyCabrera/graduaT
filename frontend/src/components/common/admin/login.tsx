@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import {
     Container,
     Typography,
@@ -705,7 +706,7 @@ export default function LoginAdmin() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/useradmin/login', {
+            const response = await fetch(`${API_BASE_URL}/useradmin/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
