@@ -16,7 +16,7 @@ import {
     Error as ErrorIcon,
     ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
-import { API_BASE_URL } from "../../constants";
+import { API_BASE_URL } from "../../constants/index";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setAccessToken } from '../../utils/authUtils';

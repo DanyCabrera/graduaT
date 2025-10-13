@@ -1,5 +1,5 @@
 {/* Alumno */ }
-import { API_BASE_URL } from "../../../constants";
+import { API_BASE_URL } from "../../../constants/index";
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";

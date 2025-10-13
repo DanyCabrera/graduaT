@@ -1,31 +1,30 @@
 const fs = require('fs');
-const path = require('path');
 
 // Archivos que necesitan corrección de rutas de import
 const filesToFix = [
     {
         file: 'frontend/src/components/forms/codigoAcceso.tsx',
-        correctPath: '../../constants'
+        correctPath: '../../constants/index'
     },
     {
         file: 'frontend/src/pages/auth/verify-email.tsx',
-        correctPath: '../../../constants'
+        correctPath: '../../../constants/index'
     },
     {
         file: 'frontend/src/pages/roles/alumno.tsx',
-        correctPath: '../../constants'
+        correctPath: '../../constants/index'
     },
     {
         file: 'frontend/src/pages/roles/director.tsx',
-        correctPath: '../../constants'
+        correctPath: '../../constants/index'
     },
     {
         file: 'frontend/src/pages/roles/maestro.tsx',
-        correctPath: '../../constants'
+        correctPath: '../../constants/index'
     },
     {
         file: 'frontend/src/pages/roles/supervisor.tsx',
-        correctPath: '../../constants'
+        correctPath: '../../constants/index'
     }
 ];
 
@@ -41,7 +40,7 @@ function fixImportPath(filePath, correctPath) {
     try {
         let content = fs.readFileSync(filePath, 'utf8');
         
-        // Corregir la ruta de import
+        // Corregir la ruta de import para apuntar al archivo específico
         const importRegex = /import\s*{\s*API_BASE_URL\s*}\s*from\s*['"][^'"]*['"];?\s*\n?/g;
         const newImport = `import { API_BASE_URL } from "${correctPath}";\n`;
         
@@ -61,7 +60,10 @@ function removeUnusedImport(filePath) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Verificar si API_BASE_URL se usa en el archivo
-        const usesApiBaseUrl = content.includes('${API_BASE_URL}') || content.includes('API_BASE_URL');
+        const usesApiBaseUrl = content.includes('${API_BASE_URL}') || 
+                              content.includes('API_BASE_URL') ||
+                              content.includes('API_BASE_URL +') ||
+                              content.includes('API_BASE_URL,');
         
         if (!usesApiBaseUrl) {
             // Remover el import de API_BASE_URL
@@ -81,11 +83,11 @@ function removeUnusedImport(filePath) {
     }
 }
 
-console.log('🔧 Fixing import paths and removing unused imports...\n');
+console.log('🔧 Fixing all import issues...\n');
 
 let fixedCount = 0;
 
-// Corregir rutas de import
+// Corregir rutas de import para apuntar al archivo específico
 filesToFix.forEach(({ file, correctPath }) => {
     if (fixImportPath(file, correctPath)) {
         fixedCount++;
@@ -102,5 +104,5 @@ filesToCheck.forEach(file => {
 console.log(`\n🎉 Fixed ${fixedCount} files`);
 console.log('\n📝 Next steps:');
 console.log('1. Run: git add .');
-console.log('2. Run: git commit -m "fix: Correct import paths and remove unused imports"');
+console.log('2. Run: git commit -m "fix: Correct import paths to specific files and remove unused imports"');
 console.log('3. Run: git push origin main');

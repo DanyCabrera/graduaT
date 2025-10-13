@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../constants";
+import { API_BASE_URL } from "../../../constants/index";
 import { useEffect, useState } from 'react';
 import { 
     Box, 
