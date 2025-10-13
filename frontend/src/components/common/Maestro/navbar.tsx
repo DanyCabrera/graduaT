@@ -4,7 +4,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Badge from "@mui/material/Badge";
-import { Logout, Home, People, CalendarToday, History, Quiz, Notifications } from "@mui/icons-material";
+import { Logout, Home, People, CalendarToday, History, Quiz } from "@mui/icons-material";
 
 interface NavbarProps {
     onLogout?: () => void;

@@ -1,29 +1,20 @@
 import {
     Box,
-    Button,
     Fade,
-    Typography,
     Container,
     Paper,
-    Stack,
     useMediaQuery,
     useTheme,
 } from '@mui/material'
 import Tortu404 from "../../assets/Tortu404.png";
 import logo from "../../assets/LogoColor1.png";
 import Tortu404Cel from "../../assets/Tortu404cel.png";
-import { useNavigate } from 'react-router-dom'
 
 
 export default function NotFound() {
-    const navigate = useNavigate()
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    
-    const handleToHome = () => {
-        navigate('/')
-    }
 
     return(
         <>

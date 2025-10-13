@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Typography, Alert, Button } from '@mui/material';
 import { Security as SecurityIcon } from '@mui/icons-material';
-import { hasValidAccessToken, clearAccessTokens, getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
+import { hasValidAccessToken, getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
 
 interface ProtectedRouteProps {
     children: ReactNode;

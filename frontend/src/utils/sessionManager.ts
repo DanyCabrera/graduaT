@@ -117,47 +117,6 @@ class SessionManager {
     });
   }
 
-  private handleTokenRemoval() {
-    // No limpiar automáticamente para evitar conflictos entre pestañas
-    console.log('🔄 Token eliminado por otra pestaña, pero manteniendo sesión local para evitar pérdida de contenido');
-    
-    // Verificar si el token realmente existe
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      console.log('⚠️ Token no encontrado - posible conflicto entre pestañas');
-      // No limpiar automáticamente, dejar que el usuario decida
-    }
-  }
-
-  private handleUserDataChange() {
-    const currentUserData = localStorage.getItem('user_data');
-    const currentUserRole = localStorage.getItem('user_role');
-    
-    if (currentUserData && currentUserRole) {
-      try {
-        const parsedUser = JSON.parse(currentUserData);
-        const newRole = parsedUser.Rol;
-        const newInstitution = parsedUser.Código_Institución;
-        
-        // Verificar si el usuario cambió de rol o institución
-        if (newRole !== this.userRole || newInstitution !== this.userInstitution) {
-          console.log('⚠️ Usuario cambió de rol/institución en otra pestaña:', {
-            oldRole: this.userRole,
-            newRole: newRole,
-            oldInstitution: this.userInstitution,
-            newInstitution: newInstitution,
-            sessionId: this.sessionId
-          });
-          
-          // NO actualizar automáticamente - mantener la sesión original de esta pestaña
-          console.log('🔒 Manteniendo sesión original de esta pestaña para evitar conflictos');
-            }
-        } catch (error) {
-        console.error('Error al procesar cambio de datos de usuario:', error);
-      }
-    }
-  }
-
   private validateSession() {
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');

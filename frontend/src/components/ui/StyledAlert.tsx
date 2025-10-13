@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     Dialog,
-    DialogTitle,
     DialogContent,
     DialogActions,
     Button,
@@ -98,7 +97,7 @@ const StyledAlert: React.FC<StyledAlertProps> = ({
                 }
             }}
             TransitionComponent={Slide}
-            TransitionProps={{ direction: 'up' }}
+            TransitionProps={{ in: open, timeout: 300 }}
         >
             <Fade in={open} timeout={300}>
                 <Box>

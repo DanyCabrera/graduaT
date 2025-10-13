@@ -103,13 +103,6 @@ export const SessionErrorHandler: React.FC<SessionErrorHandlerProps> = ({
     }
   };
 
-  const handleRetry = () => {
-    setShowError(false);
-    if (onRetry) {
-      onRetry();
-    }
-  };
-
   if (!showError || !errorDetails) {
     return null;
   }
