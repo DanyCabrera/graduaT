@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 const allowedOrigins = [
     'http://localhost:5173',
-    'https://graduat.vercel.app',
+    'https://gradua-t.vercel.app',
     'https://*.vercel.app'
 ];
 
