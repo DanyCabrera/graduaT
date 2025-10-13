@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../constants";
+import { API_BASE_URL } from "../../constants";
 import { useEffect, useState } from 'react';
 import { 
     Box, 
@@ -100,7 +100,7 @@ export default function Director() {
                 return;
             }
             
-            const response = await fetch('${API_BASE_URL}/auth/verify', {
+            const response = await fetch(`${API_BASE_URL}/auth/verify`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

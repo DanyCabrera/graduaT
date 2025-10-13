@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../constants";
+import { API_BASE_URL } from "../../constants";
 import { useEffect, useState } from 'react';
 import {
     Box,
@@ -53,7 +53,7 @@ export default function Supervisor() {
     const fetchUserData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('${API_BASE_URL}/auth/verify', {
+            const response = await fetch(`${API_BASE_URL}/auth/verify`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

@@ -58,7 +58,7 @@ const AccesoAlumnoMaestro = () => {
     const cargarInstituciones = async () => {
         try {
             setLoading(true);
-            const response = await fetch('${API_BASE_URL}/colegios');
+            const response = await fetch(`${API_BASE_URL}/colegios`);
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -159,7 +159,7 @@ const AccesoAlumnoMaestro = () => {
             };
 
             // Registrar el usuario
-            const registerResponse = await fetch('${API_BASE_URL}/auth/register', {
+            const registerResponse = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ const AccesoAlumnoMaestro = () => {
             localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
             // Enviar correo de verificación
-            const response = await fetch('${API_BASE_URL}/auth/send-verification-email', {
+            const response = await fetch(`${API_BASE_URL}/auth/send-verification-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -416,7 +416,7 @@ const AccesoSupervisorDirector = () => {
     const cargarInstituciones = async () => {
         try {
             setLoading(true);
-            const response = await fetch('${API_BASE_URL}/colegios');
+            const response = await fetch(`${API_BASE_URL}/colegios`);
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -490,7 +490,7 @@ const AccesoSupervisorDirector = () => {
                     };
 
                     // Registrar el usuario
-                    const registerResponse = await fetch('${API_BASE_URL}/auth/register', {
+                    const registerResponse = await fetch(`${API_BASE_URL}/auth/register`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -516,7 +516,7 @@ const AccesoSupervisorDirector = () => {
                     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
                     // Enviar correo de verificación
-                    const emailResponse = await fetch('${API_BASE_URL}/auth/send-verification-email', {
+                    const emailResponse = await fetch(`${API_BASE_URL}/auth/send-verification-email`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -533,7 +533,7 @@ const AccesoSupervisorDirector = () => {
                         
                         // Obtener o generar código de acceso para roles de la institución
                         try {
-                            const codigoResponse = await fetch('${API_BASE_URL}/codigos-acceso/obtener-rol-institucion', {
+                            const codigoResponse = await fetch(`${API_BASE_URL}/codigos-acceso/obtener-rol-institucion`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

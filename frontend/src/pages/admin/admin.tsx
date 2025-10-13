@@ -115,7 +115,7 @@ export default function AdminPanel() {
         setErrorInstituciones(null);
         
         try {
-            const response = await fetch('${API_BASE_URL}/colegios');
+            const response = await fetch(`${API_BASE_URL}/colegios`);
             const result = await response.json();
             
             if (result.success) {

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../constants";
+import { API_BASE_URL } from "../../constants";
 import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { SessionDebugger } from '../../components/common/SessionDebugger';
@@ -96,7 +96,7 @@ export default function Alumno() {
             const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
             console.log('🔄 Alumno - Token para fetch:', token?.substring(0, 20) + '...');
             
-            const response = await fetch('${API_BASE_URL}/auth/verify-with-role-data', {
+            const response = await fetch(`${API_BASE_URL}/auth/verify-with-role-data`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

@@ -285,7 +285,7 @@ export default function Test({ onTestsCleared }: TestProps) {
 
             for (const alumno of newStudents) {
                 try {
-                    const reassignResponse = await fetch('${API_BASE_URL}/tests/reassign-to-new-student', {
+                    const reassignResponse = await fetch(`${API_BASE_URL}/tests/reassign-to-new-student`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

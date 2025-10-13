@@ -118,7 +118,7 @@ export default function Rendimiento({ userData }: RendimientoProps) {
             console.log('🔍 Fetching performance data...');
             console.log('🔑 Token available:', !!token);
 
-            const response = await fetch('${API_BASE_URL}/test-assignments/director/performance', {
+            const response = await fetch(`${API_BASE_URL}/test-assignments/director/performance`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../constants";
+import { API_BASE_URL } from "../../constants";
 import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import IndexMaestro from '../../components/common/Maestro/index';
@@ -102,7 +102,7 @@ export default function Maestro() {
                 return;
             }
             
-            const response = await fetch('${API_BASE_URL}/auth/verify-with-role-data', {
+            const response = await fetch(`${API_BASE_URL}/auth/verify-with-role-data`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

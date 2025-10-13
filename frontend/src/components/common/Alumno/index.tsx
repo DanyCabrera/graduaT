@@ -113,7 +113,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
             }
 
 
-            const response = await fetch('${API_BASE_URL}/maestros/for-alumno', {
+            const response = await fetch(`${API_BASE_URL}/maestros/for-alumno`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

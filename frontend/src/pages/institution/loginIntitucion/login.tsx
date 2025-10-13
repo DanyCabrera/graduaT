@@ -144,7 +144,7 @@ export default function LoginInstituciones() {
         }
 
         try {
-            const response = await fetch('${API_BASE_URL}/colegios', {
+            const response = await fetch(`${API_BASE_URL}/colegios`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

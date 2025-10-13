@@ -98,7 +98,7 @@ export default function Alumnos() {
             }
 
             // Primero obtener la información del maestro autenticado
-            const userResponse = await fetch('${API_BASE_URL}/auth/verify-with-role-data', {
+            const userResponse = await fetch(`${API_BASE_URL}/auth/verify-with-role-data`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
