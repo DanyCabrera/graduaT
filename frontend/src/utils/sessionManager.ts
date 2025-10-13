@@ -58,12 +58,25 @@ class SessionManager {
         this.userRole = currentRole;
         this.userInstitution = parsedUser.Código_Institución;
         
+        // Crear una copia aislada en sessionStorage para esta pestaña específica
+        const sessionKey = `session_${this.sessionId}`;
+        const sessionData = {
+          token: authToken,
+          user: parsedUser,
+          role: currentRole,
+          institution: parsedUser.Código_Institución,
+          timestamp: Date.now()
+        };
+        
+        sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+        
         console.log('🔒 Sesión inicializada y aislada:', {
           sessionId: this.sessionId,
           role: this.userRole,
           expectedRole: this.expectedRole,
           institution: this.userInstitution,
-          hasToken: !!this.sessionToken
+          hasToken: !!this.sessionToken,
+          sessionStorageKey: sessionKey
         });
       } catch (error) {
         console.error('Error al parsear datos de usuario:', error);
@@ -73,7 +86,7 @@ class SessionManager {
 
   private setupStorageListener() {
     // Escuchar cambios en localStorage desde otras pestañas
-        window.addEventListener('storage', (e) => {
+    window.addEventListener('storage', (e) => {
       console.log('🔄 Cambio detectado en localStorage:', e.key, e.newValue);
       
       // Solo reaccionar a cambios críticos que puedan afectar esta sesión
@@ -81,8 +94,9 @@ class SessionManager {
         console.log('⚠️ Token eliminado por otra pestaña, pero manteniendo sesión local');
         // No hacer nada - mantener la sesión local
       } else if (e.key === 'user_data' || e.key === 'user_role') {
-        console.log('⚠️ Datos de usuario cambiados por otra pestaña, verificando compatibilidad...');
-        this.handleUserDataChange();
+        console.log('⚠️ Datos de usuario cambiados por otra pestaña, pero manteniendo sesión aislada');
+        // NO reaccionar a cambios de localStorage - mantener la sesión aislada
+        // this.handleUserDataChange(); // Comentado para evitar conflictos
       }
     });
 
@@ -158,13 +172,23 @@ class SessionManager {
   }
 
   private clearSession() {
+    // Limpiar solo la sesión de esta pestaña específica
+    const sessionKey = `session_${this.sessionId}`;
+    sessionStorage.removeItem(sessionKey);
+    
+    // Solo limpiar localStorage si esta es la última pestaña activa
+    // (esto se puede mejorar con un sistema de conteo de pestañas)
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
-            localStorage.removeItem('user_role');
+    localStorage.removeItem('user_role');
     
-    // No redirigir automáticamente para evitar conflictos entre pestañas
-    // El usuario puede decidir cuándo cerrar sesión manualmente
-    console.log('🧹 Sesión limpiada localmente');
+    // Limpiar datos locales
+    this.sessionToken = null;
+    this.sessionUserData = null;
+    this.userRole = null;
+    this.userInstitution = null;
+    
+    console.log('🧹 Sesión limpiada localmente y de sessionStorage');
   }
 
   public clearSessionManually() {

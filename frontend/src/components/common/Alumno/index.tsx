@@ -55,36 +55,44 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     const [currentSection, setCurrentSection] = useState('inicio');
     const [sessionError, setSessionError] = useState<Error | null>(null);
 
-    // Verificar que el usuario sea alumno
+    // Verificar que el usuario sea alumno (solo una vez al cargar)
     useEffect(() => {
         const checkUserRole = () => {
-            const storedUser = localStorage.getItem('user_data');
-            if (storedUser) {
-                try {
-                    const user = JSON.parse(storedUser);
-                    if (user.Rol !== 'Alumno') {
-                        console.warn('⚠️ Usuario no es alumno:', user.Rol);
-                        setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Alumno`));
-                    } else {
-                        console.log('✅ Usuario es alumno, sesión válida');
-                        setSessionError(null);
+            // Usar los datos del prop userData en lugar de localStorage para evitar conflictos
+            if (userData) {
+                if (userData.Rol !== 'Alumno') {
+                    console.warn('⚠️ Usuario no es alumno:', userData.Rol);
+                    setSessionError(new Error(`Acceso denegado. Rol actual: ${userData.Rol}. Se requiere rol: Alumno`));
+                } else {
+                    console.log('✅ Usuario es alumno, sesión válida');
+                    setSessionError(null);
+                }
+            } else {
+                // Fallback a localStorage solo si no hay userData
+                const storedUser = localStorage.getItem('user_data');
+                if (storedUser) {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        if (user.Rol !== 'Alumno') {
+                            console.warn('⚠️ Usuario no es alumno:', user.Rol);
+                            setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Alumno`));
+                        } else {
+                            console.log('✅ Usuario es alumno, sesión válida');
+                            setSessionError(null);
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar rol de usuario:', error);
                     }
-                } catch (error) {
-                    console.error('Error al verificar rol de usuario:', error);
                 }
             }
         };
 
         checkUserRole();
         
-        // Verificar cada vez que cambie el localStorage
-        const handleStorageChange = () => {
-            checkUserRole();
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+        // NO escuchar cambios en localStorage para evitar conflictos entre pestañas
+        // Cada pestaña mantiene su propia sesión aislada
+        console.log('🔒 Panel de Alumno: Sesión aislada, no escuchando cambios de localStorage');
+    }, [userData]);
 
     useEffect(() => {
         // Forzar la actualización del token al cargar el componente
@@ -225,16 +233,6 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                             </Typography>
                         </Box>
 
-                        {/* Título de cursos */}
-                        <Typography variant="h5" sx={{ 
-                            fontWeight: "bold", 
-                            mb: { xs: 2, sm: 3 }, 
-                            textAlign: 'center',
-                            fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' }
-                        }}>
-                            Mis cursos
-                        </Typography>
-
                         {/* Grid de cursos */}
                         {loadingMaestros ? (
                             <Box sx={{ 
@@ -322,7 +320,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                                     mt: 2
                                                 }}
                                             >
-                                                Test
+                                                Ver más
                                             </Button>
                                         </Box>
                                     </CardActionArea>
@@ -387,7 +385,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                                     mt: 2
                                                 }}
                                             >
-                                                Test
+                                                Ver más
                                             </Button>
                                         </Box>
                                     </CardActionArea>

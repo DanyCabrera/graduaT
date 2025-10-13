@@ -20,30 +20,59 @@ export default function ProtectedRoute({ children, requiredAccess = 'ROL' }: Pro
 
     const checkAccess = () => {
         try {
-            console.log('🔍 Verificando acceso para:', requiredAccess);
-            const isValid = hasValidAccessToken(requiredAccess);
-            console.log('✅ Token de acceso válido:', isValid);
+            console.log('🔍 ProtectedRoute - Verificando acceso para:', requiredAccess);
             
-            // Para acceso de rol, también verificar que tenemos datos de sesión
-            if (requiredAccess === 'ROL' && isValid) {
-                const token = getSessionToken();
-                const user = getSessionUser();
-                const role = getSessionRole();
-                
-                console.log('🔍 Datos de sesión:', { token: !!token, user: !!user, role });
-                
-                if (!token || !user || !role) {
-                    console.warn('❌ Sesión incompleta, redirigiendo al login');
-                    setIsAuthorized(false);
+            // Verificar datos de localStorage directamente
+            const authToken = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            const userRole = localStorage.getItem('user_role');
+            
+            console.log('🔍 ProtectedRoute - Datos de localStorage:', {
+                hasAuthToken: !!authToken,
+                hasUserData: !!userData,
+                hasUserRole: !!userRole,
+                authToken: authToken?.substring(0, 20) + '...',
+                userData: userData ? JSON.parse(userData) : null
+            });
+            
+            // Para el panel de roles, verificar si tenemos datos básicos de autenticación
+            if (requiredAccess === 'ROL') {
+                // Si tenemos datos básicos de autenticación, permitir acceso
+                if (authToken && userData && userRole) {
+                    console.log('✅ ProtectedRoute - Acceso autorizado por datos de autenticación básicos');
+                    setIsAuthorized(true);
                     setLoading(false);
                     return;
                 }
+                
+                // Si no hay datos básicos, verificar token de acceso
+                const isValid = hasValidAccessToken(requiredAccess);
+                console.log('✅ ProtectedRoute - Token de acceso válido:', isValid);
+                
+                if (isValid) {
+                    const token = getSessionToken();
+                    const user = getSessionUser();
+                    const role = getSessionRole();
+                    
+                    console.log('🔍 ProtectedRoute - Datos de sesión:', { token: !!token, user: !!user, role });
+                    
+                    if (!token || !user || !role) {
+                        console.warn('❌ ProtectedRoute - Sesión incompleta, redirigiendo al login');
+                        setIsAuthorized(false);
+                        setLoading(false);
+                        return;
+                    }
+                }
+                
+                setIsAuthorized(isValid);
+            } else {
+                // Para otros tipos de acceso, usar la lógica normal
+                const isValid = hasValidAccessToken(requiredAccess);
+                console.log('✅ ProtectedRoute - Token de acceso válido:', isValid);
+                setIsAuthorized(isValid);
             }
-            
-            console.log('✅ Acceso autorizado:', isValid);
-            setIsAuthorized(isValid);
         } catch (error) {
-            console.error('❌ Error checking access:', error);
+            console.error('❌ ProtectedRoute - Error checking access:', error);
             setIsAuthorized(false);
         } finally {
             setLoading(false);

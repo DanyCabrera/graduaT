@@ -17,6 +17,7 @@ import {
     ListItemIcon,
     Avatar
 } from "@mui/material";
+import { getMaestroSession } from '../../../utils/sessionManager';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
@@ -40,14 +41,14 @@ export default function Agenda() {
     useEffect(() => {
         const loadSavedAgenda = () => {
             try {
-                // Obtener datos del usuario para crear clave única
-                const userData = localStorage.getItem('user_data');
-                if (!userData) {
+                // Obtener datos del usuario desde la sesión aislada
+                const maestroSession = getMaestroSession();
+                const user = maestroSession.getCurrentUser();
+                if (!user) {
                     setLoading(false);
                     return;
                 }
 
-                const user = JSON.parse(userData);
                 const userKey = user.Usuario || user.email || 'unknown';
 
 
@@ -72,13 +73,13 @@ export default function Agenda() {
     // Función para guardar la agenda en localStorage
     const saveAgendaToStorage = (agendaData: AgendaSemana[], siguienteSemanaData: number) => {
         try {
-            // Obtener datos del usuario para crear clave única
-            const userData = localStorage.getItem('user_data');
-            if (!userData) {
+            // Obtener datos del usuario desde la sesión aislada
+            const maestroSession = getMaestroSession();
+            const user = maestroSession.getCurrentUser();
+            if (!user) {
                 return;
             }
 
-            const user = JSON.parse(userData);
             const userKey = user.Usuario || user.email || 'unknown';
 
             localStorage.setItem(`maestro_agenda_${userKey}`, JSON.stringify(agendaData));
@@ -182,14 +183,14 @@ export default function Agenda() {
                                 color="warning"
                                 onClick={() => {
                                     try {
-                                        // Obtener datos del usuario para crear clave única
-                                        const userData = localStorage.getItem('user_data');
-                                        if (!userData) {
+                                        // Obtener datos del usuario desde la sesión aislada
+                                        const maestroSession = getMaestroSession();
+                                        const user = maestroSession.getCurrentUser();
+                                        if (!user) {
                                             console.error('❌ No se encontraron datos del usuario para resetear agenda');
                                             return;
                                         }
 
-                                        const user = JSON.parse(userData);
                                         const userKey = user.Usuario || user.email || 'unknown';
 
                                         setAgenda([]);

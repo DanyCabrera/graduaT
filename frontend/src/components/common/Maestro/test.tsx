@@ -32,11 +32,13 @@ import {
     School,
     Close,
     Delete,
-    Warning
+    Warning,
+    Refresh
 } from "@mui/icons-material";
 import { testService, type Test, type TestsByCourse } from '../../../services/testService';
 import { testAssignmentService } from '../../../services/testAssignmentService';
 import StyledAlert from '../../ui/StyledAlert';
+import { getMaestroSession } from '../../../utils/sessionManager';
 
 
 interface TestProps {
@@ -52,6 +54,7 @@ export default function Test({ onTestsCleared }: TestProps) {
     const [previewDialog, setPreviewDialog] = useState(false);
     const [selectedTest, setSelectedTest] = useState<Test | null>(null);
     const [assignDialog, setAssignDialog] = useState(false);
+    const [reassigning, setReassigning] = useState(false);
     const [assigning, setAssigning] = useState(false);
     const [maestroCursos, setMaestroCursos] = useState<string[]>([]);
     const [alertOpen, setAlertOpen] = useState(false);
@@ -101,11 +104,11 @@ export default function Test({ onTestsCleared }: TestProps) {
 
     const loadMaestroData = () => {
         try {
-            const userData = localStorage.getItem('user_data');
+            // Usar la sesión aislada del maestro en lugar de localStorage
+            const maestroSession = getMaestroSession();
+            const user = maestroSession.getCurrentUser();
 
-            if (userData) {
-                const user = JSON.parse(userData);
-
+            if (user) {
                 // Verificar que el usuario sea un maestro
                 if (user.Rol !== 'Maestro') {
                     setError('Acceso denegado. Solo los maestros pueden acceder a esta función.');
@@ -116,9 +119,9 @@ export default function Test({ onTestsCleared }: TestProps) {
                 // Obtener cursos del maestro desde los datos del usuario
                 const cursos = user.CURSO || [];
                 setMaestroCursos(cursos);
-                console.log('✅ Cursos del maestro cargados:', cursos);
+                console.log('✅ Cursos del maestro cargados desde sesión aislada:', cursos);
             } else {
-                console.log('❌ No se encontraron datos de usuario en localStorage');
+                console.log('❌ No se encontraron datos de usuario en la sesión aislada');
                 setError('No se encontraron datos de usuario. Por favor, inicia sesión nuevamente.');
             }
         } catch (error) {
@@ -177,6 +180,154 @@ export default function Test({ onTestsCleared }: TestProps) {
 
     const handleAssignTests = () => {
         setAssignDialog(true);
+    };
+
+    const handleReassignTests = async () => {
+        try {
+            setReassigning(true);
+            
+            // Obtener datos del maestro desde la sesión aislada
+            const maestroSession = getMaestroSession();
+            const user = maestroSession.getCurrentUser();
+            const token = maestroSession.getCurrentToken();
+            
+            if (!user || !token) {
+                throw new Error('No se encontraron datos de usuario en la sesión');
+            }
+
+            const codigoInstitucion = user.Código_Institución;
+            if (!codigoInstitucion) {
+                throw new Error('No se encontró el código de institución del maestro');
+            }
+
+            // Primero verificar si hay tests asignados en la institución
+            const debugResponse = await fetch(`http://localhost:3001/api/tests/debug-assignments/${codigoInstitucion}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!debugResponse.ok) {
+                throw new Error('Error al verificar tests asignados en la institución');
+            }
+
+            const debugData = await debugResponse.json();
+            const totalAssignments = debugData.data.totalAssignments;
+
+            if (totalAssignments === 0) {
+                setAlertData({
+                    type: 'warning',
+                    title: 'Sin Tests Asignados',
+                    message: 'No tienes tests asignados en tu institución. Primero asigna tests a tus estudiantes.',
+                    details: ''
+                });
+                setAlertOpen(true);
+                return;
+            }
+
+            // Obtener alumnos de la misma institución
+            const alumnosResponse = await fetch(`http://localhost:3001/api/alumnos/institucion/${codigoInstitucion}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!alumnosResponse.ok) {
+                throw new Error('Error al obtener los alumnos de la institución');
+            }
+
+            const alumnosData = await alumnosResponse.json();
+            const alumnos = alumnosData.data || [];
+
+            if (alumnos.length === 0) {
+                setAlertData({
+                    type: 'warning',
+                    title: 'Sin Alumnos',
+                    message: 'No hay alumnos registrados en tu institución para reasignar tests.',
+                    details: ''
+                });
+                setAlertOpen(true);
+                return;
+            }
+
+            // Verificar cuáles alumnos son nuevos (no tienen tests asignados)
+            const newStudents = [];
+            const existingStudents = [];
+
+            for (const alumno of alumnos) {
+                // Verificar si el alumno tiene tests asignados
+                const hasAssignments = debugData.data.allAssignments.some((assignment: any) => 
+                    assignment.studentIds && assignment.studentIds.includes(alumno.Usuario)
+                );
+
+                if (hasAssignments) {
+                    existingStudents.push(alumno);
+                } else {
+                    newStudents.push(alumno);
+                }
+            }
+
+            if (newStudents.length === 0) {
+                setAlertData({
+                    type: 'info',
+                    title: 'Sin Estudiantes Nuevos',
+                    message: `Todos los ${alumnos.length} estudiantes ya tienen tests asignados. No hay estudiantes nuevos para reasignar tests.`,
+                    details: ''
+                });
+                setAlertOpen(true);
+                return;
+            }
+
+            // Reasignar tests solo a los estudiantes nuevos
+            let totalReassigned = 0;
+            let successfulReassignments = 0;
+
+            for (const alumno of newStudents) {
+                try {
+                    const reassignResponse = await fetch('http://localhost:3001/api/tests/reassign-to-new-student', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            studentUsuario: alumno.Usuario,
+                            studentInstitution: codigoInstitucion
+                        })
+                    });
+
+                    if (reassignResponse.ok) {
+                        const result = await reassignResponse.json();
+                        if (result.data.newAssignments > 0) {
+                            totalReassigned += result.data.newAssignments;
+                            successfulReassignments++;
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error al reasignar tests al alumno ${alumno.Usuario}:`, error);
+                }
+            }
+
+            setAlertData({
+                type: 'success',
+                title: 'Reasignación Completada',
+                message: `Se reasignaron ${totalReassigned} tests a ${successfulReassignments} estudiantes nuevos de tu institución.`,
+                details: `Estudiantes nuevos: ${newStudents.length}, Estudiantes con tests existentes: ${existingStudents.length}`
+            });
+            setAlertOpen(true);
+
+        } catch (error) {
+            console.error('Error al reasignar tests:', error);
+            setAlertData({
+                type: 'error',
+                title: 'Error al Reasignar Tests',
+                message: error instanceof Error ? error.message : 'Error desconocido al reasignar tests.',
+                details: ''
+            });
+            setAlertOpen(true);
+        } finally {
+            setReassigning(false);
+        }
     };
 
     const handleClosePreview = () => {
@@ -305,6 +456,24 @@ export default function Test({ onTestsCleared }: TestProps) {
                             }}
                         >
                             Limpiar Tests
+                        </Button>
+
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<Refresh />}
+                            onClick={handleReassignTests}
+                            disabled={reassigning}
+                            sx={{
+                                textTransform: 'none',
+                                borderRadius: 2,
+                                px: 3,
+                                py: 1,
+                                ml: 2,
+                                display: 'none'
+                            }}
+                        >
+                            {reassigning ? 'Reasignando...' : 'Reasignar Tests'}
                         </Button>
                     </Box>
 
@@ -679,7 +848,8 @@ export default function Test({ onTestsCleared }: TestProps) {
                                 setAssigning(true);
 
                                 // Obtener estudiantes de la misma institución del maestro
-                                const token = localStorage.getItem('token');
+                                const maestroSession = getMaestroSession();
+                                const token = maestroSession.getCurrentToken();
                                 if (!token) {
                                     showAlert(
                                         'error',
@@ -690,19 +860,13 @@ export default function Test({ onTestsCleared }: TestProps) {
                                     return;
                                 }
 
-                                // Obtener información del maestro autenticado
-                                const userResponse = await fetch('http://localhost:3001/api/auth/verify-with-role-data', {
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`
-                                    }
-                                });
-
-                                if (!userResponse.ok) {
-                                    throw new Error('Error al obtener información del usuario');
+                                // Obtener información del maestro autenticado desde la sesión aislada
+                                const user = maestroSession.getCurrentUser();
+                                if (!user) {
+                                    throw new Error('No se encontraron datos de usuario en la sesión');
                                 }
 
-                                const userData = await userResponse.json();
-                                const codigoInstitucion = userData.user.Código_Institución;
+                                const codigoInstitucion = user.Código_Institución;
 
                                 if (!codigoInstitucion) {
                                     showAlert(

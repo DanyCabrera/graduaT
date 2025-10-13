@@ -24,13 +24,45 @@ export const hasValidAccessToken = (requiredType: string = 'ROL'): boolean => {
         
         // Verificar el tipo de acceso requerido
         if (requiredType === 'ROL') {
-            // Para acceso de rol, verificar que tenemos una sesión válida Y un token de acceso válido
+            // Verificar datos de localStorage directamente primero
+            const authToken = localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('user_data');
+            const userRole = localStorage.getItem('user_role');
+            
+            console.log('🔍 hasValidAccessToken - Datos directos de localStorage:', {
+                hasAuthToken: !!authToken,
+                hasUserData: !!userData,
+                hasUserRole: !!userRole
+            });
+            
+            // Si tenemos datos básicos en localStorage, permitir acceso
+            if (authToken && userData && userRole) {
+                try {
+                    const parsedUser = JSON.parse(userData);
+                    console.log('✅ Acceso autorizado por datos de localStorage:', {
+                        user: parsedUser.Usuario,
+                        role: parsedUser.Rol
+                    });
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error al parsear datos de usuario:', error);
+                }
+            }
+            
+            // Para acceso de rol, verificar que tenemos una sesión válida
             const hasSession = hasValidSession();
             const currentRole = getCurrentRole();
+            const sessionToken = getSessionToken();
             
-            console.log('🔍 Verificaciones de sesión:', { hasSession, currentRole });
+            console.log('🔍 Verificaciones de sesión:', { hasSession, currentRole, hasToken: !!sessionToken });
             
-            // Verificar token de acceso tradicional
+            // Si tenemos una sesión válida con token y rol, permitir acceso sin token de acceso adicional
+            if (hasSession && sessionToken && currentRole) {
+                console.log('✅ Acceso autorizado por sesión válida');
+                return true;
+            }
+            
+            // Si no hay sesión válida, verificar token de acceso tradicional
             const accessToken = localStorage.getItem('accessToken');
             const accessType = localStorage.getItem('accessType');
             const accessExpiry = localStorage.getItem('accessExpiry');
@@ -43,7 +75,7 @@ export const hasValidAccessToken = (requiredType: string = 'ROL'): boolean => {
             });
 
             if (!accessToken || !accessType || !accessExpiry) {
-                console.log('❌ Faltan datos del token de acceso');
+                console.log('❌ Faltan datos del token de acceso y no hay sesión válida');
                 return false;
             }
 
@@ -67,9 +99,8 @@ export const hasValidAccessToken = (requiredType: string = 'ROL'): boolean => {
                 hasRole: currentRole !== null && currentRole !== undefined 
             });
             
-            // Para el panel de roles, necesitamos tanto el token de acceso como una sesión válida
-            // El rol puede ser TEMP_ROLE (temporal) o un rol específico
-            const result = hasValidAccess && hasSession && currentRole !== null && currentRole !== undefined;
+            // Para el panel de roles, necesitamos el token de acceso válido
+            const result = hasValidAccess;
             console.log('✅ Resultado final:', result);
             return result;
         }

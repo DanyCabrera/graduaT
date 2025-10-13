@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import IndexMaestro from '../../components/common/Maestro/index';
 import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
+import { getMaestroSession } from '../../utils/sessionManager';
 import { SessionDebugger } from '../../components/common/SessionDebugger';
 
 interface UserData {
@@ -23,49 +24,70 @@ export default function Maestro() {
     useEffect(() => {
         console.log('🔍 Maestro - Iniciando verificación de sesión...');
         
-        // Primero intentar obtener datos de la sesión actual
+        // Verificar datos básicos de localStorage primero
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+        const user = localStorage.getItem('user') || localStorage.getItem('user_data');
+        
+        console.log('🔍 Maestro - Datos de localStorage:', { 
+            hasToken: !!token, 
+            hasUser: !!user,
+            token: token?.substring(0, 20) + '...',
+            user: user ? JSON.parse(user) : null
+        });
+        
+        if (user) {
+            try {
+                const parsedUser = JSON.parse(user);
+                if (parsedUser.Rol === 'Maestro') {
+                    console.log('✅ Maestro - Usando datos de localStorage');
+                    
+                    // Inicializar el session manager específico para Maestro
+                    const maestroSession = getMaestroSession();
+                    maestroSession.setSession(token || '', parsedUser, 'Maestro');
+                    
+                    setUserData(parsedUser);
+                    setLoading(false);
+                    return;
+                } else {
+                    console.warn('⚠️ Maestro - Usuario no es maestro:', parsedUser.Rol);
+                    console.warn('⚠️ Maestro - Redirigiendo al panel correcto...');
+                    
+                    // Redirigir al panel correcto según el rol
+                    if (parsedUser.Rol === 'Alumno') {
+                        window.location.href = '/alumno';
+                        return;
+                    } else if (parsedUser.Rol === 'Director') {
+                        window.location.href = '/director';
+                        return;
+                    } else if (parsedUser.Rol === 'Supervisor') {
+                        window.location.href = '/supervisor';
+                        return;
+                    }
+                    
+                    setLoading(false);
+                    return;
+                }
+            } catch (error) {
+                console.error('❌ Maestro - Error al parsear usuario:', error);
+            }
+        }
+        
+        // Si no hay datos en localStorage, intentar obtener de la sesión aislada
         const sessionUser = getSessionUser();
         const sessionRole = getSessionRole();
         
-        console.log('🔍 Maestro - Datos de sesión:', { sessionUser, sessionRole });
+        console.log('🔍 Maestro - Datos de sesión aislada:', { sessionUser, sessionRole });
         
         if (sessionUser && sessionRole === 'Maestro') {
-            console.log('✅ Maestro - Usando datos de sesión');
+            console.log('✅ Maestro - Usando datos de sesión aislada');
             setUserData(sessionUser);
             setLoading(false);
+        } else if (token) {
+            console.log('🔄 Maestro - Obteniendo datos del backend...');
+            fetchUserData();
         } else {
-            // Si no hay sesión válida, intentar obtener del localStorage
-            const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
-            const user = localStorage.getItem('user') || localStorage.getItem('user_data');
-            
-            console.log('🔍 Maestro - Datos de localStorage:', { 
-                hasToken: !!token, 
-                hasUser: !!user,
-                token: token?.substring(0, 20) + '...',
-                user: user ? JSON.parse(user) : null
-            });
-            
-            if (user) {
-                try {
-                    const parsedUser = JSON.parse(user);
-                    if (parsedUser.Rol === 'Maestro') {
-                        console.log('✅ Maestro - Usando datos de localStorage');
-                        setUserData(parsedUser);
-                        setLoading(false);
-                        return;
-                    }
-                } catch (error) {
-                    console.error('❌ Maestro - Error al parsear usuario:', error);
-                }
-            }
-            
-            if (token) {
-                console.log('🔄 Maestro - Obteniendo datos del backend...');
-                fetchUserData();
-            } else {
-                console.log('❌ Maestro - No hay token disponible');
-                setLoading(false);
-            }
+            console.log('❌ Maestro - No hay token disponible');
+            setLoading(false);
         }
     }, []);
 

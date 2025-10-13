@@ -26,6 +26,7 @@ import {
     ClearAll
 } from '@mui/icons-material';
 import { testAssignmentService, type Notification } from '../../../services/testAssignmentService';
+import { getMaestroSession } from '../../../utils/sessionManager';
 
 interface HistorialProps {
     refreshTrigger?: number; // Prop para forzar refresh
@@ -56,16 +57,30 @@ export default function Historial({ refreshTrigger, onNotificationCountChange }:
 
     const fetchNotifications = async () => {
         try {
+            // Verificar la sesión aislada del maestro
+            const maestroSession = getMaestroSession();
+            const user = maestroSession.getCurrentUser();
+            const token = maestroSession.getCurrentToken();
+            
+            console.log('🔍 Historial - Verificando sesión aislada:', {
+                hasUser: !!user,
+                hasToken: !!token,
+                userRole: user?.Rol,
+                userInstitution: user?.Código_Institución,
+                sessionId: maestroSession.getSessionId()
+            });
+            
             const response = await testAssignmentService.getNotifications();
             if (response.success) {
                 setNotifications(response.data);
+                console.log('✅ Historial - Notificaciones cargadas:', response.data.length);
                 // Actualizar el contador en el navbar
                 if (onNotificationCountChange) {
                     onNotificationCountChange(response.data.length);
                 }
             } else {
                 if (response.message?.includes('Acceso denegado')) {
-                    console.log('Usuario no es maestro, no se cargarán notificaciones');
+                    console.log('❌ Usuario no es maestro, no se cargarán notificaciones');
                     setNotifications([]);
                     if (onNotificationCountChange) {
                         onNotificationCountChange(0);
@@ -75,7 +90,7 @@ export default function Historial({ refreshTrigger, onNotificationCountChange }:
                 }
             }
         } catch (error) {
-            console.error('Error fetching notifications:', error);
+            console.error('❌ Error fetching notifications:', error);
             setError('Error al cargar las notificaciones. Verifica tu conexión.');
         } finally {
             setLoading(false);

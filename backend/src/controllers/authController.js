@@ -152,6 +152,17 @@ const register = async (req, res) => {
                             Código_Rol: userData.Código_Rol || '',
                             Nombre_Institución: userData.Nombre_Institución || ''
                         });
+                        
+                        // Asignar automáticamente tests existentes al nuevo alumno
+                        if (roleResult.insertedId) {
+                            try {
+                                await assignExistingTestsToNewStudent(userData.Usuario, userData.Código_Institución);
+                                console.log('✅ Tests existentes asignados automáticamente al nuevo alumno:', userData.Usuario);
+                            } catch (assignError) {
+                                console.error('⚠️ Error al asignar tests existentes al nuevo alumno:', assignError);
+                                // No fallar el registro si hay error en la asignación de tests
+                            }
+                        }
                         break;
                     case 'Maestro':
                         const maestroData = {
@@ -603,6 +614,75 @@ const verifyTokenWithRoleData = async (req, res) => {
         res.status(401).json({
             error: 'Token inválido o expirado'
         });
+    }
+};
+
+// Función para asignar automáticamente tests existentes a un nuevo alumno
+const assignExistingTestsToNewStudent = async (studentUsuario, studentInstitution) => {
+    try {
+        const { getDB } = require('../config/db');
+        const db = await getDB();
+        
+        console.log('🔄 Asignando tests existentes al nuevo alumno:', {
+            studentUsuario,
+            studentInstitution
+        });
+        
+        // Buscar todas las asignaciones existentes para la institución del alumno
+        const existingAssignments = await db.collection('testAssignments').find({
+            institucionId: studentInstitution,
+            estado: 'asignado'
+        }).toArray();
+        
+        console.log('📚 Asignaciones existentes encontradas:', existingAssignments.length);
+        
+        if (existingAssignments.length === 0) {
+            console.log('ℹ️ No hay tests existentes para asignar al nuevo alumno');
+            return;
+        }
+        
+        // Crear nuevas asignaciones para el nuevo alumno
+        const newAssignments = [];
+        
+        for (const assignment of existingAssignments) {
+            // Verificar si el alumno ya está en esta asignación
+            if (assignment.studentIds && assignment.studentIds.includes(studentUsuario)) {
+                console.log('ℹ️ El alumno ya está asignado al test:', assignment.testId);
+                continue;
+            }
+            
+            // Crear una nueva asignación individual para el nuevo alumno
+            const newAssignment = {
+                testId: assignment.testId,
+                testType: assignment.testType,
+                studentIds: [studentUsuario],
+                fechaAsignacion: assignment.fechaAsignacion,
+                fechaVencimiento: assignment.fechaVencimiento,
+                estado: 'asignado',
+                maestroId: assignment.maestroId,
+                institucionId: studentInstitution,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            
+            newAssignments.push(newAssignment);
+        }
+        
+        if (newAssignments.length > 0) {
+            // Insertar todas las nuevas asignaciones
+            const result = await db.collection('testAssignments').insertMany(newAssignments);
+            console.log('✅ Tests asignados automáticamente al nuevo alumno:', {
+                studentUsuario,
+                assignedTests: result.insertedCount,
+                testIds: newAssignments.map(a => a.testId)
+            });
+        } else {
+            console.log('ℹ️ No se asignaron nuevos tests al alumno (ya tenía todos los tests existentes)');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error al asignar tests existentes al nuevo alumno:', error);
+        throw error;
     }
 };
 

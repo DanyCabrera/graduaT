@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { SessionDebugger } from '../../components/common/SessionDebugger';
+import { getAlumnoSession } from '../../utils/sessionManager';
+import { getSessionUser, getSessionRole } from '../../utils/authUtils';
 
 interface UserData {
     Usuario: string;
@@ -21,7 +23,7 @@ export default function Alumno() {
     useEffect(() => {
         console.log('🔍 Alumno - Iniciando verificación de sesión...');
         
-        // Obtener datos del usuario desde localStorage o token
+        // Verificar datos básicos de localStorage primero
         const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
         const user = localStorage.getItem('user') || localStorage.getItem('user_data');
         
@@ -37,7 +39,30 @@ export default function Alumno() {
                 const parsedUser = JSON.parse(user);
                 if (parsedUser.Rol === 'Alumno') {
                     console.log('✅ Alumno - Usando datos de localStorage');
+                    
+                    // Inicializar el session manager específico para Alumno
+                    const alumnoSession = getAlumnoSession();
+                    alumnoSession.setSession(token || '', parsedUser, 'Alumno');
+                    
                     setUserData(parsedUser);
+                    setLoading(false);
+                    return;
+                } else {
+                    console.warn('⚠️ Alumno - Usuario no es alumno:', parsedUser.Rol);
+                    console.warn('⚠️ Alumno - Redirigiendo al panel correcto...');
+                    
+                    // Redirigir al panel correcto según el rol
+                    if (parsedUser.Rol === 'Maestro') {
+                        window.location.href = '/maestro';
+                        return;
+                    } else if (parsedUser.Rol === 'Director') {
+                        window.location.href = '/director';
+                        return;
+                    } else if (parsedUser.Rol === 'Supervisor') {
+                        window.location.href = '/supervisor';
+                        return;
+                    }
+                    
                     setLoading(false);
                     return;
                 }
@@ -46,9 +71,18 @@ export default function Alumno() {
             }
         }
         
-        if (token) {
+        // Si no hay datos en localStorage, intentar obtener de la sesión aislada
+        const sessionUser = getSessionUser();
+        const sessionRole = getSessionRole();
+        
+        console.log('🔍 Alumno - Datos de sesión aislada:', { sessionUser, sessionRole });
+        
+        if (sessionUser && sessionRole === 'Alumno') {
+            console.log('✅ Alumno - Usando datos de sesión aislada');
+            setUserData(sessionUser);
+            setLoading(false);
+        } else if (token) {
             console.log('🔄 Alumno - Obteniendo datos del backend...');
-            // Si hay token pero no datos de usuario, obtenerlos del backend
             fetchUserData();
         } else {
             console.log('❌ Alumno - No hay token disponible');

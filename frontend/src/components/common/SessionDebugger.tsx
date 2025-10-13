@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, Button, Alert, Chip } from '@mui/material';
-import { sessionManager, getCurrentToken, getCurrentUser, getCurrentRole, hasValidSession } from '../../utils/sessionManager';
+import { sessionManager } from '../../utils/sessionManager';
 import { apiService } from '../../services/api';
 
 export const SessionDebugger: React.FC = () => {
@@ -42,7 +42,34 @@ export const SessionDebugger: React.FC = () => {
     const isIsolated = () => {
         const localToken = sessionManager.getCurrentToken();
         const storageToken = localStorage.getItem('auth_token');
-        return localToken !== storageToken;
+        const sessionKey = `session_${sessionManager.getSessionId()}`;
+        const sessionData = sessionStorage.getItem(sessionKey);
+        return localToken !== storageToken && !!sessionData;
+    };
+
+    const getRoleMatchStatus = () => {
+        const currentRole = sessionManager.getCurrentRole();
+        const currentUser = sessionManager.getCurrentUser();
+        const expectedRole = currentUser?.Rol;
+        
+        if (!currentRole || !expectedRole) {
+            return { matches: false, message: 'Rol no definido' };
+        }
+        
+        if (currentRole === expectedRole) {
+            return { matches: true, message: 'Rol coincide' };
+        }
+        
+        return { matches: false, message: 'Conflicto de roles' };
+    };
+
+    const getCurrentPageRole = () => {
+        const path = window.location.pathname;
+        if (path.includes('/maestro')) return 'Maestro';
+        if (path.includes('/alumno')) return 'Alumno';
+        if (path.includes('/director')) return 'Director';
+        if (path.includes('/supervisor')) return 'Supervisor';
+        return 'Desconocido';
     };
 
     return (
@@ -57,8 +84,8 @@ export const SessionDebugger: React.FC = () => {
                     sx={{ mb: 2 }}
                 >
                     {isIsolated() 
-                        ? "✅ Sesión aislada correctamente" 
-                        : "⚠️ Sesión compartida con localStorage"
+                        ? "✅ Sesión aislada correctamente - No hay conflictos entre pestañas" 
+                        : "⚠️ Sesión compartida con localStorage - Posibles conflictos entre pestañas"
                     }
                 </Alert>
 
@@ -108,13 +135,18 @@ export const SessionDebugger: React.FC = () => {
                             size="small"
                         />
                         <Chip 
-                            label={`Rol Esperado: ${debugInfo.sessionManager?.expectedRole || 'N/A'}`}
-                            color={debugInfo.sessionManager?.expectedRole ? 'info' : 'default'}
+                            label={`Rol Esperado: ${debugInfo.localSession?.user?.Rol || 'N/A'}`}
+                            color={debugInfo.localSession?.user?.Rol ? 'info' : 'default'}
                             size="small"
                         />
                         <Chip 
-                            label={`Rol Coincide: ${debugInfo.sessionManager?.expectedRole === debugInfo.localSession?.role ? 'Sí' : 'No'}`}
-                            color={debugInfo.sessionManager?.expectedRole === debugInfo.localSession?.role ? 'success' : 'error'}
+                            label={`Página Actual: ${getCurrentPageRole()}`}
+                            color={getCurrentPageRole() !== 'Desconocido' ? 'secondary' : 'default'}
+                            size="small"
+                        />
+                        <Chip 
+                            label={`Rol Coincide: ${getRoleMatchStatus().matches ? 'Sí' : 'No'}`}
+                            color={getRoleMatchStatus().matches ? 'success' : 'error'}
                             size="small"
                         />
                         <Chip 
@@ -128,6 +160,19 @@ export const SessionDebugger: React.FC = () => {
                             size="small"
                         />
                     </Box>
+                    
+                    {!getRoleMatchStatus().matches && (
+                        <Alert severity="warning" sx={{ mt: 2 }}>
+                            <Typography variant="body2">
+                                <strong>Conflicto de Roles Detectado:</strong> {getRoleMatchStatus().message}
+                            </Typography>
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                                Rol de sesión: <strong>{debugInfo.localSession?.role || 'N/A'}</strong> | 
+                                Rol esperado: <strong>{debugInfo.localSession?.user?.Rol || 'N/A'}</strong> | 
+                                Página actual: <strong>{getCurrentPageRole()}</strong>
+                            </Typography>
+                        </Alert>
+                    )}
                 </Box>
             </CardContent>
         </Card>

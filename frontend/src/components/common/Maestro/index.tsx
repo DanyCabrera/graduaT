@@ -47,36 +47,44 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
     const [notificationCount, setNotificationCount] = useState(0);
     const [sessionError, setSessionError] = useState<Error | null>(null);
 
-    // Verificar que el usuario sea maestro
+    // Verificar que el usuario sea maestro (solo una vez al cargar)
     useEffect(() => {
         const checkUserRole = () => {
-            const storedUser = localStorage.getItem('user_data');
-            if (storedUser) {
-                try {
-                    const user = JSON.parse(storedUser);
-                    if (user.Rol !== 'Maestro') {
-                        console.warn('⚠️ Usuario no es maestro:', user.Rol);
-                        setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Maestro`));
-                    } else {
-                        console.log('✅ Usuario es maestro, sesión válida');
-                        setSessionError(null);
+            // Usar los datos del prop userData en lugar de localStorage para evitar conflictos
+            if (userData) {
+                if (userData.Rol !== 'Maestro') {
+                    console.warn('⚠️ Usuario no es maestro:', userData.Rol);
+                    setSessionError(new Error(`Acceso denegado. Rol actual: ${userData.Rol}. Se requiere rol: Maestro`));
+                } else {
+                    console.log('✅ Usuario es maestro, sesión válida');
+                    setSessionError(null);
+                }
+            } else {
+                // Fallback a localStorage solo si no hay userData
+                const storedUser = localStorage.getItem('user_data');
+                if (storedUser) {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        if (user.Rol !== 'Maestro') {
+                            console.warn('⚠️ Usuario no es maestro:', user.Rol);
+                            setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Maestro`));
+                        } else {
+                            console.log('✅ Usuario es maestro, sesión válida');
+                            setSessionError(null);
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar rol de usuario:', error);
                     }
-                } catch (error) {
-                    console.error('Error al verificar rol de usuario:', error);
                 }
             }
         };
 
         checkUserRole();
         
-        // Verificar cada vez que cambie el localStorage
-        const handleStorageChange = () => {
-            checkUserRole();
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+        // NO escuchar cambios en localStorage para evitar conflictos entre pestañas
+        // Cada pestaña mantiene su propia sesión aislada
+        console.log('🔒 Panel de Maestro: Sesión aislada, no escuchando cambios de localStorage');
+    }, [userData]);
 
     // Forzar la actualización del token al cargar el componente
     useEffect(() => {
