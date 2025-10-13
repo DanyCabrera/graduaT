@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState } from "react";
 import {
     Container,
@@ -120,7 +121,7 @@ export default function FormInst() {
         setLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:3001/api/colegios/codigo/${codigo}`);
+            const response = await fetch(`${API_BASE_URL}/colegios/codigo/${codigo}`);
             const result = await response.json();
 
             if (result.success) {

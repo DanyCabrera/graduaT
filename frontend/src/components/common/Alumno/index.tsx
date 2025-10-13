@@ -1,4 +1,5 @@
 {/* Alumno */ }
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -112,7 +113,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
             }
 
 
-            const response = await fetch('http://localhost:3001/api/maestros/for-alumno', {
+            const response = await fetch('${API_BASE_URL}/maestros/for-alumno', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from 'react';
 import {
     Box,
@@ -76,7 +77,7 @@ export default function DashboardSupervisor({ userData }: DashboardSupervisorPro
             console.log('👤 Datos completos del usuario:', userData);
 
             // Usar el nuevo endpoint de rendimiento (similar al Director)
-            const response = await fetch(`http://localhost:3001/api/supervisor-stats/performance-stats/${encodeURIComponent(userData.DEPARTAMENTO)}`);
+            const response = await fetch(`${API_BASE_URL}/supervisor-stats/performance-stats/${encodeURIComponent(userData.DEPARTAMENTO)}`);
             const result = await response.json();
 
             if (result.success) {

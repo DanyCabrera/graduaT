@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from 'react';
 import {
     Box,
@@ -201,7 +202,7 @@ export default function Test({ onTestsCleared }: TestProps) {
             }
 
             // Primero verificar si hay tests asignados en la institución
-            const debugResponse = await fetch(`http://localhost:3001/api/tests/debug-assignments/${codigoInstitucion}`, {
+            const debugResponse = await fetch(`${API_BASE_URL}/tests/debug-assignments/${codigoInstitucion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -226,7 +227,7 @@ export default function Test({ onTestsCleared }: TestProps) {
             }
 
             // Obtener alumnos de la misma institución
-            const alumnosResponse = await fetch(`http://localhost:3001/api/alumnos/institucion/${codigoInstitucion}`, {
+            const alumnosResponse = await fetch(`${API_BASE_URL}/alumnos/institucion/${codigoInstitucion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -284,7 +285,7 @@ export default function Test({ onTestsCleared }: TestProps) {
 
             for (const alumno of newStudents) {
                 try {
-                    const reassignResponse = await fetch('http://localhost:3001/api/tests/reassign-to-new-student', {
+                    const reassignResponse = await fetch('${API_BASE_URL}/tests/reassign-to-new-student', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -879,7 +880,7 @@ export default function Test({ onTestsCleared }: TestProps) {
                                 }
 
                                 // Obtener alumnos de la misma institución
-                                const alumnosResponse = await fetch(`http://localhost:3001/api/alumnos/institucion/${codigoInstitucion}`, {
+                                const alumnosResponse = await fetch(`${API_BASE_URL}/alumnos/institucion/${codigoInstitucion}`, {
                                     headers: {
                                         'Authorization': `Bearer ${token}`
                                     }

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect, useCallback } from 'react';
 import {
     Box,
@@ -102,17 +103,17 @@ export default function Dashboard({ userData }: DashboardProps) {
 
             // Obtener alumnos, maestros y resultados en paralelo
             const [alumnosResponse, maestrosResponse, resultadosResponse] = await Promise.all([
-                fetch(`http://localhost:3001/api/alumnos/institucion/${codigoInstitucion}`, {
+                fetch(`${API_BASE_URL}/alumnos/institucion/${codigoInstitucion}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 }),
-                fetch(`http://localhost:3001/api/maestros/institucion/${codigoInstitucion}`, {
+                fetch(`${API_BASE_URL}/maestros/institucion/${codigoInstitucion}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 }),
-                fetch(`http://localhost:3001/api/resultados/colegio/${codigoInstitucion}`, {
+                fetch(`${API_BASE_URL}/resultados/colegio/${codigoInstitucion}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

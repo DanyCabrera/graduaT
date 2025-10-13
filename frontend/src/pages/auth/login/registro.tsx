@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Card, CardContent, Button, Typography, TextField, Box, IconButton, Fade, Alert, CircularProgress, InputAdornment, InputLabel, Select, MenuItem, FormControl } from "@mui/material";
 import { ArrowBack, Visibility, VisibilityOff } from "@mui/icons-material";
@@ -156,7 +157,7 @@ export default function Login() {
                     tokenVerificacion: ''
                 };
                 // Registrar supervisor en el backend
-                const registerResponse = await fetch('http://localhost:3001/api/auth/register', {
+                const registerResponse = await fetch('${API_BASE_URL}/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -170,7 +171,7 @@ export default function Login() {
                     return;
                 }
                 // Enviar correo de verificación
-                const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
+                const emailResponse = await fetch('${API_BASE_URL}/auth/send-verification-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

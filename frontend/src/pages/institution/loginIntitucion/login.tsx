@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from 'react';
 import {
     Container,
@@ -143,7 +144,7 @@ export default function LoginInstituciones() {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/colegios', {
+            const response = await fetch('${API_BASE_URL}/colegios', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

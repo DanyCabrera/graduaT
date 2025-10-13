@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from 'react';
 import {
     Box,
@@ -57,7 +58,7 @@ export default function Cursos({ userData }: CursosProps) {
             const codigoInstitucion = userData.Código_Institución;
 
             // Obtener maestros
-            const response = await fetch(`http://localhost:3001/api/maestros/institucion/${codigoInstitucion}`, {
+            const response = await fetch(`${API_BASE_URL}/maestros/institucion/${codigoInstitucion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

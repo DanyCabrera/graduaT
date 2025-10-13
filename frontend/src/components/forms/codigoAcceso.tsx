@@ -16,6 +16,7 @@ import {
     Error as ErrorIcon,
     ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
+import { API_BASE_URL } from "../../../constants";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setAccessToken } from '../../utils/authUtils';
@@ -92,7 +93,7 @@ export default function CodigoAcceso() {
             // Si no se encuentra en localStorage, intentar con la API (códigos del backend)
             console.log('🔍 Verificando código en el backend:', codigo.trim());
             
-            const response = await fetch('http://localhost:3001/api/codigos-acceso/verificar', {
+            const response = await fetch('${API_BASE_URL}/codigos-acceso/verificar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

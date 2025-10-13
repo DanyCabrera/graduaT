@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useEffect, useState } from 'react';
 import { 
     Box, 
@@ -47,7 +48,7 @@ export default function VerifyEmail() {
             console.log('🔍 Iniciando verificación con token:', token);
             
             // Intentar primero con el endpoint de userAdmin (para administradores)
-            let response = await fetch(`http://localhost:3001/api/useradmin/verify-email/${token}`);
+            let response = await fetch(`${API_BASE_URL}/useradmin/verify-email/${token}`);
             
             if (response.ok) {
                 const adminData = await response.json();
@@ -73,7 +74,7 @@ export default function VerifyEmail() {
             }
             
             // Si no es un administrador, intentar con el endpoint de auth (para otros usuarios)
-            response = await fetch(`http://localhost:3001/api/auth/verify-email?token=${token}`);
+            response = await fetch(`${API_BASE_URL}/auth/verify-email?token=${token}`);
             
             if (response.ok) {
                 const userData = await response.json();

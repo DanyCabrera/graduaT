@@ -18,6 +18,7 @@ import {
     FormControlLabel,
     Checkbox,
 } from "@mui/material";
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from "react";
 import { Business as BusinessIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -57,7 +58,7 @@ const AccesoAlumnoMaestro = () => {
     const cargarInstituciones = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:3001/api/colegios');
+            const response = await fetch('${API_BASE_URL}/colegios');
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -117,7 +118,7 @@ const AccesoAlumnoMaestro = () => {
             setSuccess('');
 
             // Primero validar que la institución existe
-            const institucionResponse = await fetch(`http://localhost:3001/api/colegios/${institucionSeleccionada}`);
+            const institucionResponse = await fetch(`${API_BASE_URL}/colegios/${institucionSeleccionada}`);
 
             if (!institucionResponse.ok) {
                 const errorData = await institucionResponse.json();
@@ -158,7 +159,7 @@ const AccesoAlumnoMaestro = () => {
             };
 
             // Registrar el usuario
-            const registerResponse = await fetch('http://localhost:3001/api/auth/register', {
+            const registerResponse = await fetch('${API_BASE_URL}/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -184,7 +185,7 @@ const AccesoAlumnoMaestro = () => {
             localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
             // Enviar correo de verificación
-            const response = await fetch('http://localhost:3001/api/auth/send-verification-email', {
+            const response = await fetch('${API_BASE_URL}/auth/send-verification-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -415,7 +416,7 @@ const AccesoSupervisorDirector = () => {
     const cargarInstituciones = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:3001/api/colegios');
+            const response = await fetch('${API_BASE_URL}/colegios');
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -463,7 +464,7 @@ const AccesoSupervisorDirector = () => {
             setSuccess('');
 
             // Verificar si el código de rol es válido para supervisor o director
-            const response = await fetch(`http://localhost:3001/api/colegios/${institucionSeleccionada}`);
+            const response = await fetch(`${API_BASE_URL}/colegios/${institucionSeleccionada}`);
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -489,7 +490,7 @@ const AccesoSupervisorDirector = () => {
                     };
 
                     // Registrar el usuario
-                    const registerResponse = await fetch('http://localhost:3001/api/auth/register', {
+                    const registerResponse = await fetch('${API_BASE_URL}/auth/register', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -515,7 +516,7 @@ const AccesoSupervisorDirector = () => {
                     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
                     // Enviar correo de verificación
-                    const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
+                    const emailResponse = await fetch('${API_BASE_URL}/auth/send-verification-email', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -532,7 +533,7 @@ const AccesoSupervisorDirector = () => {
                         
                         // Obtener o generar código de acceso para roles de la institución
                         try {
-                            const codigoResponse = await fetch('http://localhost:3001/api/codigos-acceso/obtener-rol-institucion', {
+                            const codigoResponse = await fetch('${API_BASE_URL}/codigos-acceso/obtener-rol-institucion', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

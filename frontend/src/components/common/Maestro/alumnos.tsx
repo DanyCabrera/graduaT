@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from 'react';
 import {
     Box,
@@ -97,7 +98,7 @@ export default function Alumnos() {
             }
 
             // Primero obtener la información del maestro autenticado
-            const userResponse = await fetch('http://localhost:3001/api/auth/verify-with-role-data', {
+            const userResponse = await fetch('${API_BASE_URL}/auth/verify-with-role-data', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -117,7 +118,7 @@ export default function Alumnos() {
             }
 
             // Obtener alumnos de la misma institución
-            const response = await fetch(`http://localhost:3001/api/alumnos/institucion/${codigoInstitucion}`, {
+            const response = await fetch(`${API_BASE_URL}/alumnos/institucion/${codigoInstitucion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

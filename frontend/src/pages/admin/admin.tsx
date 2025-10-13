@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../../constants";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -114,7 +115,7 @@ export default function AdminPanel() {
         setErrorInstituciones(null);
         
         try {
-            const response = await fetch('http://localhost:3001/api/colegios');
+            const response = await fetch('${API_BASE_URL}/colegios');
             const result = await response.json();
             
             if (result.success) {
@@ -132,7 +133,7 @@ export default function AdminPanel() {
 
     const toggleHabilitado = async (institucionId: string, habilitado: boolean) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/colegios/${institucionId}/habilitado`, {
+            const response = await fetch(`${API_BASE_URL}/colegios/${institucionId}/habilitado`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
