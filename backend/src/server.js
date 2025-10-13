@@ -21,8 +21,41 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://graduat.vercel.app',
+    'https://*.vercel.app'
+];
+
+// Agregar FRONTEND_URL si está configurada correctamente
+if (process.env.FRONTEND_URL) {
+    const frontendUrl = process.env.FRONTEND_URL.trim();
+    if (frontendUrl.startsWith('http://') || frontendUrl.startsWith('https://')) {
+        allowedOrigins.push(frontendUrl);
+    }
+}
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        // Permitir requests sin origin (como mobile apps o curl)
+        if (!origin) return callback(null, true);
+        
+        // Verificar si el origin está en la lista permitida
+        if (allowedOrigins.some(allowedOrigin => {
+            if (allowedOrigin.includes('*')) {
+                // Manejar wildcards como *.vercel.app
+                const pattern = allowedOrigin.replace('*', '.*');
+                return new RegExp(pattern).test(origin);
+            }
+            return allowedOrigin === origin;
+        })) {
+            return callback(null, true);
+        }
+        
+        console.log('🚫 CORS bloqueado para origin:', origin);
+        console.log('✅ Orígenes permitidos:', allowedOrigins);
+        return callback(new Error('No permitido por CORS'), false);
+    },
     credentials: true
 }));
 app.use(express.json());
