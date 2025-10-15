@@ -23,8 +23,11 @@ import {
     ContentCopy as CopyIcon,
     Refresh as RefreshIcon,
     Add as AddIcon,
-    Save as SaveIcon,
 } from '@mui/icons-material';
+import {
+    KeyRound
+} from 'lucide-react'
+
 import { codigoAccesoService, type CodigoAcceso } from '../../../services/codigoAccesoService';
 
 export default function Codigo() {
@@ -105,31 +108,6 @@ export default function Codigo() {
         }
     };
 
-    const registrarCodigoEspecial = async () => {
-        try {
-            setLoading(true);
-            const codigoEspecial = {
-                codigo: 'RGTBMLQWXO',
-                tipo: 'INSTITUCION',
-                descripcion: 'Código especial para registro de instituciones'
-            };
-            
-            const response = await codigoAccesoService.crearCodigo(codigoEspecial);
-            
-            if (response.success) {
-                mostrarSnackbar('Código especial RGTBMLQWXO registrado exitosamente', 'success');
-                cargarCodigos(); // Recargar la lista
-            } else {
-                mostrarSnackbar(response.message || 'Error al registrar el código especial', 'error');
-            }
-        } catch (error: any) {
-            console.error('Error al registrar código especial:', error);
-            const errorMessage = error.message || 'Error al registrar el código especial';
-            mostrarSnackbar(errorMessage, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const copiarCodigo = (codigo: string) => {
         navigator.clipboard.writeText(codigo);
@@ -216,71 +194,51 @@ export default function Codigo() {
                                 Crear Nuevo Código
                             </Button>
                             
-                            <Button
-                                variant="contained"
-                                onClick={registrarCodigoEspecial}
-                                startIcon={<SaveIcon />}
-                                disabled={loading}
-                                sx={{
-                                    borderRadius: 2,
-                                    backgroundColor: "#3b82f6",
-                                    textTransform: "none",
-                                    fontWeight: 500,
-                                    px: 4,
-                                    py: 1.5,
-                                    "&:hover": {
-                                        backgroundColor: "#2563eb",
-                                    },
-                                }}
-                            >
-                                {loading ? <CircularProgress size={20} color="inherit" /> : 'Registrar RGTBMLQWXO'}
-                            </Button>
-                            
-                            <Button
-                                variant="outlined"
+                                <Button
+                                    variant="outlined"
                                 onClick={cargarCodigos}
                                 startIcon={<RefreshIcon />}
                                 disabled={loading}
-                                sx={{
-                                    borderRadius: 2,
+                                    sx={{
+                                        borderRadius: 2,
                                     borderColor: "#6b7280",
                                     color: "#6b7280",
-                                    textTransform: "none",
-                                    fontWeight: 500,
-                                    px: 4,
-                                    py: 1.5,
-                                    "&:hover": {
+                                        textTransform: "none",
+                                        fontWeight: 500,
+                                        px: 4,
+                                        py: 1.5,
+                                        "&:hover": {
                                         borderColor: "#374151",
                                         backgroundColor: "#f9fafb",
-                                    },
-                                }}
-                            >
+                                        },
+                                    }}
+                                >
                                 {loading ? <CircularProgress size={20} /> : 'Actualizar Lista'}
-                            </Button>
+                                </Button>
                         </Box>
 
                         {/* Códigos de la base de datos */}
-                        <Card
-                            sx={{
-                                borderRadius: 3,
-                                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-                                backgroundColor: "white",
-                                border: "1px solid #e2e8f0",
-                            }}
-                        >
-                            <CardContent sx={{ p: 4 }}>
-                                <Typography
-                                    variant="h5"
-                                    sx={{
-                                        color: "#1e293b",
-                                        fontWeight: 600,
-                                        mb: 3,
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    🔑 Códigos de Acceso en Base de Datos
-                                </Typography>
-                                
+                            <Card
+                                sx={{
+                                    borderRadius: 3,
+                                    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+                                    backgroundColor: "white",
+                                    border: "1px solid #e2e8f0",
+                                }}
+                            >
+                                <CardContent sx={{ p: 4 }}>
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            color: "#1e293b",
+                                            fontWeight: 600,
+                                            mb: 3,
+                                            textAlign: "center",
+                                        }}
+                                    >
+                                    <KeyRound /> Códigos de Acceso
+                                    </Typography>
+                                    
                                 {loading ? (
                                     <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                                         <CircularProgress />
@@ -330,13 +288,13 @@ export default function Codigo() {
                                                     </IconButton>
                                                     
                                                     <Box sx={{ mt: 1 }}>
-                                                        <Chip
+                                                    <Chip
                                                             label={codigo.tipo}
-                                                            size="small"
-                                                            sx={{
+                                                        size="small"
+                                                        sx={{
                                                                 backgroundColor: codigo.activo ? "#dcfce7" : "#fecaca",
                                                                 color: codigo.activo ? "#16a34a" : "#dc2626",
-                                                                fontWeight: 500,
+                                                            fontWeight: 500,
                                                                 mb: 1
                                                             }}
                                                         />
@@ -369,44 +327,28 @@ export default function Codigo() {
                                     </Box>
                                 ) : (
                                     <Box sx={{ textAlign: "center", py: 4 }}>
-                                        <Typography
-                                            variant="h6"
-                                            sx={{
-                                                color: "#64748b",
-                                                fontWeight: 400,
-                                            }}
-                                        >
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            color: "#64748b",
+                                            fontWeight: 400,
+                                        }}
+                                    >
                                             No hay códigos en la base de datos
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            sx={{
-                                                color: "#9ca3af",
-                                                mt: 1,
-                                            }}
-                                        >
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            color: "#9ca3af",
+                                            mt: 1,
+                                        }}
+                                    >
                                             Haz clic en "Crear Nuevo Código" para agregar tu primer código
-                                        </Typography>
+                                    </Typography>
                                     </Box>
                                 )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Instrucciones */}
-                        <Alert 
-                            severity="info" 
-                            sx={{ 
-                                mt: 4,
-                                backgroundColor: "#eff6ff", 
-                                border: "1px solid #bfdbfe",
-                                borderRadius: 2,
-                            }}
-                        >
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                💡 <strong>Para Administradores:</strong> Los códigos de acceso permiten el registro de instituciones en el sistema.
-                                El código especial "RGTBMLQWXO" está predefinido para uso inmediato.
-                            </Typography>
-                        </Alert>
+                                </CardContent>
+                            </Card>
                     </Box>
                 </Fade>
             </Container>
@@ -473,7 +415,7 @@ export default function Codigo() {
                         onClick={crearCodigoEnDB}
                         variant="contained"
                         disabled={loading || !nuevoCodigo.codigo.trim()}
-                        startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
+                        startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
                     >
                         {loading ? 'Creando...' : 'Crear Código'}
                     </Button>

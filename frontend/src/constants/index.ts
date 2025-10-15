@@ -1,6 +1,6 @@
 // Constantes de la aplicación
 
-export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL; 
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api'; 
 
 export const ROUTES = {
   HOME: '/',
