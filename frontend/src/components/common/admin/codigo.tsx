@@ -72,10 +72,10 @@ export default function Codigo() {
 
     const generarCodigoAleatorio = () => {
         // Generar un código aleatorio de 10 caracteres alfanuméricos
-        const codigo = Array(10)
+        const codigo = Array(6)
             .fill(0)
             .map(() => {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 return chars.charAt(Math.floor(Math.random() * chars.length));
             })
             .join('');
