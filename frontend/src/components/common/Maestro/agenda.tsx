@@ -159,12 +159,32 @@ export default function Agenda() {
 
             const response = await agendaService.generarEstructuraTema(tema, materia);
 
-            if (response.success) {
-                setEstructuraTema(response.data);
-                console.log('✅ Estructura generada exitosamente');
-            } else {
-                setErrorEstructura('Error al generar la estructura del tema');
-            }
+                if (response.success) {
+                    // Parsear la estructura si viene como string JSON
+                    let estructuraData = response.data;
+                    if (estructuraData.estructura && estructuraData.estructura.contenido) {
+                        try {
+                            // Extraer el JSON del contenido (remover ```json y ```)
+                            const jsonContent = estructuraData.estructura.contenido
+                                .replace(/```json\n?/g, '')
+                                .replace(/\n?```/g, '');
+                            
+                            const parsedEstructura = JSON.parse(jsonContent);
+                            estructuraData = {
+                                ...estructuraData,
+                                estructura: parsedEstructura
+                            };
+                            console.log('✅ Estructura parseada correctamente');
+                        } catch (parseError) {
+                            console.error('❌ Error al parsear estructura:', parseError);
+                            // Mantener la estructura original si no se puede parsear
+                        }
+                    }
+                    setEstructuraTema(estructuraData);
+                    console.log('✅ Estructura generada exitosamente');
+                } else {
+                    setErrorEstructura('Error al generar la estructura del tema');
+                }
         } catch (error: any) {
             console.error('❌ Error al generar estructura:', error);
             setErrorEstructura('Error al conectar con el servidor. Inténtalo de nuevo.');

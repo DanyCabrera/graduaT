@@ -24,53 +24,56 @@ class GeminiService {
         try {
             if (!this.model) {
                 // Retornar estructura de ejemplo si Gemini no está disponible
-                return {
-                    success: true,
-                    data: {
-                        tema: tema,
-                        materia: materia,
-                        duracion: duracion,
-                        estructura: {
-                            objetivos: [
-                                `Comprender los conceptos fundamentales de ${tema}`,
-                                `Aplicar los conocimientos de ${tema} en situaciones prácticas`,
-                                `Desarrollar habilidades de análisis y síntesis`
-                            ],
-                            inicio: {
-                                tiempo: "5-10 minutos",
-                                actividad: `Actividad de motivación relacionada con ${tema}. Pregunta inicial para activar conocimientos previos.`
+                    return {
+                        success: true,
+                        data: {
+                            tema: tema,
+                            materia: materia,
+                            duracion: duracion,
+                            estructura: {
+                                objetivos: [
+                                    `Identificar y comprender los elementos clave de ${tema}`,
+                                    `Aplicar los conceptos de ${tema} en ejercicios prácticos`,
+                                    `Analizar ejemplos reales relacionados con ${tema}`,
+                                    `Evaluar la importancia de ${tema} en el contexto comunicativo`
+                                ],
+                                inicio: {
+                                    tiempo: "6 minutos",
+                                    actividad: `Actividad de motivación: "¿Qué sabes sobre ${tema}?" - Los estudiantes comparten conocimientos previos sobre el tema. Pregunta generadora: "¿Cómo crees que ${tema} se relaciona con tu vida diaria?" Se realiza una lluvia de ideas rápida para activar conocimientos previos y generar interés.`
+                                },
+                                desarrollo: {
+                                    tiempo: "32 minutos", 
+                                    actividades: [
+                                        {
+                                            tiempo: "12 minutos",
+                                            descripcion: `Explicación teórica detallada de ${tema}: Definición, características principales, elementos constitutivos y ejemplos concretos. Se utiliza material visual y ejemplos de la vida cotidiana para facilitar la comprensión.`
+                                        },
+                                        {
+                                            tiempo: "12 minutos", 
+                                            descripcion: `Actividad práctica: "Aplicando ${tema}" - Los estudiantes trabajan en parejas para identificar ejemplos del tema en textos, imágenes o situaciones propuestas por el docente. Se comparten los hallazgos con la clase.`
+                                        },
+                                        {
+                                            tiempo: "8 minutos",
+                                            descripcion: `Ejercicio de análisis: Los estudiantes analizan un caso específico relacionado con ${tema} y explican cómo se manifiesta en el ejemplo dado. Se fomenta la participación y el debate constructivo.`
+                                        }
+                                    ]
+                                },
+                                cierre: {
+                                    tiempo: "7 minutos",
+                                    actividad: `Síntesis y evaluación: Los estudiantes crean un resumen de 3 puntos clave sobre ${tema}. Evaluación formativa mediante preguntas directas sobre los conceptos aprendidos. Conexión con la vida cotidiana: "¿Dónde más puedes observar ${tema}?"`
+                                },
+                                recursos: [
+                                    "Pizarra o pizarra digital",
+                                    "Material didáctico impreso con ejemplos",
+                                    "Textos o imágenes de ejemplo",
+                                    "Hojas de trabajo para actividades prácticas",
+                                    "Cronómetro para gestión del tiempo"
+                                ],
+                                evaluacion: `Evaluación formativa continua mediante observación de la participación, análisis de las respuestas en las actividades prácticas y evaluación del resumen final. Criterios: comprensión conceptual (40%), aplicación práctica (35%), participación activa (25%).`
                             },
-                            desarrollo: {
-                                tiempo: "25-30 minutos",
-                                actividades: [
-                                    {
-                                        tiempo: "10 minutos",
-                                        descripcion: `Explicación teórica de ${tema}`
-                                    },
-                                    {
-                                        tiempo: "10 minutos", 
-                                        descripcion: "Ejemplos prácticos y casos de estudio"
-                                    },
-                                    {
-                                        tiempo: "5-10 minutos",
-                                        descripcion: "Participación activa de los estudiantes"
-                                    }
-                                ]
-                            },
-                            cierre: {
-                                tiempo: "5-10 minutos",
-                                actividad: `Resumen de los puntos clave de ${tema} y evaluación formativa`
-                            },
-                            recursos: [
-                                "Material didáctico impreso",
-                                "Presentación multimedia",
-                                "Pizarra o pizarra digital"
-                            ],
-                            evaluacion: `Evaluación formativa durante la clase y tarea para reforzar el aprendizaje de ${tema}`
-                        },
-                        fechaGeneracion: new Date()
-                    }
-                };
+                            fechaGeneracion: new Date()
+                        }
+                    };
             }
 
             console.log('🤖 Generando estructura de tema con Gemini...');
@@ -79,36 +82,54 @@ class GeminiService {
             console.log(`⏱️ Duración: ${duracion} minutos`);
 
             const prompt = `
-Eres un experto en educación y planificación de clases. Necesito que generes una estructura detallada de agenda para una clase de ${materia}.
+Eres un experto en educación y planificación de clases. Necesito que generes una estructura DETALLADA y ESPECÍFICA para una clase de ${materia} enfocada en UN SOLO TEMA.
 
-TEMA DE LA CLASE: "${tema}"
-DURACIÓN: ${duracion} minutos
+TEMA ESPECÍFICO: "${tema}"
+DURACIÓN TOTAL: ${duracion} minutos
 MATERIA: ${materia}
+NIVEL: Secundaria
 
-Por favor, genera una estructura de clase que incluya:
+INSTRUCCIONES ESPECÍFICAS:
+- Este es UN TEMA para UN DÍA de clase
+- La estructura debe ser MUY DETALLADA y ESPECÍFICA
+- Cada actividad debe tener pasos claros y concretos
+- Incluye ejemplos específicos del tema
+- Las actividades deben ser prácticas y aplicables inmediatamente
+- Usa metodologías activas y participativas
 
-1. **OBJETIVOS DE APRENDIZAJE** (3-4 objetivos específicos y medibles)
-2. **ACTIVIDADES DE INICIO** (5-10 minutos)
-   - Actividad de motivación o activación de conocimientos previos
-3. **DESARROLLO DE LA CLASE** (25-30 minutos)
-   - Explicación del tema principal
-   - Actividades prácticas o ejemplos
-   - Participación de estudiantes
-4. **ACTIVIDADES DE CIERRE** (5-10 minutos)
-   - Resumen de lo aprendido
-   - Evaluación formativa
-5. **RECURSOS NECESARIOS** (materiales, herramientas, etc.)
-6. **EVALUACIÓN** (criterios de evaluación)
+ESTRUCTURA REQUERIDA:
+
+1. **OBJETIVOS DE APRENDIZAJE** (3-4 objetivos específicos, medibles y alcanzables en una clase)
+   - Cada objetivo debe ser concreto y evaluable
+   - Enfocados específicamente en el tema "${tema}"
+
+2. **ACTIVIDADES DE INICIO** (5-8 minutos)
+   - Actividad de motivación específica para el tema
+   - Activación de conocimientos previos relacionados con "${tema}"
+   - Pregunta generadora o situación problemática
+
+3. **DESARROLLO DE LA CLASE** (30-35 minutos)
+   - Explicación teórica del tema con ejemplos concretos
+   - Actividades prácticas paso a paso
+   - Ejercicios de aplicación específicos del tema
+   - Participación activa de estudiantes
+
+4. **ACTIVIDADES DE CIERRE** (5-7 minutos)
+   - Síntesis de lo aprendido
+   - Evaluación formativa específica
+   - Conexión con la vida cotidiana
+
+5. **RECURSOS NECESARIOS** (materiales específicos y concretos)
+6. **EVALUACIÓN** (criterios específicos y herramientas de evaluación)
 
 IMPORTANTE:
-- La estructura debe ser práctica y aplicable en un aula real
-- Incluye tiempos específicos para cada sección
-- Las actividades deben ser interactivas y motivadoras
-- Adapta el contenido al nivel educativo (secundaria)
-- Usa un lenguaje claro y profesional
-- Formatea la respuesta en secciones claras
+- Sé MUY ESPECÍFICO en cada actividad
+- Incluye ejemplos concretos del tema "${tema}"
+- Las actividades deben ser realizables en el tiempo asignado
+- Usa un lenguaje claro y directo
+- Cada sección debe tener pasos detallados
 
-Responde en formato JSON con la siguiente estructura:
+Responde SOLO en formato JSON con esta estructura exacta:
 {
   "objetivos": ["objetivo1", "objetivo2", "objetivo3"],
   "inicio": {
