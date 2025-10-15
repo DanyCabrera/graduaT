@@ -31,10 +31,66 @@ const getColegioById = async (req, res) => {
 
 const createColegio = async (req, res) => {
     try {
+        console.log('🚀 INICIANDO REGISTRO DE INSTITUCIÓN');
+        console.log('📝 Datos recibidos:', req.body);
+        
         const colegioData = req.body;
         
         const result = await Colegio.create(colegioData);
+        console.log('📊 Resultado de creación:', result);
+        
         if (result.success) {
+            console.log('✅ Institución creada exitosamente, iniciando generación de código de acceso...');
+            
+            // Generar código de acceso para la nueva institución
+            try {
+                console.log('🔌 Conectando a la base de datos...');
+                const { getDB } = require('../config/db');
+                const db = await getDB();
+                console.log('✅ Conexión a base de datos establecida');
+                
+                // Generar código aleatorio de 6 caracteres
+                const codigoAcceso = Array(6)
+                    .fill(0)
+                    .map(() => String.fromCharCode(65 + Math.floor(Math.random() * 26)))
+                    .join('');
+                
+                console.log(`🎲 Código generado: ${codigoAcceso}`);
+
+                // Verificar que el código no exista
+                console.log('🔍 Verificando si el código ya existe...');
+                const codigoExistente = await db.collection('codigosAcceso').findOne({
+                    codigo: codigoAcceso
+                });
+
+                if (codigoExistente) {
+                    // Si existe, generar otro recursivamente
+                    console.log('⚠️ Código duplicado encontrado, generando nuevo...');
+                    return createColegio(req, res);
+                }
+
+                console.log('✅ Código único, procediendo a guardar...');
+
+                // Crear el código de acceso para la nueva institución
+                const nuevoCodigoAcceso = {
+                    codigo: codigoAcceso,
+                    tipo: 'ROL',
+                    activo: true,
+                    codigoInstitucion: result.data.Código_Institución,
+                    nombreInstitucion: result.data.Nombre_Completo,
+                    fechaCreacion: new Date(),
+                    generadoPor: 'sistema-registro'
+                };
+
+                console.log('💾 Guardando código de acceso:', nuevoCodigoAcceso);
+                await db.collection('codigosAcceso').insertOne(nuevoCodigoAcceso);
+                console.log(`✅ Código de acceso generado para nueva institución: ${codigoAcceso} - ${result.data.Nombre_Completo}`);
+
+            } catch (codigoError) {
+                console.error('⚠️ Error al generar código de acceso:', codigoError.message);
+                // No fallar el registro si la generación del código falla
+            }
+
             // Enviar email de confirmación
             try {
                 await emailService.sendInstitutionRegistrationEmail(

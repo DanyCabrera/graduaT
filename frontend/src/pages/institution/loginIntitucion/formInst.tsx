@@ -49,13 +49,24 @@ interface InstitucionData {
     };
 }
 
+interface CodigoAccesoData {
+    _id: string;
+    codigo: string;
+    tipo: string;
+    activo: boolean;
+    codigoInstitucion?: string;
+    nombreInstitucion?: string;
+    fechaCreacion: string;
+    generadoPor?: string;
+}
+
 export default function FormInst() {
     const navigate = useNavigate();
     const [codigo, setCodigo] = useState("");
     const [mostrarTablas, setMostrarTablas] = useState(false);
     const [loading, setLoading] = useState(false);
     const [institucionData, setInstitucionData] = useState<InstitucionData | null>(null);
-    const [codigoGenerado, setCodigoGenerado] = useState<string>("");
+    const [codigosAcceso, setCodigosAcceso] = useState<CodigoAccesoData[]>([]);
     const [alertState, setAlertState] = useState({
         open: false,
         severity: 'success' as 'success' | 'error' | 'warning' | 'info',
@@ -63,33 +74,6 @@ export default function FormInst() {
         message: ''
     });
 
-    // Función para generar código aleatorio de 6 dígitos
-    const generarCodigoAleatorio = (): string => {
-        const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        let codigo = '';
-        for (let i = 0; i < 6; i++) {
-            codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-        }
-        return codigo;
-    };
-
-    // Función para guardar código igual que en el panel de admin
-    const guardarCodigoComoAdmin = (codigo: string) => {
-        // Guardar en localStorage para validación (igual que el admin)
-        const codigosValidos = JSON.parse(localStorage.getItem('codigosValidos') || '[]');
-        const nuevoCodigoValido = {
-            codigo: codigo,
-            tipo: 'ROL',
-            activo: true,
-            fechaCreacion: new Date().toISOString(),
-            generadoPor: 'formInst'
-        };
-        
-        const nuevosCodigosValidos = [nuevoCodigoValido, ...codigosValidos];
-        localStorage.setItem('codigosValidos', JSON.stringify(nuevosCodigosValidos));
-        
-        console.log('✅ Código guardado en sistema de acceso:', nuevoCodigoValido);
-    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -127,12 +111,10 @@ export default function FormInst() {
             if (result.success) {
                 setInstitucionData(result.data);
 
-                // Generar código aleatorio de 6 dígitos para acceso al panel
-                const nuevoCodigo = generarCodigoAleatorio();
-                setCodigoGenerado(nuevoCodigo);
-
-                // Guardar código igual que en el panel de admin
-                guardarCodigoComoAdmin(nuevoCodigo);
+                // Cargar automáticamente el código de acceso específico de esta institución
+                if (result.data.codigos && result.data.codigos.institucion) {
+                    cargarCodigosAcceso(result.data.codigos.institucion, false); // false = no mostrar alertas
+                }
 
                 setMostrarTablas(true);
                 showAlert('success', '¡Institución Encontrada!', `Se encontró la institución: ${result.data.nombre}`);
@@ -157,7 +139,54 @@ export default function FormInst() {
         setCodigo("");
         setMostrarTablas(false);
         setInstitucionData(null);
-        setCodigoGenerado("");
+        setCodigosAcceso([]);
+    };
+
+    const cargarCodigosAcceso = async (codigoInstitucion?: string, mostrarAlertas: boolean = true) => {
+        try {
+            // Siempre usar el endpoint /listar que funciona
+            const url = `${API_BASE_URL}/codigos-acceso/listar`;
+            
+            const response = await fetch(url);
+            const result = await response.json();
+
+            if (result.success) {
+                let codigos = result.data;
+                
+                // Si se proporciona un código de institución, filtrar los resultados
+                if (codigoInstitucion) {
+                    codigos = codigos.filter((codigo: any) => 
+                        codigo.codigoInstitucion === codigoInstitucion
+                    );
+                }
+                
+                setCodigosAcceso(codigos);
+                
+                // Solo mostrar alertas si se solicita explícitamente
+                if (mostrarAlertas) {
+                    if (codigoInstitucion) {
+                        showAlert('success', 'Código Encontrado', `Se encontró el código de acceso para la institución ${codigoInstitucion}`);
+                    } else {
+                        showAlert('success', 'Códigos Cargados', `Se cargaron ${codigos.length} códigos de acceso exitosamente`);
+                    }
+                }
+            } else {
+                // Solo mostrar alertas si se solicita explícitamente
+                if (mostrarAlertas) {
+                    if (codigoInstitucion) {
+                        showAlert('warning', 'Sin Código', `No se encontró código de acceso para la institución ${codigoInstitucion}`);
+                    } else {
+                        showAlert('error', 'Error', 'No se pudieron cargar los códigos de acceso');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error al cargar códigos de acceso:', error);
+            // Solo mostrar alertas si se solicita explícitamente
+            if (mostrarAlertas) {
+                showAlert('error', 'Error de Conexión', 'Error al conectar con el servidor. Verifica que el backend esté corriendo.');
+            }
+        }
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -282,6 +311,7 @@ export default function FormInst() {
                                                 }}>
                                                 <AppRegistrationIcon/> Registro
                                             </Button>
+                                            
                                             {mostrarTablas && (
                                                 <IconButton
                                                     onClick={handleRefresh}
@@ -550,56 +580,131 @@ export default function FormInst() {
                                             </CardContent>
                                         </Card>
 
-                                        {/* Código Generado para Acceso */}
-                                        {codigoGenerado && (
+                                        {/* Tabla de Códigos de Acceso de la Base de Datos */}
+                                        {institucionData && (
                                             <Card
                                                 sx={{
                                                     mt: 3,
                                                     borderRadius: 2,
                                                     boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
                                                     backgroundColor: "white",
-                                                    border: "2px solid #10b981",
+                                                    border: "1px solid #e2e8f0",
                                                 }}
                                             >
                                                 <CardContent sx={{ p: 3 }}>
-                                                    <Box sx={{ textAlign: "center" }}>
-                                                        <Typography variant="h5" fontWeight={600} sx={{ mb: 2, color: "#1e293b" }}>
-                                                            🔑 Código de Acceso Generado
-                                                        </Typography>
-                                                        <Typography variant="body1" sx={{ mb: 3, color: "#64748b" }}>
-                                                            Usa este código en la página de registro para acceder al panel de roles
-                                                        </Typography>
-
-                                                        <Box
-                                                            sx={{
-                                                                display: "inline-block",
-                                                                p: 3,
-                                                                backgroundColor: "#f0fdf4",
-                                                                border: "2px solid #10b981",
-                                                                borderRadius: 2,
-                                                                mb: 3,
-                                                            }}
-                                                        >
-                                                            <Typography
-                                                                variant="h3"
-                                                                fontWeight="bold"
-                                                                sx={{
-                                                                    color: "#10b981",
-                                                                    fontFamily: "monospace",
-                                                                    letterSpacing: 3,
-                                                                }}
-                                                            >
-                                                                {codigoGenerado}
-                                                            </Typography>
-                                                        </Box>
-
-                                                        <Typography variant="body2" sx={{ color: "#64748b", mb: 2 }}>
-                                                            Este código funciona igual que los generados en el panel de admin. Los estudiantes pueden usarlo en <strong>/codigo-acceso</strong> para acceder al panel de roles.
+                                                    <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                                                        <AppRegistrationIcon sx={{ mr: 2, color: "#10b981" }} />
+                                                        <Typography variant="h5" fontWeight={600} sx={{ color: "#1e293b" }}>
+                                                            {institucionData ? 
+                                                                `Código de Acceso - ${institucionData.nombre}` : 
+                                                                "Códigos de Acceso en Base de Datos"
+                                                            }
                                                         </Typography>
                                                     </Box>
+
+                                                    {codigosAcceso.length > 0 ? (
+                                                        <TableContainer>
+                                                            <Table>
+                                                                <TableHead>
+                                                                    <TableRow>
+                                                                        <TableCell sx={{ fontWeight: 600, backgroundColor: "#f8fafc" }}>Código</TableCell>
+                                                                        <TableCell sx={{ fontWeight: 600, backgroundColor: "#f8fafc" }}>Tipo</TableCell>
+                                                                        <TableCell sx={{ fontWeight: 600, backgroundColor: "#f8fafc" }}>Institución</TableCell>
+                                                                        <TableCell sx={{ fontWeight: 600, backgroundColor: "#f8fafc" }}>Estado</TableCell>
+                                                                        <TableCell sx={{ fontWeight: 600, backgroundColor: "#f8fafc" }}>Fecha Creación</TableCell>
+                                                                    </TableRow>
+                                                                </TableHead>
+                                                                <TableBody>
+                                                                    {codigosAcceso.map((codigo) => (
+                                                                    <TableRow key={codigo._id}>
+                                                                        <TableCell>
+                                                                            <Typography 
+                                                                                variant="body1" 
+                                                                                fontWeight={500} 
+                                                                                fontFamily="monospace" 
+                                                                                sx={{ 
+                                                                                    color: "#1e293b",
+                                                                                    backgroundColor: "#f8fafc",
+                                                                                    padding: "4px 8px",
+                                                                                    borderRadius: 1,
+                                                                                    border: "1px solid #e2e8f0"
+                                                                                }}
+                                                                            >
+                                                                                {codigo.codigo}
+                                                                            </Typography>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Chip
+                                                                                label={codigo.tipo}
+                                                                                size="small"
+                                                                                sx={{
+                                                                                    backgroundColor: codigo.tipo === 'ROL' ? "#dbeafe" : "#f3e8ff",
+                                                                                    color: codigo.tipo === 'ROL' ? "#1e40af" : "#7c3aed",
+                                                                                    border: codigo.tipo === 'ROL' ? "1px solid #93c5fd" : "1px solid #c4b5fd",
+                                                                                    fontWeight: 500
+                                                                                }}
+                                                                            />
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Box>
+                                                                                <Typography variant="body2" fontWeight={500} sx={{ color: "#1e293b" }}>
+                                                                                    {codigo.codigoInstitucion || 'N/A'}
+                                                                                </Typography>
+                                                                                {codigo.nombreInstitucion && (
+                                                                                    <Typography variant="caption" sx={{ color: "#64748b" }}>
+                                                                                        {codigo.nombreInstitucion}
+                                                                                    </Typography>
+                                                                                )}
+                                                                            </Box>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Chip
+                                                                                label={codigo.activo ? "Activo" : "Inactivo"}
+                                                                                size="small"
+                                                                                sx={{
+                                                                                    backgroundColor: codigo.activo ? "#dcfce7" : "#fee2e2",
+                                                                                    color: codigo.activo ? "#16a34a" : "#dc2626",
+                                                                                    border: codigo.activo ? "1px solid #86efac" : "1px solid #fca5a5",
+                                                                                    fontWeight: 500
+                                                                                }}
+                                                                            />
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Typography variant="body2" sx={{ color: "#64748b" }}>
+                                                                                {new Date(codigo.fechaCreacion).toLocaleDateString('es-ES', {
+                                                                                    year: 'numeric',
+                                                                                    month: 'short',
+                                                                                    day: 'numeric',
+                                                                                    hour: '2-digit',
+                                                                                    minute: '2-digit'
+                                                                                })}
+                                                                            </Typography>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                    ))}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </TableContainer>
+                                                    ) : (
+                                                        <Box sx={{ 
+                                                            textAlign: 'center', 
+                                                            py: 4,
+                                                            backgroundColor: '#f8fafc',
+                                                            borderRadius: 2,
+                                                            border: '1px solid #e2e8f0'
+                                                        }}>
+                                                            <Typography variant="h6" sx={{ color: '#64748b', mb: 1 }}>
+                                                                No hay códigos de acceso disponibles
+                                                            </Typography>
+                                                            <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+                                                                Esta institución no tiene códigos de acceso registrados
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
                                                 </CardContent>
                                             </Card>
                                         )}
+
                                     </>
                                 )}
                             </Box>

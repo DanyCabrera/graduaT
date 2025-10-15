@@ -157,6 +157,60 @@ class CodigoAccesoController {
     }
 
 
+    // Obtener código de acceso de una institución específica
+    async obtenerCodigoPorInstitucion(req, res) {
+        try {
+            const { codigoInstitucion } = req.params;
+
+            if (!codigoInstitucion) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Código de institución requerido'
+                });
+            }
+
+            console.log('🔍 [CodigoAcceso] Buscando código de ROL para institución:', codigoInstitucion);
+
+            const db = await getDB();
+            
+            // Buscar el código de ROL para esta institución
+            const codigoEncontrado = await db.collection('codigosAcceso').findOne({
+                codigoInstitucion: codigoInstitucion,
+                tipo: 'ROL',
+                activo: true
+            });
+
+            if (codigoEncontrado) {
+                console.log('✅ [CodigoAcceso] Código encontrado:', codigoEncontrado.codigo);
+                return res.json({
+                    success: true,
+                    data: {
+                        codigo: codigoEncontrado.codigo,
+                        tipo: codigoEncontrado.tipo,
+                        codigoInstitucion: codigoEncontrado.codigoInstitucion,
+                        nombreInstitucion: codigoEncontrado.nombreInstitucion,
+                        fechaCreacion: codigoEncontrado.fechaCreacion
+                    },
+                    message: 'Código de acceso encontrado'
+                });
+            } else {
+                console.log('❌ [CodigoAcceso] No se encontró código para institución:', codigoInstitucion);
+                return res.status(404).json({
+                    success: false,
+                    message: 'No se encontró código de acceso para esta institución'
+                });
+            }
+
+        } catch (error) {
+            console.error('❌ [CodigoAcceso] Error al obtener código por institución:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: error.message
+            });
+        }
+    }
+
     // Obtener todos los códigos de acceso
     async obtenerCodigos(req, res) {
         try {

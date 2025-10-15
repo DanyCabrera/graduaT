@@ -31,6 +31,20 @@ export interface AgendaSemanaResponse {
     };
 }
 
+export interface EstructuraTema {
+    tema: string;
+    materia: string;
+    duracion: number;
+    estructura: any;
+    fechaGeneracion: string;
+}
+
+export interface EstructuraTemaResponse {
+    success: boolean;
+    message: string;
+    data: EstructuraTema;
+}
+
 class AgendaService {
     // Obtener toda la agenda del maestro
     async getAgendaMaestro(): Promise<AgendaResponse> {
@@ -46,6 +60,15 @@ class AgendaService {
     // Obtener agenda de una semana específica
     async getAgendaSemana(semana: number): Promise<AgendaSemanaResponse> {
         return apiService.get<AgendaSemanaResponse>(`/agenda/semana/${semana}`);
+    }
+
+    // Generar estructura de tema usando Gemini
+    async generarEstructuraTema(tema: string, materia: string, duracion?: number): Promise<EstructuraTemaResponse> {
+        return apiService.post<EstructuraTemaResponse>('/gemini/estructura-tema', {
+            tema,
+            materia,
+            duracion: duracion || 45
+        });
     }
 }
 

@@ -17,6 +17,7 @@ import {
     Modal,
     Backdrop,
     IconButton,
+    CircularProgress,
 } from '@mui/material';
 import {
     Business as BusinessIcon,
@@ -44,6 +45,7 @@ export default function LoginInstituciones() {
 
     const [codigoInstitucion, setCodigoInstitucion] = useState<string | null>(null); // Estado para el código generado
     const [modalOpen, setModalOpen] = useState(false); // Estado para el modal
+    const [loading, setLoading] = useState(false); // Estado para el loading
     const [alertState, setAlertState] = useState({
         open: false,
         severity: 'success' as 'success' | 'error' | 'warning' | 'info',
@@ -143,6 +145,9 @@ export default function LoginInstituciones() {
             return;
         }
 
+        // Activar loading
+        setLoading(true);
+
         try {
             const response = await fetch(`${API_BASE_URL}/colegios`, {
                 method: 'POST',
@@ -171,6 +176,9 @@ export default function LoginInstituciones() {
         } catch (error) {
             console.error('Error al registrar institución:', error);
             showAlert('error', 'Error de Conexión', 'Error al conectar con el servidor. Inténtelo de nuevo.');
+        } finally {
+            // Desactivar loading
+            setLoading(false);
         }
     };
 
@@ -650,6 +658,7 @@ export default function LoginInstituciones() {
                                                 variant="outlined"
                                                 onClick={handleCloseModal}
                                                 fullWidth
+                                                disabled={loading}
                                                 sx={{
                                                     py: 1.5,
                                                     borderRadius: 2,
@@ -659,6 +668,10 @@ export default function LoginInstituciones() {
                                                         borderColor: "#374151",
                                                         backgroundColor: "#f9fafb",
                                                     },
+                                                    "&:disabled": {
+                                                        borderColor: "#d1d5db",
+                                                        color: "#d1d5db",
+                                                    },
                                                 }}
                                             >
                                                 Cancelar
@@ -667,6 +680,8 @@ export default function LoginInstituciones() {
                                                 type="submit"
                                                 variant="contained"
                                                 fullWidth
+                                                disabled={loading}
+                                                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                                                 sx={{
                                                     py: 1.5,
                                                     borderRadius: 2,
@@ -674,9 +689,13 @@ export default function LoginInstituciones() {
                                                     "&:hover": {
                                                         backgroundColor: "#1565c0",
                                                     },
+                                                    "&:disabled": {
+                                                        backgroundColor: "#90caf9",
+                                                        color: "white",
+                                                    },
                                                 }}
                                             >
-                                                Registrar Institución
+                                                {loading ? "Registrando..." : "Registrar Institución"}
                                             </Button>
                                         </Box>
                                     </Box>

@@ -16,6 +16,7 @@ const agendaRoutes = require('./routes/agendaRoutes');
 const testRoutes = require('./routes/testRoutes');
 const testAssignmentRoutes = require('./routes/testAssignmentRoutes');
 const codigoAccesoRoutes = require('./routes/codigoAccesoRoutes');
+const geminiRoutes = require('./routes/geminiRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -75,6 +76,7 @@ app.use('/api/agenda', agendaRoutes);
 app.use('/api/tests', testRoutes);
 app.use('/api/test-assignments', testAssignmentRoutes);
 app.use('/api/codigos-acceso', codigoAccesoRoutes);
+app.use('/api/gemini', geminiRoutes);
 app.use('/api/supervisor-stats', supervisorRoutes);
 
 // Ruta de prueba

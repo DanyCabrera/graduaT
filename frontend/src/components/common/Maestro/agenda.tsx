@@ -25,7 +25,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Masonry from '@mui/lab/Masonry';
 import { useState, useEffect } from 'react';
-import { agendaService, type AgendaSemana } from '../../../services/agendaService';
+import { agendaService, type AgendaSemana, type EstructuraTema } from '../../../services/agendaService';
 
 export default function Agenda() {
     const [agenda, setAgenda] = useState<AgendaSemana[]>([]);
@@ -36,6 +36,13 @@ export default function Agenda() {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedWeek, setSelectedWeek] = useState<AgendaSemana | null>(null);
     const [limiteAlcanzado, setLimiteAlcanzado] = useState<boolean>(false);
+    
+    // Estados para el modal de estructura de tema
+    const [estructuraModalOpen, setEstructuraModalOpen] = useState<boolean>(false);
+    const [selectedTema, setSelectedTema] = useState<{ titulo: string; materia: string } | null>(null);
+    const [estructuraTema, setEstructuraTema] = useState<EstructuraTema | null>(null);
+    const [generandoEstructura, setGenerandoEstructura] = useState<boolean>(false);
+    const [errorEstructura, setErrorEstructura] = useState<string>('');
 
     // Cargar agenda inicial desde localStorage o vacía
     useEffect(() => {
@@ -139,6 +146,38 @@ export default function Agenda() {
         if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
         }
+    };
+
+    const handleGenerarEstructura = async (tema: string, materia: string) => {
+        try {
+            setGenerandoEstructura(true);
+            setErrorEstructura('');
+            setSelectedTema({ titulo: tema, materia });
+            setEstructuraModalOpen(true);
+
+            console.log('🤖 Generando estructura para tema:', tema, 'materia:', materia);
+
+            const response = await agendaService.generarEstructuraTema(tema, materia);
+
+            if (response.success) {
+                setEstructuraTema(response.data);
+                console.log('✅ Estructura generada exitosamente');
+            } else {
+                setErrorEstructura('Error al generar la estructura del tema');
+            }
+        } catch (error: any) {
+            console.error('❌ Error al generar estructura:', error);
+            setErrorEstructura('Error al conectar con el servidor. Inténtalo de nuevo.');
+        } finally {
+            setGenerandoEstructura(false);
+        }
+    };
+
+    const handleCloseEstructuraModal = () => {
+        setEstructuraModalOpen(false);
+        setSelectedTema(null);
+        setEstructuraTema(null);
+        setErrorEstructura('');
     };
 
     if (loading) {
@@ -453,28 +492,54 @@ export default function Agenda() {
                                                 }
                                             />
                                         </Box>
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            startIcon={<OpenInNewIcon />}
-                                            onClick={() => handleOpenUrl(tema.url)}
-                                            sx={{
-                                                ml: 2,
-                                                borderRadius: 2,
-                                                textTransform: 'none',
-                                                fontWeight: 500,
-                                                minWidth: 'auto',
-                                                px: 2,
-                                                py: 0.5,
-                                                '&:hover': {
-                                                    backgroundColor: 'primary.main',
-                                                    color: 'white',
-                                                    borderColor: 'primary.main'
-                                                }
-                                            }}
-                                        >
-                                            Ver
-                                        </Button>
+                                        <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
+                                            <Button
+                                                variant="outlined"
+                                                size="small"
+                                                startIcon={<OpenInNewIcon />}
+                                                onClick={() => handleOpenUrl(tema.url)}
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    textTransform: 'none',
+                                                    fontWeight: 500,
+                                                    minWidth: 'auto',
+                                                    px: 2,
+                                                    py: 0.5,
+                                                    '&:hover': {
+                                                        backgroundColor: 'primary.main',
+                                                        color: 'white',
+                                                        borderColor: 'primary.main'
+                                                    }
+                                                }}
+                                            >
+                                                Ver
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                size="small"
+                                                startIcon={generandoEstructura ? <CircularProgress size={16} /> : <SchoolIcon />}
+                                                onClick={() => handleGenerarEstructura(tema.titulo, selectedWeek.nombre)}
+                                                disabled={generandoEstructura}
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    textTransform: 'none',
+                                                    fontWeight: 500,
+                                                    minWidth: 'auto',
+                                                    px: 2,
+                                                    py: 0.5,
+                                                    backgroundColor: 'secondary.main',
+                                                    '&:hover': {
+                                                        backgroundColor: 'secondary.dark'
+                                                    },
+                                                    '&:disabled': {
+                                                        backgroundColor: 'action.disabled',
+                                                        color: 'action.disabled'
+                                                    }
+                                                }}
+                                            >
+                                                {generandoEstructura ? 'Generando...' : 'Estructurar'}
+                                            </Button>
+                                        </Box>
                                     </ListItem>
                                 ))}
                             </List>
@@ -485,6 +550,204 @@ export default function Agenda() {
                                 </Typography>
                             </Box>
                         )}
+                    </DialogContent>
+                </Dialog>
+
+                {/* Modal para mostrar estructura de tema generada por Gemini */}
+                <Dialog
+                    open={estructuraModalOpen}
+                    onClose={handleCloseEstructuraModal}
+                    maxWidth="lg"
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: 3,
+                            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                            maxHeight: '90vh'
+                        }
+                    }}
+                >
+                    <DialogTitle sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        pb: 1,
+                        borderBottom: '1px solid #e0e0e0',
+                        backgroundColor: 'primary.main',
+                        color: 'white'
+                    }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Avatar sx={{ bgcolor: 'white', color: 'primary.main' }}>
+                                <SchoolIcon />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                    Estructura de Tema
+                                </Typography>
+                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                    {selectedTema?.titulo}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Button
+                            onClick={handleCloseEstructuraModal}
+                            sx={{
+                                minWidth: 'auto',
+                                p: 1,
+                                color: 'white',
+                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+                            }}
+                        >
+                            <CloseIcon />
+                        </Button>
+                    </DialogTitle>
+
+                    <DialogContent sx={{ p: 3 }}>
+                        {generandoEstructura ? (
+                            <Box sx={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                py: 8,
+                                gap: 2
+                            }}>
+                                <CircularProgress size={60} />
+                                <Typography variant="h6" color="text.secondary">
+                                    Generando estructura con IA...
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Esto puede tomar unos segundos
+                                </Typography>
+                            </Box>
+                        ) : errorEstructura ? (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                {errorEstructura}
+                            </Alert>
+                        ) : estructuraTema ? (
+                            <Box>
+                                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+                                    Estructura de Clase: {estructuraTema.tema}
+                                </Typography>
+                                
+                                <Box sx={{ 
+                                    backgroundColor: '#f5f5f5', 
+                                    p: 2, 
+                                    borderRadius: 2, 
+                                    mb: 3,
+                                    border: '1px solid #e0e0e0'
+                                }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        <strong>Materia:</strong> {estructuraTema.materia} | 
+                                        <strong> Duración:</strong> {estructuraTema.duracion} minutos | 
+                                        <strong> Generado:</strong> {new Date(estructuraTema.fechaGeneracion).toLocaleString()}
+                                    </Typography>
+                                </Box>
+
+                                {estructuraTema.estructura && typeof estructuraTema.estructura === 'object' ? (
+                                    <Box>
+                                        {estructuraTema.estructura.objetivos && (
+                                            <Box sx={{ mb: 3 }}>
+                                                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                                                    🎯 Objetivos de Aprendizaje
+                                                </Typography>
+                                                <List>
+                                                    {estructuraTema.estructura.objetivos.map((objetivo: string, index: number) => (
+                                                        <ListItem key={index} sx={{ py: 0.5 }}>
+                                                            <ListItemText 
+                                                                primary={`${index + 1}. ${objetivo}`}
+                                                                sx={{ '& .MuiListItemText-primary': { fontSize: '0.95rem' } }}
+                                                            />
+                                                        </ListItem>
+                                                    ))}
+                                                </List>
+                                            </Box>
+                                        )}
+
+                                        {estructuraTema.estructura.inicio && (
+                                            <Box sx={{ mb: 3 }}>
+                                                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                                                    🚀 Actividades de Inicio ({estructuraTema.estructura.inicio.tiempo})
+                                                </Typography>
+                                                <Typography variant="body1" sx={{ pl: 2 }}>
+                                                    {estructuraTema.estructura.inicio.actividad}
+                                                </Typography>
+                                            </Box>
+                                        )}
+
+                                        {estructuraTema.estructura.desarrollo && (
+                                            <Box sx={{ mb: 3 }}>
+                                                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                                                    📚 Desarrollo de la Clase ({estructuraTema.estructura.desarrollo.tiempo})
+                                                </Typography>
+                                                {estructuraTema.estructura.desarrollo.actividades && (
+                                                    <List>
+                                                        {estructuraTema.estructura.desarrollo.actividades.map((actividad: any, index: number) => (
+                                                            <ListItem key={index} sx={{ py: 0.5 }}>
+                                                                <ListItemText 
+                                                                    primary={`${actividad.tiempo}: ${actividad.descripcion}`}
+                                                                    sx={{ '& .MuiListItemText-primary': { fontSize: '0.95rem' } }}
+                                                                />
+                                                            </ListItem>
+                                                        ))}
+                                                    </List>
+                                                )}
+                                            </Box>
+                                        )}
+
+                                        {estructuraTema.estructura.cierre && (
+                                            <Box sx={{ mb: 3 }}>
+                                                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                                                    ✅ Actividades de Cierre ({estructuraTema.estructura.cierre.tiempo})
+                                                </Typography>
+                                                <Typography variant="body1" sx={{ pl: 2 }}>
+                                                    {estructuraTema.estructura.cierre.actividad}
+                                                </Typography>
+                                            </Box>
+                                        )}
+
+                                        {estructuraTema.estructura.recursos && (
+                                            <Box sx={{ mb: 3 }}>
+                                                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                                                    📋 Recursos Necesarios
+                                                </Typography>
+                                                <List>
+                                                    {estructuraTema.estructura.recursos.map((recurso: string, index: number) => (
+                                                        <ListItem key={index} sx={{ py: 0.5 }}>
+                                                            <ListItemText 
+                                                                primary={`• ${recurso}`}
+                                                                sx={{ '& .MuiListItemText-primary': { fontSize: '0.95rem' } }}
+                                                            />
+                                                        </ListItem>
+                                                    ))}
+                                                </List>
+                                            </Box>
+                                        )}
+
+                                        {estructuraTema.estructura.evaluacion && (
+                                            <Box sx={{ mb: 3 }}>
+                                                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                                                    📊 Evaluación
+                                                </Typography>
+                                                <Typography variant="body1" sx={{ pl: 2 }}>
+                                                    {estructuraTema.estructura.evaluacion}
+                                                </Typography>
+                                            </Box>
+                                        )}
+                                    </Box>
+                                ) : (
+                                    <Box sx={{ 
+                                        backgroundColor: '#f9f9f9', 
+                                        p: 3, 
+                                        borderRadius: 2,
+                                        border: '1px solid #e0e0e0'
+                                    }}>
+                                        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                            {estructuraTema.estructura.contenido || estructuraTema.estructura}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Box>
+                        ) : null}
                     </DialogContent>
                 </Dialog>
             </Container>

@@ -90,6 +90,7 @@ class ApiService {
 
   constructor() {
     this.baseURL = API_BASE_URL;
+    console.log('🔧 API_BASE_URL configurada:', this.baseURL);
   }
 
   private async request<T>(
@@ -98,6 +99,7 @@ class ApiService {
     retryCount: number = 0
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    console.log('🌐 URL completa de la petición:', url);
     
     const config: RequestInit = {
       headers: {
