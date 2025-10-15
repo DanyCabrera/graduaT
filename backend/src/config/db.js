@@ -291,6 +291,26 @@ async function createCollections() {
             }
         });
 
+        // 10. CodigosAcceso
+        await database.createCollection("codigosAcceso", {
+            validator: {
+                $jsonSchema: {
+                    bsonType: "object",
+                    required: ["codigo", "tipo", "activo", "fechaCreacion"],
+                    properties: {
+                        codigo: { bsonType: "string" },
+                        tipo: { bsonType: "string" },
+                        activo: { bsonType: "bool" },
+                        descripcion: { bsonType: ["string", "null"] },
+                        fechaCreacion: { bsonType: "date" },
+                        generadoPor: { bsonType: ["string", "null"] },
+                        codigoInstitucion: { bsonType: ["string", "null"] },
+                        nombreInstitucion: { bsonType: ["string", "null"] }
+                    }
+                }
+            }
+        });
+
         console.log("✅ Todas las colecciones fueron creadas correctamente.");
     } catch (error) {
         if (error.code === 48) {

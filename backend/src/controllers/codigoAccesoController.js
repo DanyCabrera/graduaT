@@ -211,6 +211,71 @@ class CodigoAccesoController {
         }
     }
 
+    // Crear un nuevo código de acceso
+    async crearCodigo(req, res) {
+        try {
+            const { codigo, tipo, descripcion } = req.body;
+
+            if (!codigo || !tipo) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Código y tipo son requeridos'
+                });
+            }
+
+            console.log('🔍 [CodigoAcceso] Creando nuevo código:', codigo);
+
+            const db = await getDB();
+            
+            // Verificar si el código ya existe
+            const codigoExistente = await db.collection('codigosAcceso').findOne({
+                codigo: codigo.trim().toUpperCase()
+            });
+
+            if (codigoExistente) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'El código ya existe en el sistema'
+                });
+            }
+
+            // Crear el nuevo código
+            const nuevoCodigo = {
+                codigo: codigo.trim().toUpperCase(),
+                tipo: tipo,
+                activo: true,
+                descripcion: descripcion || '',
+                fechaCreacion: new Date(),
+                generadoPor: 'admin'
+            };
+
+            const resultado = await db.collection('codigosAcceso').insertOne(nuevoCodigo);
+
+            console.log('✅ [CodigoAcceso] Nuevo código creado exitosamente:', codigo);
+
+            return res.json({
+                success: true,
+                data: {
+                    id: resultado.insertedId,
+                    codigo: nuevoCodigo.codigo,
+                    tipo: nuevoCodigo.tipo,
+                    activo: nuevoCodigo.activo,
+                    descripcion: nuevoCodigo.descripcion,
+                    fechaCreacion: nuevoCodigo.fechaCreacion
+                },
+                message: 'Código de acceso creado exitosamente'
+            });
+
+        } catch (error) {
+            console.error('❌ [CodigoAcceso] Error al crear código:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: error.message
+            });
+        }
+    }
+
     // Obtener todos los códigos de acceso
     async obtenerCodigos(req, res) {
         try {
