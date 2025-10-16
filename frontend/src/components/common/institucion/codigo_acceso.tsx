@@ -242,18 +242,6 @@ export default function CodigoAcceso() {
                                 )}
                             </CardContent>
                         </Card>
-
-                        {/* Instrucciones */}
-                        <Alert 
-                            severity="info" 
-                            sx={{ 
-                                mt: 4,
-                                backgroundColor: "#eff6ff", 
-                                border: "1px solid #bfdbfe",
-                                borderRadius: 2,
-                            }}
-                        >
-                        </Alert>
                     </Box>
                 </Fade>
             </Container>
