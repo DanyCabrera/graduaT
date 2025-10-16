@@ -18,6 +18,7 @@ import {
     Error as ErrorIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { codigoAccesoService } from '../../../services/codigoAccesoService';
 
 export default function CodigoAcceso() {
     const navigate = useNavigate();
@@ -41,26 +42,33 @@ export default function CodigoAcceso() {
         setError('');
 
         try {
-            // Obtener códigos válidos del localStorage (generados en el panel admin)
-            const codigosValidos = JSON.parse(localStorage.getItem('codigosGenerados') || '[]');
+            console.log('🔍 [CodigoAcceso] Validando código:', codigo);
             
-            // Verificar si el código ingresado está en la lista
-            const codigoEncontrado = codigosValidos.find((c: string) => c === codigo.toUpperCase());
+            // Verificar el código usando la API
+            const response = await codigoAccesoService.verificarCodigo(codigo.toUpperCase());
             
-            if (codigoEncontrado) {
+            if (response.success && response.data) {
+                console.log('✅ [CodigoAcceso] Código válido:', response.data);
                 setSuccess(true);
-                // Guardar el código validado para usar en el formulario
-                localStorage.setItem('codigoValidado', codigo.toUpperCase());
+                
+                // Guardar información del código validado
+                localStorage.setItem('codigoValidado', JSON.stringify({
+                    codigo: response.data.codigo,
+                    tipo: response.data.tipo,
+                    fechaValidacion: new Date().toISOString()
+                }));
                 
                 // Redirigir al formulario de institución después de un breve delay
                 setTimeout(() => {
                     navigate('/registro/registro');
                 }, 1500);
             } else {
-                setError('Código de acceso inválido. Verifica con el administrador.');
+                console.log('❌ [CodigoAcceso] Código inválido:', response.message);
+                setError(response.message || 'Código de acceso inválido. Verifica con el administrador.');
             }
-        } catch (err) {
-            setError('Error al validar el código. Intenta nuevamente.');
+        } catch (error: any) {
+            console.error('❌ [CodigoAcceso] Error al validar código:', error);
+            setError(error.message || 'Error al validar el código. Intenta nuevamente.');
         } finally {
             setLoading(false);
         }
@@ -245,10 +253,6 @@ export default function CodigoAcceso() {
                                 borderRadius: 2,
                             }}
                         >
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                💡 <strong>Información:</strong> El código de acceso debe ser proporcionado por el administrador. 
-                                Debe contener exactamente 6 letras mayúsculas.
-                            </Typography>
                         </Alert>
                     </Box>
                 </Fade>
