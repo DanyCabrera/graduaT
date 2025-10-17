@@ -4,7 +4,6 @@ import { Box, Typography } from '@mui/material';
 import IndexMaestro from '../../components/common/Maestro/index';
 import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
 import { getMaestroSession } from '../../utils/sessionManager';
-import { SessionDebugger } from '../../components/common/SessionDebugger';
 
 interface UserData {
     Usuario: string;
@@ -136,7 +135,6 @@ export default function Maestro() {
                 <Typography color="error" variant="h5" gutterBottom>
                     No se encontraron datos del usuario
                 </Typography>
-                <SessionDebugger />
             </Box>
         );
     }

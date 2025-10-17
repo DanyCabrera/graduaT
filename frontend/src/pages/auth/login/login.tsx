@@ -103,7 +103,7 @@ export default function Login() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: {xs: "#f8f9fa",sm:"#f8f9fa"}, // Fondo gris claro como en la imagen
+                backgroundColor: {xs: "#ffffffff",sm:"#f8f9fa"}, // Fondo gris claro como en la imagen
                 padding: { xs: 2, sm: 1 },
             }}>
             <Fade in timeout={800}>
@@ -112,7 +112,7 @@ export default function Login() {
                         width: "100%",
                         maxWidth: { xs: "100%", sm: "450px" },
                         borderRadius: 3,
-                        backgroundColor: {xs: "#f8f9fa", sm: "white"},
+                        backgroundColor: {xs: "#ffffffff", sm: "white"},
                         boxShadow: {xs: "0 0px 0px rgba(0, 0, 0, 0)", sm: "0 4px 6px rgba(0, 0, 0, 0.1)"},
                         padding: {xs: 2, sm: 4},
                     }}>
@@ -292,7 +292,7 @@ export default function Login() {
                             sx={{
                                 py: 1.5,
                                 mb: 3,
-                                borderRadius: 2,
+                                borderRadius: {xs: 10, sm: 2},
                                 textTransform: "none",
                                 fontSize: "0.875rem",
                                 fontWeight: 600,

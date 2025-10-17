@@ -1,7 +1,6 @@
 import { API_BASE_URL } from "../../constants/index";
 import { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
-import { SessionDebugger } from '../../components/common/SessionDebugger';
 import { getAlumnoSession } from '../../utils/sessionManager';
 import { getSessionUser, getSessionRole } from '../../utils/authUtils';
 
@@ -131,7 +130,6 @@ export default function Alumno() {
                 <Typography color="error" variant="h5" gutterBottom>
                     No se encontraron datos del usuario
                 </Typography>
-                <SessionDebugger />
             </Box>
         );
     }

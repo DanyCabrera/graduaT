@@ -123,7 +123,12 @@ export default function Progreso() {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ py: { xs: 1, sm: 2 } }}>
+        <Container maxWidth="lg" 
+            sx={{ 
+                py: { xs: 1, sm: 1 }, 
+                minWidth: '100%' 
+            }}
+        >
             <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
                 <Typography variant="h4" component="h1" gutterBottom sx={{ 
                     fontWeight: 'bold', 

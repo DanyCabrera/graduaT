@@ -176,7 +176,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                     <Box sx={{ 
                         p: { xs: 1, sm: 2, md: 4 }, 
                         textAlign: 'center',
-                        maxWidth: "1200px", 
+                        minWidth: "100%", 
                         margin: "0 auto"
                     }}>
                         <Progreso />

@@ -226,7 +226,7 @@ function TestModal({ open, onClose, testAssignment, onTestCompleted }: TestModal
                                             fontSize: '0.75rem'
                                         }
                                     }}
-                                    onClick={() => setCurrentQuestion(index)}
+                                    // onClick={() => setCurrentQuestion(index)}
                                 >
                                     {isQuestionAnswered(test.preguntas[index]._id) ? '✓' : index + 1}
                                 </StepLabel>
