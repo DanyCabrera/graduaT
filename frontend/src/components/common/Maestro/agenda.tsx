@@ -210,7 +210,7 @@ export default function Agenda() {
 
     return (
         <Fade in={true} timeout={800}>
-            <Container maxWidth="xl" sx={{ py: 6 }}>
+            <Container maxWidth="xl" sx={{ py: 2, minHeight: '100vh' }}>
                 {/* Header Section */}
                 <Box sx={{ mb: 6, textAlign: 'center' }}>
                     <Typography variant="h3" sx={{ fontWeight: 300, mb: 3, color: 'text.primary' }}>
@@ -232,8 +232,8 @@ export default function Agenda() {
                             }}
                         >
                             {generating ? 'Generando...' : 
-                             limiteAlcanzado ? 'Límite alcanzado' :
-                             agenda.length === 0 ? 'Comenzar Agenda' : 'Generar Agenda semanal'}
+                                limiteAlcanzado ? 'Límite alcanzado' :
+                                agenda.length === 0 ? 'Comenzar Agenda' : 'Generar Agenda semanal'}
                         </Button>
 
                         {agenda.length > 0 && (

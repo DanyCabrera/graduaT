@@ -180,7 +180,7 @@ export default function Historial({ refreshTrigger, onNotificationCountChange }:
     }
 
     return (
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: 4, minHeight: '100vh'}}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                 <Typography
                     variant="h4"

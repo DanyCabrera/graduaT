@@ -13,6 +13,11 @@ import {
     TrendingUp, 
     Menu as MenuIcon
 } from "@mui/icons-material";
+import {
+    House,
+    ChartNoAxesCombined,
+    LogOut
+} from 'lucide-react';
 
 interface NavbarProps {
     onLogout?: () => void;
@@ -76,7 +81,8 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                     component="div"
                     sx={{ 
                         fontWeight: "bold",
-                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                        width: '20%'
                     }}
                 >
                     Estudiante
@@ -86,27 +92,38 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                 <Box sx={{ 
                     display: { xs: "none", md: "flex" }, 
                     gap: 1,
-                    alignItems: "center"
+                    alignItems: "center",
+                    width: '90%'
                 }}>
-                    <Button 
-                        color="inherit" 
-                        startIcon={<Home />}
-                        onClick={() => handleNavigation('inicio')}
-                        sx={getButtonStyle('inicio')}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 1,
+                            width: '80%'
+                        }}
                     >
-                        Inicio
-                    </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<House />}
+                            onClick={() => handleNavigation('inicio')}
+                            sx={getButtonStyle('inicio')}
+                        >
+                            Inicio
+                        </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<ChartNoAxesCombined />}
+                            onClick={() => handleNavigation('progreso')}
+                            sx={getButtonStyle('progreso')}
+                        >
+                            Progreso
+                        </Button>
+                    </Box>
                     <Button 
                         color="inherit" 
-                        startIcon={<TrendingUp />}
-                        onClick={() => handleNavigation('progreso')}
-                        sx={getButtonStyle('progreso')}
-                    >
-                        Progreso
-                    </Button>
-                    <Button 
-                        color="inherit" 
-                        startIcon={<Logout />}
+                        startIcon={<LogOut />}
                         onClick={onLogout}
                         sx={{ 
                             color: '#d32f2f',
@@ -128,7 +145,7 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                 }}>
                     <Button 
                         color="inherit" 
-                        startIcon={<Home />}
+                        startIcon={<House />}
                         onClick={() => handleNavigation('inicio')}
                         sx={{ ...getButtonStyle('inicio'), minWidth: 'auto', px: 1 }}
                     >
@@ -136,7 +153,7 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                     </Button>
                     <Button 
                         color="inherit" 
-                        startIcon={<TrendingUp />}
+                        startIcon={<ChartNoAxesCombined />}
                         onClick={() => handleNavigation('progreso')}
                         sx={{ ...getButtonStyle('progreso'), minWidth: 'auto', px: 1 }}
                     >
@@ -153,7 +170,7 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                             }
                         }}
                     >
-                        <Logout />
+                        <LogOut />
                     </IconButton>
                 </Box>
 

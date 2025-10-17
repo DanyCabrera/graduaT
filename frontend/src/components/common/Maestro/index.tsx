@@ -9,6 +9,8 @@ import CardActionArea from "@mui/material/CardActionArea";
 import Fade from "@mui/material/Fade";
 import Button from "@mui/material/Button";
 
+import { Calendar } from 'lucide-react'
+
 import { FooterMaestro }  from '../../layout/footer';
 import { SessionErrorHandler } from '../SessionErrorHandler';
 import { apiService } from '../../../services/api';
@@ -147,16 +149,20 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
     const renderContent = () => {
         switch (currentSection) {
             case 'agenda':
-                return <Agenda />;
+                return (
+                    <Box sx={{ p: 1, textAlign: 'center' }}>
+                        <Agenda />
+                    </Box>
+                );
             case 'alumnos':
                 return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Box sx={{ p: 1, textAlign: 'center' }}>
                         <Alumno />
                     </Box>
                 );
             case 'historial':
                 return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Box sx={{ p: 1, textAlign: 'center' }}>
                         <Historial 
                             refreshTrigger={historialRefreshTrigger} 
                             onNotificationCountChange={updateNotificationCount}
@@ -165,48 +171,10 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                 );
             case 'tests':
                 return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Box sx={{ p: 1, textAlign: 'center' }}>
                         <Test onTestsCleared={refreshHistorial} />
                     </Box>
                 );
-            case 'mate':
-                return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 3 }}>
-                            Curso de Matemáticas
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: "#666", mb: 4 }}>
-                            Gestiona el contenido y actividades del curso de Matemáticas
-                        </Typography>
-                        {/* Aquí puedes agregar más contenido específico para matemáticas */}
-                        <Box sx={{ 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            gap: 2, 
-                            flexWrap: 'wrap' 
-                        }}>
-                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6">Lecciones</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Gestionar contenido
-                                </Typography>
-                            </Card>
-                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6">Ejercicios</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Crear actividades
-                                </Typography>
-                            </Card>
-                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6">Evaluaciones</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Asignar tareas
-                                </Typography>
-                            </Card>
-                        </Box>
-                    </Box>
-                );
-            case 'comu':
                 return (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
                         <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 3 }}>
@@ -275,12 +243,17 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                             key={index} 
                                             elevation={0}
                                             sx={{ 
-                                                width: 300, 
-                                                minHeight: 300, 
+                                                width: {xs: '300px', sm: '700px', md: '700px'}, 
+                                                minHeight: {xs: '450px', sm: '300px', md: '300px'}, 
                                                 borderRadius: 4,
                                                 border: 1,
-                                                borderColor: '#e2e8f0',
-                                                mb: {xs: 8, sm: 4, md: 4}
+                                                borderColor: '#00000019',
+                                                mb: {xs: 8, sm: 4, md: 4},
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                bgcolor: '#ededed77'
                                             }} 
                                             >
                                             <CardActionArea
@@ -292,22 +265,43 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                                         setCurrentSection('agenda');
                                                     }
                                                 }}
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: {xs: 'column', sm: 'row', md: 'row'},
+                                                    width: {xs: '300px', sm: '700px', md: '700px'},
+                                                    height: {xs: '450px', sm: '300px', md: '300px'},
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    cursor: 'pointer',
+                                                    p: 2
+                                                }}
                                             >
                                                 <CardMedia
                                                     component="img"
                                                     image={cursoInfo.imagen}
                                                     alt={cursoInfo.titulo}
                                                     sx={{ 
-                                                        height: '100%', 
-                                                        objectFit: 'cover',
+                                                        height: {xs: '60%', sm: '100%'}, 
+                                                        objectFit: 'contain',
                                                         p: 2,
                                                     }}
                                                 />
-                                                <CardContent>
+                                                <CardContent    
+                                                    sx={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'start',
+                                                        p: 2
+                                                    }}
+                                                >
                                                     <Typography 
                                                         variant="h6"
                                                         sx={{
-                                                            fontWeight: 'bold'
+                                                            fontWeight: 'bold',
+                                                            fontSize: {xs: '1.1rem', sm: '1.5rem'}
                                                         }}
                                                     >
                                                         {cursoInfo.titulo}
@@ -319,6 +313,7 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                                                         fullWidth
                                                         variant="outlined"
                                                         color="success"
+                                                        startIcon={<Calendar />}
                                                         sx={{
                                                             mt: 2
                                                         }}

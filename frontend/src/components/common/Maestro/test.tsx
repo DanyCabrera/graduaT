@@ -139,13 +139,25 @@ export default function Test({ onTestsCleared }: TestProps) {
             const response = await testService.getTestsByCourse();
 
             if (response.success) {
-                // Filtrar tests según los cursos del maestro
+                // Función para ordenar tests por semana y luego por título
+                const sortTests = (tests: Test[]) => {
+                    return tests.sort((a, b) => {
+                        // Primero ordenar por semana (ascendente)
+                        if (a.semana !== b.semana) {
+                            return a.semana - b.semana;
+                        }
+                        // Si tienen la misma semana, ordenar por título (alfabético)
+                        return a.titulo.localeCompare(b.titulo);
+                    });
+                };
+
+                // Filtrar y ordenar tests según los cursos del maestro
                 const filteredData = {
-                    matematicas: maestroCursos.includes('Matemáticas') ? response.data.matematicas : [],
-                    comunicacion: maestroCursos.includes('Comunicación y lenguaje') ? response.data.comunicacion : []
+                    matematicas: maestroCursos.includes('Matemáticas') ? sortTests(response.data.matematicas) : [],
+                    comunicacion: maestroCursos.includes('Comunicación y lenguaje') ? sortTests(response.data.comunicacion) : []
                 };
                 setTestsByCourse(filteredData);
-                console.log('✅ Tests cargados correctamente:', filteredData);
+                console.log('✅ Tests cargados y ordenados correctamente:', filteredData);
             } else {
                 setError('Error al cargar los tests');
             }
@@ -431,7 +443,7 @@ export default function Test({ onTestsCleared }: TestProps) {
     return (
         <>
             <Fade in={true} timeout={800}>
-                <Box sx={{ p: 2 }}>
+                <Box sx={{ p: 2, minHeight: '100vh'}}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                         <Typography
                             variant="h4"

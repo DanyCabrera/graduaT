@@ -228,7 +228,8 @@ export default function Alumnos() {
 
     return (
         <Box sx={{
-            p: 4,
+            p: 2,
+            minHeight: '100vh'
         }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                 <Typography

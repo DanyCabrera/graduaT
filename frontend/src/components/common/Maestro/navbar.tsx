@@ -4,7 +4,14 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Badge from "@mui/material/Badge";
-import { Logout, Home, People, CalendarToday, History, Quiz } from "@mui/icons-material";
+import {
+    House,
+    Users,
+    Calendar,
+    History,
+    BookCheck,
+    LogOut
+} from 'lucide-react'
 
 interface NavbarProps {
     onLogout?: () => void;
@@ -42,73 +49,94 @@ export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio'
                 <Typography
                     variant="h6"
                     component="div"
-                    sx={{ fontWeight: "bold", marginLeft: 3 }}
+                    sx={{ 
+                        fontWeight: "bold", 
+                        marginLeft: 3,
+                        width: '20%'
+                    }}
                 >
                     Maestro
                 </Typography>
 
-                <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button 
-                        color="inherit" 
-                        startIcon={<Home />}
-                        onClick={() => handleNavigation('inicio')}
-                        sx={getButtonStyle('inicio')}
+                <Box 
+                    sx={{ 
+                        display: "flex", 
+                        gap: 1,
+                        width: '80%'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            width: '100%',
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 2
+                        }}
                     >
-                        Inicio
-                    </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<House />}
+                            onClick={() => handleNavigation('inicio')}
+                            sx={getButtonStyle('inicio')}
+                        >
+                            Inicio
+                        </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<Users />}
+                            onClick={() => handleNavigation('alumnos')}
+                            sx={getButtonStyle('alumnos')}
+                        >
+                            Alumnos
+                        </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<Calendar />}
+                            onClick={() => handleNavigation('agenda')}
+                            sx={getButtonStyle('agenda')}
+                        >
+                            Agenda
+                        </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={
+                                <Badge 
+                                    badgeContent={notificationCount} 
+                                    color="error"
+                                    sx={{
+                                        '& .MuiBadge-badge': {
+                                            fontSize: '0.7rem',
+                                            minWidth: '18px',
+                                            height: '18px'
+                                        }
+                                    }}
+                                >
+                                    <History />
+                                </Badge>
+                            }
+                            onClick={() => handleNavigation('historial')}
+                            sx={getButtonStyle('historial')}
+                        >
+                            Historial
+                        </Button>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<BookCheck />}
+                            onClick={() => handleNavigation('tests')}
+                            sx={getButtonStyle('tests')}
+                        >
+                            Tests
+                        </Button>
+                    </Box>
                     <Button 
                         color="inherit" 
-                        startIcon={<People />}
-                        onClick={() => handleNavigation('alumnos')}
-                        sx={getButtonStyle('alumnos')}
-                    >
-                        Alumnos
-                    </Button>
-                    <Button 
-                        color="inherit" 
-                        startIcon={<CalendarToday />}
-                        onClick={() => handleNavigation('agenda')}
-                        sx={getButtonStyle('agenda')}
-                    >
-                        Agenda
-                    </Button>
-                    <Button 
-                        color="inherit" 
-                        startIcon={
-                            <Badge 
-                                badgeContent={notificationCount} 
-                                color="error"
-                                sx={{
-                                    '& .MuiBadge-badge': {
-                                        fontSize: '0.7rem',
-                                        minWidth: '18px',
-                                        height: '18px'
-                                    }
-                                }}
-                            >
-                                <History />
-                            </Badge>
-                        }
-                        onClick={() => handleNavigation('historial')}
-                        sx={getButtonStyle('historial')}
-                    >
-                        Historial
-                    </Button>
-                    <Button 
-                        color="inherit" 
-                        startIcon={<Quiz />}
-                        onClick={() => handleNavigation('tests')}
-                        sx={getButtonStyle('tests')}
-                    >
-                        Tests
-                    </Button>
-                    <Button 
-                        color="inherit" 
-                        startIcon={<Logout />}
+                        startIcon={<LogOut />}
                         onClick={onLogout}
                         sx={{ 
                             color: '#d32f2f',
                             marginLeft: 2,
+                            width: '30%',
                             '&:hover': {
                                 backgroundColor: 'rgba(211, 47, 47, 0.04)'
                             }

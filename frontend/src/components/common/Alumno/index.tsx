@@ -25,6 +25,10 @@ import LogoComunicacion from "../../../assets/TortuLenguaje.png";
 import Matematica from "../Matematica/index";
 import Comunicacion from "../Comunicacion/index";
 
+import {
+    BookOpen
+} from 'lucide-react'
+
 interface UserData {
     Usuario: string;
     Nombre: string;
@@ -206,9 +210,10 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                 return (
                     <Box sx={{ 
                         flexGrow: 1, 
-                        p: { xs: 2, sm: 3, md: 5 }, 
+                        p: { xs: 2, sm: 3, md: 2 }, 
                         mb: { xs: 12, sm: 12, md: 4 },
-                        maxWidth: "1200px", 
+                        minWidth: "90%", 
+                        maxWidth: "100%",
                         margin: "0 auto", 
                         minHeight: "60vh", 
                         display: 'flex', 
@@ -217,13 +222,21 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                     }}>
 
                         {/* Saludo */}
-                        <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
+                        <Box 
+                            sx={{ 
+                                mb: { xs: 2, sm: 3, md: 4 },
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: { xs: 'column', sm: 'column', md: 'column' },
+                            }}
+                        >
                             <Typography variant="h4" sx={{ 
                                 fontWeight: "bold", 
                                 color: "#333",
                                 fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
                             }}>
-                                Bienvenido, {userData ? `${userData.Nombre}` : 'Estudiante'}
+                                Bienvenido, {userData ? `${userData.Nombre} ${userData.Apellido}` : 'Estudiante'}
                             </Typography>
                             <Typography variant="body1" sx={{ 
                                 color: "#666", 
@@ -242,7 +255,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                 alignItems: 'center', 
                                 py: 4,
                                 flexDirection: { xs: 'column', sm: 'row' },
-                                gap: { xs: 1, sm: 2 }
+                                gap: { xs: 1, sm: 2 },
                             }}>
                                 <CircularProgress size={24} />
                                 <Typography sx={{ 
@@ -254,16 +267,16 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                             </Box>
                         ) : (
                             <Box sx={{
-                                display: "grid",
-                                gridTemplateColumns: { 
-                                    xs: "1fr", 
-                                    sm: "repeat(auto-fit, minmax(280px, 1fr))",
-                                    md: "repeat(auto-fit, minmax(300px, 1fr))"
-                                },
-                                gap: { xs: 2, sm: 3, md: 4 }
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+                                gap: { xs: 2, sm: 3, md: 4 },
                             }}>
                                 {/* Curso 1: Matemáticas */}
                                 <Card sx={{
+                                    height: { xs: 590, sm: 590, md: 280 },
+                                    width: { xs: 330, sm: 330, md: 880 },
                                     borderRadius: 2,
                                     backgroundColor: '#fff',
                                     transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
@@ -271,19 +284,29 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                     borderColor: '#e0e0e0',
                                     '&:hover': {
                                         transform: { xs: 'none', sm: 'translateY(-4px)' },
-                                        boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', sm: '0 12px 24px rgba(0,0,0,0.1)' }
                                     }
                                 }}>
-                                    <CardActionArea onClick={() => handleNavigation('matematicas')}>
+                                    <CardActionArea 
+                                        onClick={() => handleNavigation('matematicas')}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'start',
+                                            flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+                                        }}
+                                        >
                                         <CardMedia
                                             component="img"
-                                            sx={{
-                                                height: { xs: 380, sm: 300, md: 420 },
-                                                objectFit: "cover",
-                                                p: { xs: 1, sm: 2 }
-                                            }}
                                             image={LogoMatematica}
                                             alt="Matemáticas"
+                                            sx={{
+                                                display: 'block',
+                                                margin: '0 auto',
+                                                height: { xs: 380, sm: 300, md: 280 },
+                                                width: { xs: 380, sm: 300, md: 280 },
+                                                objectFit: "contain",
+                                                p: { xs: 1, sm: 2 },
+                                            }}
                                         />
                                         <Divider />
                                         <Box sx={{ p: { xs: 2, sm: 3 } }}>
@@ -316,7 +339,8 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                             <Button
                                                 fullWidth
                                                 variant="outlined"
-                                                color= 'success'
+                                                color= 'primary'
+                                                startIcon={<BookOpen />}
                                                 sx={{
                                                     mt: 2
                                                 }}
@@ -329,6 +353,8 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
 
                                 {/* Curso 2: Comunicación y Lenguaje */}
                                 <Card sx={{
+                                    height: { xs: 590, sm: 590, md: 280 },
+                                    width: { xs: 330, sm: 330, md: 880 },
                                     borderRadius: 3,
                                     backgroundColor: '#fff',
                                     transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
@@ -336,16 +362,26 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                     borderColor: '#e0e0e0',
                                     '&:hover': {
                                         transform: { xs: 'none', sm: 'translateY(-4px)' },
-                                        boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', sm: '0 12px 24px rgba(0,0,0,0.1)' }
                                     }
                                 }}>
-                                    <CardActionArea onClick={() => handleNavigation('comunicacion')}>
+                                    <CardActionArea 
+                                        onClick={() => handleNavigation('comunicacion')}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'start',
+                                            flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+                                        }}
+                                    >
                                         <CardMedia
                                             component="img"
                                             sx={{
-                                                height: { xs: 380, sm: 300, md: 420 },
-                                                objectFit: "cover",
-                                                p: { xs: 1, sm: 2 }
+                                                display: 'block',
+                                                margin: '0 auto',
+                                                height: { xs: 380, sm: 300, md: 280 },
+                                                width: { xs: 380, sm: 300, md: 280 },
+                                                objectFit: "contain",
+                                                p: { xs: 1, sm: 2 },
                                             }}
                                             image={LogoComunicacion}
                                             alt="Comunicación y Lenguaje"
@@ -382,6 +418,7 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
                                                 fullWidth
                                                 variant="outlined"
                                                 color= 'success'
+                                                startIcon={<BookOpen />}
                                                 sx={{
                                                     mt: 2
                                                 }}
