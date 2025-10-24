@@ -22,23 +22,18 @@ interface RendimientoPageProps {
 
 export default function RendimientoPage({ userData }: RendimientoPageProps) {
     const [sessionError, setSessionError] = useState<Error | null>(null);
+    const [currentUserData, setCurrentUserData] = useState<UserData | null>(userData || null);
 
     // Verificar que el usuario sea director
     useEffect(() => {
         const checkUserRole = () => {
-            if (userData) {
-                if (userData.Rol !== 'Director') {
-                    console.warn('⚠️ Usuario no es director:', userData.Rol);
-                    setSessionError(new Error(`Acceso denegado. Rol actual: ${userData.Rol}. Se requiere rol: Director`));
-                } else {
-                    console.log('✅ Usuario es director, sesión válida');
-                    setSessionError(null);
-                }
-            } else {
+            // Si no hay userData como prop, obtenerlo del localStorage
+            if (!userData) {
                 const storedUser = localStorage.getItem('user_data');
                 if (storedUser) {
                     try {
                         const user = JSON.parse(storedUser);
+                        setCurrentUserData(user);
                         if (user.Rol !== 'Director') {
                             console.warn('⚠️ Usuario no es director:', user.Rol);
                             setSessionError(new Error(`Acceso denegado. Rol actual: ${user.Rol}. Se requiere rol: Director`));
@@ -48,7 +43,19 @@ export default function RendimientoPage({ userData }: RendimientoPageProps) {
                         }
                     } catch (error) {
                         console.error('Error al verificar rol de usuario:', error);
+                        setSessionError(new Error('Error al cargar datos del usuario'));
                     }
+                } else {
+                    setSessionError(new Error('No se encontraron datos del usuario'));
+                }
+            } else {
+                setCurrentUserData(userData);
+                if (userData.Rol !== 'Director') {
+                    console.warn('⚠️ Usuario no es director:', userData.Rol);
+                    setSessionError(new Error(`Acceso denegado. Rol actual: ${userData.Rol}. Se requiere rol: Director`));
+                } else {
+                    console.log('✅ Usuario es director, sesión válida');
+                    setSessionError(null);
                 }
             }
         };
@@ -83,7 +90,7 @@ export default function RendimientoPage({ userData }: RendimientoPageProps) {
                     ml: '280px', // Ajustar para el sidebar fijo
                     p: 3 
                 }}>
-                    <Rendimiento userData={userData} />
+                    <Rendimiento userData={currentUserData} />
                 </Box>
             </Box>
             
