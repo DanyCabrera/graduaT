@@ -27,15 +27,8 @@ export default function MatematicasPage({ userData }: MatematicasPageProps) {
     // Verificar que el usuario sea alumno
     useEffect(() => {
         const checkUserRole = () => {
-            if (userData) {
-                if (userData.Rol !== 'Alumno') {
-                    console.warn('⚠️ Usuario no es alumno:', userData.Rol);
-                    setSessionError(new Error(`Acceso denegado. Rol actual: ${userData.Rol}. Se requiere rol: Alumno`));
-                } else {
-                    console.log('✅ Usuario es alumno, sesión válida');
-                    setSessionError(null);
-                }
-            } else {
+            // Si no hay userData como prop, obtenerlo del localStorage
+            if (!userData) {
                 const storedUser = localStorage.getItem('user_data');
                 if (storedUser) {
                     try {
@@ -49,7 +42,18 @@ export default function MatematicasPage({ userData }: MatematicasPageProps) {
                         }
                     } catch (error) {
                         console.error('Error al verificar rol de usuario:', error);
+                        setSessionError(new Error('Error al cargar datos del usuario'));
                     }
+                } else {
+                    setSessionError(new Error('No se encontraron datos del usuario'));
+                }
+            } else {
+                if (userData.Rol !== 'Alumno') {
+                    console.warn('⚠️ Usuario no es alumno:', userData.Rol);
+                    setSessionError(new Error(`Acceso denegado. Rol actual: ${userData.Rol}. Se requiere rol: Alumno`));
+                } else {
+                    console.log('✅ Usuario es alumno, sesión válida');
+                    setSessionError(null);
                 }
             }
         };

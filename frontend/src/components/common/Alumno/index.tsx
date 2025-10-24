@@ -57,7 +57,7 @@ interface IndexAlumnoProps {
 export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     const [maestrosPorCurso, setMaestrosPorCurso] = useState<MaestrosPorCurso>({});
     const [loadingMaestros, setLoadingMaestros] = useState(true);
-    const [currentSection, setCurrentSection] = useState('inicio');
+    const [currentSection] = useState('inicio');
     const [sessionError, setSessionError] = useState<Error | null>(null);
 
     // Verificar que el usuario sea alumno (solo una vez al cargar)
@@ -157,7 +157,21 @@ export default function IndexAlumno({ userData }: IndexAlumnoProps) {
     };
 
     const handleNavigation = (section: string) => {
-        setCurrentSection(section);
+        // Redirigir a la ruta correspondiente
+        switch (section) {
+            case 'inicio':
+                window.location.href = '/alumno';
+                break;
+            case 'progreso':
+                window.location.href = '/alumno/progreso';
+                break;
+            case 'matematicas':
+                window.location.href = '/alumno/matematicas';
+                break;
+            case 'comunicacion':
+                window.location.href = '/alumno/comunicacion';
+                break;
+        }
     };
 
     // const handleSessionError = (error: Error) => {
