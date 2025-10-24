@@ -83,7 +83,7 @@ export default function InformacionPage({ userData }: InformacionPageProps) {
                     ml: '280px', // Ajustar para el sidebar fijo
                     p: 3 
                 }}>
-                    <Informacion userData={userData || null} />
+                    <Informacion userData={userData ?? null} />
                 </Box>
             </Box>
             
