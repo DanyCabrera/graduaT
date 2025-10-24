@@ -107,7 +107,7 @@ export function FooterMaestro() {
                     display: { xs: 'none', md: 'block' }, 
                     position: 'absolute',
                     left: { md: '2%' },
-                    bottom: { md: '19%' },
+                    bottom: { md: '22%' },
                     textAlign: 'left',
                     color: "#e7e7e7ff",
                     fontSize: '0.875rem',
@@ -146,6 +146,7 @@ export function FooterMaestro() {
                 Keyri Obando<br />
         
             </Typography>
+            
             </Box>
 
             <Typography
@@ -264,7 +265,7 @@ export function FooterAlumno() {
                     display: { xs: 'none', md: 'block' }, 
                     position: 'absolute',
                     left: { md: '2%' },
-                    bottom: { md: '19%' },
+                    bottom: { md: '22%' },
                     textAlign: 'left',
                     color: "#e7e7e7ff",
                     fontSize: '0.875rem',
