@@ -22,8 +22,23 @@ interface NavbarProps {
 
 export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio', notificationCount = 0 }: NavbarProps) {
     const handleNavigation = (section: string) => {
-        if (onNavigate) {
-            onNavigate(section);
+        // Redirigir a la ruta correspondiente
+        switch (section) {
+            case 'inicio':
+                window.location.href = '/maestro';
+                break;
+            case 'alumnos':
+                window.location.href = '/maestro/alumnos';
+                break;
+            case 'agenda':
+                window.location.href = '/maestro/agenda';
+                break;
+            case 'historial':
+                window.location.href = '/maestro/historial';
+                break;
+            case 'tests':
+                window.location.href = '/maestro/tests';
+                break;
         }
     };
 

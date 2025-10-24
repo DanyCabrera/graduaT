@@ -56,11 +56,7 @@ export default function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                // Usar el nuevo sistema de sesiones
-                const { setSession } = await import('../../../utils/sessionManager');
-                setSession(data.token, data.user, data.user.Rol);
-
-                // También guardar en localStorage para compatibilidad con código existente
+                // Guardar en localStorage para compatibilidad con código existente
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.setItem('auth_token', data.token);

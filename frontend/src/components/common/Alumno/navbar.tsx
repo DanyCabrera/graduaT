@@ -25,13 +25,25 @@ interface NavbarProps {
     currentSection?: string;
 }
 
-export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio' }: NavbarProps) {
+export default function Navbar({ onLogout, currentSection = 'inicio' }: NavbarProps) {
     const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
     const isMobileMenuOpen = Boolean(mobileMenuAnchor);
 
     const handleNavigation = (section: string) => {
-        if (onNavigate) {
-            onNavigate(section);
+        // Redirigir a la ruta correspondiente
+        switch (section) {
+            case 'inicio':
+                window.location.href = '/alumno';
+                break;
+            case 'progreso':
+                window.location.href = '/alumno/progreso';
+                break;
+            case 'matematicas':
+                window.location.href = '/alumno/matematicas';
+                break;
+            case 'comunicacion':
+                window.location.href = '/alumno/comunicacion';
+                break;
         }
         // Cerrar menú móvil después de navegar
         setMobileMenuAnchor(null);

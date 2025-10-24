@@ -35,8 +35,26 @@ const menuItems = [
 
 export default function NavbarDirector({ onLogout, onNavigate, currentPage }: NavbarProps) {
     const handleNavigation = (page: string) => {
-        if (onNavigate) {
-            onNavigate(page);
+        // Redirigir a la ruta correspondiente
+        switch (page) {
+            case 'inicio':
+                window.location.href = '/director';
+                break;
+            case 'alumnos':
+                window.location.href = '/director/alumnos';
+                break;
+            case 'maestros':
+                window.location.href = '/director/maestros';
+                break;
+            case 'cursos':
+                window.location.href = '/director/cursos';
+                break;
+            case 'rendimiento':
+                window.location.href = '/director/rendimiento';
+                break;
+            case 'informacion':
+                window.location.href = '/director/informacion';
+                break;
         }
     };
 

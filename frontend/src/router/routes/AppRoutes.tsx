@@ -9,6 +9,26 @@ import Maestro from '../../pages/roles/maestro';
 import Director from '../../pages/roles/director'; 
 import Supervisor from '../../pages/roles/supervisor';
 
+//Alumno
+import ProgresoPage from '../../pages/roles/alumno/ProgresoPage';
+import MatematicasPage from '../../pages/roles/alumno/MatematicasPage';
+import ComunicacionPage from '../../pages/roles/alumno/ComunicacionPage';
+
+//Maestro
+import AgendaPage from '../../pages/roles/maestro/AgendaPage';
+import AlumnosPage from '../../pages/roles/maestro/AlumnosPage';
+import HistorialPage from '../../pages/roles/maestro/HistorialPage';
+import TestsPage from '../../pages/roles/maestro/TestsPage';
+
+//Director
+import DirectorAlumnosPage from '../../pages/roles/director/AlumnosPage';
+import DirectorMaestrosPage from '../../pages/roles/director/MaestrosPage';
+import DirectorCursosPage from '../../pages/roles/director/CursosPage';
+import DirectorRendimientoPage from '../../pages/roles/director/RendimientoPage';
+import DirectorInformacionPage from '../../pages/roles/director/InformacionPage';
+
+//Supervisor
+
 // Importar componentes
 import Login from '../../pages/auth/login/login';
 import CodigoAcceso from '../../components/forms/codigoAcceso';
@@ -45,6 +65,26 @@ export default function AppRoutes() {
       <Route path={ROUTES.MAESTRO} element={<Maestro />} />
       <Route path={ROUTES.DIRECTOR} element={<Director />} />
       <Route path={ROUTES.SUPERVISOR} element={<Supervisor />} />
+
+      {/*Alumno*/}
+      <Route path={ROUTES.PROGRESO} element={<ProgresoPage />} />
+      <Route path={ROUTES.ALUMNO_MATEMATICAS} element={<MatematicasPage />} />
+      <Route path={ROUTES.ALUMNO_COMUNICACION} element={<ComunicacionPage />} />
+      
+      {/*Maestro*/}
+      <Route path={ROUTES.MAESTRO_AGENDA} element={<AgendaPage />} />
+      <Route path={ROUTES.MAESTRO_ALUMNOS} element={<AlumnosPage />} />
+      <Route path={ROUTES.MAESTRO_HISTORIAL} element={<HistorialPage />} />
+      <Route path={ROUTES.MAESTRO_TESTS} element={<TestsPage />} />
+      
+      {/*Director*/}
+      <Route path={ROUTES.DIRECTOR_ALUMNOS} element={<DirectorAlumnosPage />} />
+      <Route path={ROUTES.DIRECTOR_MAESTROS} element={<DirectorMaestrosPage />} />
+      <Route path={ROUTES.DIRECTOR_CURSOS} element={<DirectorCursosPage />} />
+      <Route path={ROUTES.DIRECTOR_RENDIMIENTO} element={<DirectorRendimientoPage />} />
+      <Route path={ROUTES.DIRECTOR_INFORMACION} element={<DirectorInformacionPage />} />
+      
+      {/*Supervisor*/}
 
       {/* Sub-rutas de administración */}
       <Route path={`${ROUTES.ADMIN}/*`} element={<AdminRoutes />} />
