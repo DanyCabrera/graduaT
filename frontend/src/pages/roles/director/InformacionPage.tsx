@@ -66,29 +66,6 @@ export default function InformacionPage({ userData }: InformacionPageProps) {
         window.location.href = '/';
     };
 
-    const handleNavigation = (section: string) => {
-        // Redirigir a la ruta correspondiente
-        switch (section) {
-            case 'inicio':
-                window.location.href = '/director';
-                break;
-            case 'alumnos':
-                window.location.href = '/director/alumnos';
-                break;
-            case 'maestros':
-                window.location.href = '/director/maestros';
-                break;
-            case 'cursos':
-                window.location.href = '/director/cursos';
-                break;
-            case 'rendimiento':
-                window.location.href = '/director/rendimiento';
-                break;
-            case 'informacion':
-                window.location.href = '/director/informacion';
-                break;
-        }
-    };
 
     const clearSessionError = () => {
         setSessionError(null);
@@ -99,7 +76,6 @@ export default function InformacionPage({ userData }: InformacionPageProps) {
             <Box sx={{ display: "flex", minHeight: '100vh' }}>
                 <NavbarDirector
                     onLogout={handleLogout}
-                    onNavigate={handleNavigation}
                     currentPage="informacion"
                 />
                 <Box sx={{ 
@@ -107,7 +83,7 @@ export default function InformacionPage({ userData }: InformacionPageProps) {
                     ml: '280px', // Ajustar para el sidebar fijo
                     p: 3 
                 }}>
-                    <Informacion userData={userData} />
+                    <Informacion userData={userData || null} />
                 </Box>
             </Box>
             

@@ -68,26 +68,6 @@ export default function TestsPage({ userData }: TestsPageProps) {
         window.location.href = '/';
     };
 
-    const handleNavigation = (section: string) => {
-        // Redirigir a la ruta correspondiente
-        switch (section) {
-            case 'inicio':
-                window.location.href = '/maestro';
-                break;
-            case 'alumnos':
-                window.location.href = '/maestro/alumnos';
-                break;
-            case 'agenda':
-                window.location.href = '/maestro/agenda';
-                break;
-            case 'historial':
-                window.location.href = '/maestro/historial';
-                break;
-            case 'tests':
-                window.location.href = '/maestro/tests';
-                break;
-        }
-    };
 
     const clearSessionError = () => {
         setSessionError(null);
@@ -98,7 +78,6 @@ export default function TestsPage({ userData }: TestsPageProps) {
             <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
                 <Navbar
                     onLogout={handleLogout}
-                    onNavigate={handleNavigation}
                     currentSection="tests"
                 />
                 <Box sx={{ p: 1, textAlign: 'center' }}>

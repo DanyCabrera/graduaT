@@ -99,7 +99,6 @@ export default function RendimientoPage({ userData }: RendimientoPageProps) {
             <Box sx={{ display: "flex", minHeight: '100vh' }}>
                 <NavbarDirector
                     onLogout={handleLogout}
-                    onNavigate={handleNavigation}
                     currentPage="rendimiento"
                 />
                 <Box sx={{ 

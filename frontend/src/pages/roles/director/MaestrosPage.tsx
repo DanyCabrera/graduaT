@@ -99,7 +99,6 @@ export default function MaestrosPage({ userData }: MaestrosPageProps) {
             <Box sx={{ display: "flex", minHeight: '100vh' }}>
                 <NavbarDirector
                     onLogout={handleLogout}
-                    onNavigate={handleNavigation}
                     currentPage="maestros"
                 />
                 <Box sx={{ 

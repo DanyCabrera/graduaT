@@ -99,7 +99,6 @@ export default function CursosPage({ userData }: CursosPageProps) {
             <Box sx={{ display: "flex", minHeight: '100vh' }}>
                 <NavbarDirector
                     onLogout={handleLogout}
-                    onNavigate={handleNavigation}
                     currentPage="cursos"
                 />
                 <Box sx={{ 

@@ -15,12 +15,11 @@ import {
 
 interface NavbarProps {
     onLogout?: () => void;
-    onNavigate?: (section: string) => void;
     currentSection?: string;
     notificationCount?: number; // Contador de notificaciones
 }
 
-export default function Navbar({ onLogout, onNavigate, currentSection = 'inicio', notificationCount = 0 }: NavbarProps) {
+export default function Navbar({ onLogout, currentSection = 'inicio', notificationCount = 0 }: NavbarProps) {
     const handleNavigation = (section: string) => {
         // Redirigir a la ruta correspondiente
         switch (section) {

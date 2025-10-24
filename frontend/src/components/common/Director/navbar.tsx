@@ -20,7 +20,6 @@ import {
 
 interface NavbarProps {
     onLogout?: () => void;
-    onNavigate?: (page: string) => void;
     currentPage?: string;
 }
 
@@ -33,7 +32,7 @@ const menuItems = [
     { id: 'informacion', label: 'Información', icon: <Info /> }
 ];
 
-export default function NavbarDirector({ onLogout, onNavigate, currentPage }: NavbarProps) {
+export default function NavbarDirector({ onLogout, currentPage }: NavbarProps) {
     const handleNavigation = (page: string) => {
         // Redirigir a la ruta correspondiente
         switch (page) {
