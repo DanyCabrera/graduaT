@@ -117,11 +117,11 @@ export function FooterMaestro() {
                 >
                 <Typography variant="body2">
                     Autors:<br />
-                    Dany Cabrera,<br />
-                    Fernanda Rivera,<br />
-                    Andy Rojop,<br />
-                    Keyri Obando,<br />
-                    Erick Pérez.
+                    Dany Cabrera<br />
+                    Fernanda Rivera<br />
+                    Andy Rojop<br />
+                    Keyri Obando<br />
+                  
                 </Typography>
                 </Box>
 
@@ -140,11 +140,11 @@ export function FooterMaestro() {
             >
             <Typography variant="body2">
                 Autors:<br />
-                Dany Cabrera,<br />
-                Fernanda Rivera,<br />
-                Andy Rojop,<br />
-                Keyri Obando,<br />
-                Erick Pérez.
+                Dany Cabrera<br />
+                Fernanda Rivera<br />
+                Andy Rojop<br />
+                Keyri Obando<br />
+        
             </Typography>
             </Box>
 
@@ -274,11 +274,11 @@ export function FooterAlumno() {
                 >
                 <Typography variant="body2">
                     Autors:<br />
-                    Dany Cabrera,<br />
-                    Fernanda Rivera,<br />
-                    Andy Rojop,<br />
-                    Keyri Obando,<br />
-                    Erick Pérez.
+                    Dany Cabrera<br />
+                    Fernanda Rivera<br />
+                    Andy Rojop<br />
+                    Keyri Obando<br />
+               
                 </Typography>
                 </Box>
 
@@ -297,11 +297,11 @@ export function FooterAlumno() {
             >
             <Typography variant="body2">
                 Autors:<br />
-                Dany Cabrera,<br />
-                Fernanda Rivera,<br />
-                Andy Rojop,<br />
-                Keyri Obando,<br />
-                Erick Pérez.
+                Dany Cabrera<br />
+                Fernanda Rivera<br />
+                Andy Rojop<br />
+                Keyri Obando<br />
+         
             </Typography>
             </Box>
              
