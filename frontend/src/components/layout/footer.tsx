@@ -48,7 +48,7 @@ export function FooterMaestro() {
                         height: { xs: 160, sm: 160, md: 140 }, 
                         position: 'absolute',
                         right: { xs: 140, sm: 290, md: 670 }, 
-                        bottom: { xs: 210, sm: 271, md: 178 }, 
+                        bottom: { xs: 210, sm: 271, md: 205 }, 
                         zIndex: 10,
                         transform: 'rotate(-5deg)',
                         pointerEvents: 'none',
@@ -101,9 +101,17 @@ export function FooterMaestro() {
                 Collaboration with  Mariano Gálvez University, Retalhuleu.
             </Typography>
 
+             <Typography
+                variant="body2"
+                sx={{ textAlign: "center", mt: 3, mb: -2, color: "#e7e7e7ff" }}
+             
+            >
+                Autors: Dany Cabrera, Fernanda Rivera, Andy Rojop, Keyri Obando, Erick Pérez.
+            </Typography>
+
             <Typography
                 variant="body2"
-                sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
+                sx={{ textAlign: "center", mt: 3,  color: "#e7e7e7ff" }}
             >
                 © {new Date().getFullYear()} GraduaT. All rights reserved.
             </Typography>
@@ -120,7 +128,7 @@ export function FooterAlumno() {
 
                 bgcolor: "#36385fff",
                 color: "white",
-                mt: 4,
+                mt: 8,
                 py: 4,
                 px: 2,
                 position: 'relative',
@@ -205,10 +213,18 @@ export function FooterAlumno() {
 
              <Typography
                 variant="body2"
-                sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
+                sx={{ textAlign: "center", mt: 3, mb: -2, color: "#e7e7e7ff" }}
              
             >
                 Collaboration with Mariano Gálvez University, Retalhuleu.
+            </Typography>
+
+             <Typography
+                variant="body2"
+                sx={{ textAlign: "center", mt: 3, mb: -2,  color: "#e7e7e7ff" }}
+             
+            >
+                Autors: Dany Cabrera, Fernanda Rivera, Andy Rojop, Keyri Obando, Erick Pérez.
             </Typography>
 
             <Typography
