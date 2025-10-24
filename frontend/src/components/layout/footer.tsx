@@ -47,8 +47,8 @@ export function FooterMaestro() {
                         sx={{
                         height: { xs: 160, sm: 160, md: 140 }, 
                         position: 'absolute',
-                        right: { xs: 140, sm: 290, md: 670 }, 
-                        bottom: { xs: 210, sm: 271, md: 205 }, 
+                        right: { xs: 82, sm: 290, md: 670 }, 
+                        bottom: { xs: 390, sm: 271, md: 180 }, 
                         zIndex: 10,
                         transform: 'rotate(-5deg)',
                         pointerEvents: 'none',
@@ -96,18 +96,57 @@ export function FooterMaestro() {
 
             <Typography
                 variant="body2"
-                sx={{ textAlign: "center", mt: 4, mb: -2, color: "#e7e7e7ff" }}
+                sx={{ textAlign: "center", mt: 4, mb: -1, color: "#e7e7e7ff" }}
             >
                 Collaboration with  Mariano Gálvez University, Retalhuleu.
             </Typography>
 
-             <Typography
-                variant="body2"
-                sx={{ textAlign: "center", mt: 3, mb: -2, color: "#e7e7e7ff" }}
-             
+             {/* para pc*/}
+            <Box
+                sx={{
+                    display: { xs: 'none', md: 'block' }, 
+                    position: 'absolute',
+                    left: { md: '2%' },
+                    bottom: { md: '19%' },
+                    textAlign: 'left',
+                    color: "#e7e7e7ff",
+                    fontSize: '0.875rem',
+                    lineHeight: 1.4,
+                    zIndex: 2,
+                }}
+                >
+                <Typography variant="body2">
+                    Autors:<br />
+                    Dany Cabrera,<br />
+                    Fernanda Rivera,<br />
+                    Andy Rojop,<br />
+                    Keyri Obando,<br />
+                    Erick Pérez.
+                </Typography>
+                </Box>
+
+            {/* para celu*/}
+            <Box
+            sx={{
+                display: { xs: 'block', md: 'none' }, 
+                textAlign: 'center',
+                color: "#e7e7e7ff",
+                fontSize: '0.875rem',
+                lineHeight: 1.4,
+                mt: 2,
+                mb: -1,
+                pl: 1, 
+            }}
             >
-                Autors: Dany Cabrera, Fernanda Rivera, Andy Rojop, Keyri Obando, Erick Pérez.
+            <Typography variant="body2">
+                Autors:<br />
+                Dany Cabrera,<br />
+                Fernanda Rivera,<br />
+                Andy Rojop,<br />
+                Keyri Obando,<br />
+                Erick Pérez.
             </Typography>
+            </Box>
 
             <Typography
                 variant="body2"
@@ -213,20 +252,59 @@ export function FooterAlumno() {
 
              <Typography
                 variant="body2"
-                sx={{ textAlign: "center", mt: 3, mb: -2, color: "#e7e7e7ff" }}
+                sx={{ textAlign: "center", mt: 3, mb: -1.5, color: "#e7e7e7ff" }}
              
             >
                 Collaboration with Mariano Gálvez University, Retalhuleu.
             </Typography>
 
-             <Typography
-                variant="body2"
-                sx={{ textAlign: "center", mt: 3, mb: -2,  color: "#e7e7e7ff" }}
-             
-            >
-                Autors: Dany Cabrera, Fernanda Rivera, Andy Rojop, Keyri Obando, Erick Pérez.
-            </Typography>
+            {/* para pc */}
+            <Box
+                sx={{
+                    display: { xs: 'none', md: 'block' }, 
+                    position: 'absolute',
+                    left: { md: '2%' },
+                    bottom: { md: '19%' },
+                    textAlign: 'left',
+                    color: "#e7e7e7ff",
+                    fontSize: '0.875rem',
+                    lineHeight: 1.4,
+                    zIndex: 2,
+                }}
+                >
+                <Typography variant="body2">
+                    Autors:<br />
+                    Dany Cabrera,<br />
+                    Fernanda Rivera,<br />
+                    Andy Rojop,<br />
+                    Keyri Obando,<br />
+                    Erick Pérez.
+                </Typography>
+                </Box>
 
+            {/* para celu */}
+            <Box
+            sx={{
+                display: { xs: 'block', md: 'none' }, 
+                textAlign: 'center',
+                color: "#e7e7e7ff",
+                fontSize: '0.875rem',
+                lineHeight: 1.4,
+                mt: 2,
+                mb: -1,
+                pl: 1, 
+            }}
+            >
+            <Typography variant="body2">
+                Autors:<br />
+                Dany Cabrera,<br />
+                Fernanda Rivera,<br />
+                Andy Rojop,<br />
+                Keyri Obando,<br />
+                Erick Pérez.
+            </Typography>
+            </Box>
+             
             <Typography
                 variant="body2"
                 sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
