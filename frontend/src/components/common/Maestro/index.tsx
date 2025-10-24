@@ -105,9 +105,6 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
         window.location.href = '/';
     };
 
-    const handleNavigation = (section: string) => {
-        setCurrentSection(section);
-    };
 
     const refreshHistorial = () => {
         console.log('🔄 Refrescando historial...');
@@ -347,7 +344,6 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
                 <Box sx={{display: "flex", flexDirection: "column", minHeight: '100vh'}}>
                     <Navbar 
                         onLogout={handleLogout} 
-                        onNavigate={handleNavigation}
                         currentSection={currentSection}
                         notificationCount={notificationCount}
                     />

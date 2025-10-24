@@ -141,7 +141,6 @@ export default function Director() {
         }}>
             <NavbarDirector 
                 onLogout={handleLogout} 
-                onNavigate={handleNavigation}
                 currentPage={currentPage}
             />
             <Box sx={{ 
