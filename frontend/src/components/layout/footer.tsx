@@ -48,7 +48,7 @@ export function FooterMaestro() {
                         height: { xs: 160, sm: 160, md: 140 }, 
                         position: 'absolute',
                         right: { xs: 140, sm: 290, md: 670 }, 
-                        bottom: { xs: 210, sm: 271, md: 134 }, 
+                        bottom: { xs: 210, sm: 271, md: 178 }, 
                         zIndex: 10,
                         transform: 'rotate(-5deg)',
                         pointerEvents: 'none',
@@ -96,9 +96,16 @@ export function FooterMaestro() {
 
             <Typography
                 variant="body2"
+                sx={{ textAlign: "center", mt: 4, mb: -2, color: "#e7e7e7ff" }}
+            >
+                Collaboration with  Mariano Gálvez University, Retalhuleu.
+            </Typography>
+
+            <Typography
+                variant="body2"
                 sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
             >
-                © {new Date().getFullYear()} GraduaT. Todos los derechos reservados.
+                © {new Date().getFullYear()} GraduaT. All rights reserved.
             </Typography>
         </Box>
     );
@@ -196,11 +203,21 @@ export function FooterAlumno() {
                 </Box>
             </Box>
 
+             <Typography
+                variant="body2"
+                sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
+             
+            >
+                Collaboration with Mariano Gálvez University, Retalhuleu.
+            </Typography>
+
             <Typography
                 variant="body2"
                 sx={{ textAlign: "center", mt: 3, color: "#e7e7e7ff" }}
+
+             
             >
-                © {new Date().getFullYear()} GraduaT. Todos los derechos reservados.
+                © {new Date().getFullYear()} GraduaT. All rights reserved.
             </Typography>
         </Box>
     );
