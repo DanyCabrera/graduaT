@@ -5,12 +5,7 @@ import {
     Typography
 } from '@mui/material';
 import NavbarDirector from '../../components/common/Director/navbar';
-import InformacionDirector from '../../components/common/Director/informacion';
 import Dashboard from '../../components/common/Director/dashboard';
-import Alumnos from '../../components/common/Director/alumnos';
-import Maestros from '../../components/common/Director/maestros';
-import Cursos from '../../components/common/Director/cursos';
-import Rendimiento from '../../components/common/Director/rendimiento';
 import { getSessionToken, getSessionUser, getSessionRole } from '../../utils/authUtils';
 import { sessionManager } from '../../utils/sessionManager';
 
@@ -28,8 +23,6 @@ interface UserData {
 export default function Director() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState('inicio');
-
     const handleLogout = () => {
         // Limpiar sesión actual
         sessionManager.clearSessionManually();
@@ -43,27 +36,6 @@ export default function Director() {
         
         // Redirigir al inicio
         window.location.href = '/';
-    };
-
-    const handleNavigation = (page: string) => {
-        setCurrentPage(page);
-    };
-
-    const renderPageContent = () => {
-        switch (currentPage) {
-            case 'informacion':
-                return <InformacionDirector userData={userData} />;
-            case 'alumnos':
-                return <Alumnos userData={userData} />;
-            case 'maestros':
-                return <Maestros userData={userData} />;
-            case 'cursos':
-                return <Cursos userData={userData} />;
-            case 'rendimiento':
-                return <Rendimiento userData={userData} />;
-            default: // 'inicio'
-                return <Dashboard userData={userData} />;
-        }
     };
 
     useEffect(() => {
@@ -141,7 +113,7 @@ export default function Director() {
         }}>
             <NavbarDirector 
                 onLogout={handleLogout} 
-                currentPage={currentPage}
+                currentPage="inicio"
             />
             <Box sx={{ 
                 flex: 1,
@@ -150,7 +122,7 @@ export default function Director() {
                 backgroundColor: '#f5f5f5'
             }}>
                 <Box sx={{ p: 3 }}>
-                    {renderPageContent()}
+                    <Dashboard userData={userData} />
                 </Box>
             </Box>
         </Box>
