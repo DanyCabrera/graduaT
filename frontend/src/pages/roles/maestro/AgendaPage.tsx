@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import { FooterMaestro } from "../../../components/layout/footer";
-import Navbar from "../../../components/common/Maestro/navbar";
 import Agenda from "../../../components/common/Maestro/agenda";
+import MaestroShell from "../../../components/common/Maestro/MaestroShell";
 import { SessionErrorHandler } from '../../../components/common/SessionErrorHandler';
 import { apiService } from '../../../services/api';
 
@@ -75,17 +73,9 @@ export default function AgendaPage({ userData }: AgendaPageProps) {
 
     return (
         <>
-            <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
-                <Navbar
-                    onLogout={handleLogout}
-                    currentSection="agenda"
-                />
-                <Box sx={{ p: 1, textAlign: 'center' }}>
-                    <Agenda />
-                </Box>
-                <FooterMaestro />
-            </Box>
-            
+            <MaestroShell section="agenda" onLogout={handleLogout}>
+                <Agenda />
+            </MaestroShell>
             <SessionErrorHandler
                 error={sessionError}
                 onRetry={() => {

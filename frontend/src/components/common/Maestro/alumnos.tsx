@@ -24,6 +24,7 @@ import {
 import { Refresh } from '@mui/icons-material';
 import { testAssignmentService } from '../../../services/testAssignmentService';
 import { getSessionToken } from '../../../utils/authUtils';
+import { MaestroPage } from './MaestroShell';
 
 interface Alumno {
     Nombre: string;
@@ -220,29 +221,23 @@ export default function Alumnos() {
 
     if (error) {
         return (
-            <Box sx={{ p: 2 }}>
-                <Alert severity="error">{error}</Alert>
-            </Box>
+            <MaestroPage
+                kicker="GRUPO"
+                title="Alumnos"
+                description="Quienes están en tu institución y cómo les fue en cada evaluación."
+            >
+                <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
+            </MaestroPage>
         );
     }
 
     return (
-        <Box sx={{
-            p: 2,
-            minHeight: '100vh'
-        }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Typography
-                    variant="h5"
-                    sx={{
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        letterSpacing: '-0.5px'
-                    }}
-                >
-                    Gestión de Alumnos
-                </Typography>
-                {activeTab === 1 && (
+        <MaestroPage
+            kicker="GRUPO"
+            title="Alumnos"
+            description="Quienes están en tu institución y cómo les fue en cada evaluación."
+            meta={activeTab === 0 ? `${alumnos.length} en lista` : `${testResults.length} resultados`}
+            actions={activeTab === 1 ? (
                     <Button
                         variant="outlined"
                         startIcon={<Refresh />}
@@ -257,10 +252,10 @@ export default function Alumnos() {
                     >
                         {loadingTestResults ? 'Actualizando...' : 'Actualizar'}
                     </Button>
-                )}
-            </Box>
+            ) : undefined}
+        >
 
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Box sx={{ borderBottom: '1px solid #EEF0F6', mb: 2.5 }}>
                 <Tabs value={activeTab} onChange={handleTabChange}>
                     <Tab label="Lista de Alumnos" />
                     <Tab label="Resultados de Tests" />
@@ -272,10 +267,11 @@ export default function Alumnos() {
                 <TableContainer
                     component={Paper}
                     sx={{
-                        borderRadius: 2,
-                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                        overflow: 'hidden',
-                        border: '1px solid #e2e8f0'
+                        boxShadow: 'none',
+                        overflow: 'auto',
+                        border: '1px solid #EEF0F6',
+                        borderRadius: '24px',
+                        bgcolor: '#ffffff'
                     }}
                 >
                     <Table>
@@ -285,9 +281,9 @@ export default function Alumnos() {
                                     sx={{
                                         fontWeight: 600,
                                         fontSize: '0.875rem',
-                                        color: '#475569',
-                                        borderBottom: '2px solid #e2e8f0',
-                                        backgroundColor: '#fff',
+                                        color: '#8E93A8',
+                                        borderBottom: '1px solid #EEF0F6',
+                                        backgroundColor: '#F7F6FB',
                                         py: 2.5
                                     }}
                                 >
@@ -299,9 +295,9 @@ export default function Alumnos() {
                                         sx={{
                                             fontWeight: 600,
                                             fontSize: '0.875rem',
-                                            color: '#475569',
-                                            borderBottom: '2px solid #e2e8f0',
-                                            backgroundColor: '#fff',
+                                            color: '#8E93A8',
+                                            borderBottom: '1px solid #EEF0F6',
+                                            backgroundColor: '#F7F6FB',
                                             py: 2.5
                                         }}
                                     >
@@ -317,50 +313,46 @@ export default function Alumnos() {
                                         key={index}
                                         sx={{
                                             '&:hover': {
-                                                backgroundColor: '#f8fafc',
+                                                backgroundColor: 'rgba(109,94,246,0.05)',
                                                 '& td': {
-                                                    color: '#1e293b'
+                                                    color: '#1B1B3A'
                                                 }
                                             },
                                             transition: 'all 0.2s ease-in-out'
                                         }}
                                     >
                                         <TableCell sx={{
-                                            color: '#64748b',
+                                            color: '#3D4158',
                                             fontSize: '0.875rem',
                                             py: 2.5
                                         }}>
                                             {index + 1}
                                         </TableCell>
                                         <TableCell sx={{
-                                            color: '#64748b',
+                                            color: '#3D4158',
                                             fontSize: '0.875rem',
                                             py: 2.5
                                         }}>
                                             {alumno.Nombre}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {alumno.Apellido}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {alumno.Correo}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {alumno.Teléfono}
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell
-                                        colSpan={7}
-                                        sx={{
-                                            textAlign: 'center',
-                                            py: 8,
-                                            color: '#64748b'
-                                        }}
-                                    >
-                                        No hay alumnos registrados
+                                    <TableCell colSpan={5} sx={{ py: 5, px: 3 }}>
+                                        <Typography sx={{ fontWeight: 600, color: '#1B1B3A' }}>El grupo todavía no aparece aquí</Typography>
+                                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 0.5, maxWidth: 460 }}>
+                                            Los alumnos se listan cuando pertenecen a tu misma institución. Nombre, apellido, correo y teléfono quedan en esta tabla.
+                                        </Typography>
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -418,10 +410,11 @@ export default function Alumnos() {
                             <TableContainer
                                 component={Paper}
                                 sx={{
-                                    borderRadius: 2,
-                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                                    overflow: 'hidden',
-                                    border: '1px solid #e2e8f0'
+                                    boxShadow: 'none',
+                                    overflow: 'auto',
+                                    border: '1px solid #EEF0F6',
+                                    borderRadius: '24px',
+                                    bgcolor: '#ffffff'
                                 }}
                             >
                     <Table>
@@ -433,9 +426,9 @@ export default function Alumnos() {
                                         sx={{
                                             fontWeight: 600,
                                             fontSize: '0.875rem',
-                                            color: '#475569',
-                                            borderBottom: '2px solid #e2e8f0',
-                                            backgroundColor: '#fff',
+                                            color: '#8E93A8',
+                                            borderBottom: '1px solid #EEF0F6',
+                                            backgroundColor: '#F7F6FB',
                                             py: 2.5
                                         }}
                                     >
@@ -451,18 +444,18 @@ export default function Alumnos() {
                                         key={index}
                                         sx={{
                                             '&:hover': {
-                                                backgroundColor: '#f8fafc',
+                                                backgroundColor: 'rgba(109,94,246,0.05)',
                                                 '& td': {
-                                                    color: '#1e293b'
+                                                    color: '#1B1B3A'
                                                 }
                                             },
                                             transition: 'all 0.2s ease-in-out'
                                         }}
                                     >
-                                        <TableCell sx={{ color: '#64748b', py: 2.5 }}>
+                                        <TableCell sx={{ color: '#3D4158', py: 2.5 }}>
                                             {result.studentInfo.nombre} {result.studentInfo.apellido}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             <Chip 
                                                 label={result.testInfo.titulo}
                                                 color={result.testType === 'matematicas' ? 'primary' : 'success'}
@@ -470,17 +463,17 @@ export default function Alumnos() {
                                                 variant="outlined"
                                             />
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             Semana {result.testInfo.semana}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             <Chip 
                                                 label={`${result.score}%`}
                                                 color={getScoreColor(result.score)}
                                                 size="small"
                                             />
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             <Chip 
                                                 label={getScoreLabel(result.score)}
                                                 color={getScoreColor(result.score)}
@@ -488,31 +481,27 @@ export default function Alumnos() {
                                                 variant="outlined"
                                             />
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {result.correctAnswers}/{result.totalQuestions}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {formatDate(result.fechaAsignacion)}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {formatDate(result.submittedAt)}
                                         </TableCell>
-                                        <TableCell sx={{ color: '#64748b' }}>
+                                        <TableCell sx={{ color: '#3D4158' }}>
                                             {formatDate(result.fechaVencimiento)}
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : testResults.length === 0 ? (
                                 <TableRow>
-                                    <TableCell
-                                        colSpan={9}
-                                        sx={{
-                                            textAlign: 'center',
-                                            py: 8,
-                                            color: '#64748b'
-                                        }}
-                                    >
-                                        No hay resultados de tests disponibles
+                                    <TableCell colSpan={9} sx={{ py: 5, px: 3 }}>
+                                        <Typography sx={{ fontWeight: 600, color: '#1B1B3A' }}>Aún no hay resultados</Typography>
+                                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 0.5, maxWidth: 480 }}>
+                                            Cuando asignes una evaluación y un alumno la envíe, la nota, la semana y las fechas quedan en esta tabla.
+                                        </Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -522,7 +511,7 @@ export default function Alumnos() {
                                         sx={{
                                             textAlign: 'center',
                                             py: 8,
-                                            color: '#64748b'
+                                            color: '#3D4158'
                                         }}
                                     >
                                         No hay resultados de tests para la semana seleccionada
@@ -537,6 +526,6 @@ export default function Alumnos() {
                 </Box>
             )}
 
-        </Box>
+        </MaestroPage>
     );
 }

@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import { FooterMaestro } from "../../../components/layout/footer";
-import Navbar from "../../../components/common/Maestro/navbar";
 import Historial from "../../../components/common/Maestro/historial";
+import MaestroShell from "../../../components/common/Maestro/MaestroShell";
 import { SessionErrorHandler } from '../../../components/common/SessionErrorHandler';
 import { apiService } from '../../../services/api';
 
@@ -75,20 +73,12 @@ export default function HistorialPage({ userData }: HistorialPageProps) {
 
     return (
         <>
-            <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
-                <Navbar
-                    onLogout={handleLogout}
-                    currentSection="historial"
+            <MaestroShell section="historial" onLogout={handleLogout}>
+                <Historial
+                    refreshTrigger={0}
+                    onNotificationCountChange={() => {}}
                 />
-                <Box sx={{ p: 1, textAlign: 'center' }}>
-                    <Historial 
-                        refreshTrigger={0} 
-                        onNotificationCountChange={() => {}}
-                    />
-                </Box>
-                <FooterMaestro />
-            </Box>
-            
+            </MaestroShell>
             <SessionErrorHandler
                 error={sessionError}
                 onRetry={() => {

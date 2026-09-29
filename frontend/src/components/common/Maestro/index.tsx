@@ -2,30 +2,23 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import CardActionArea from "@mui/material/CardActionArea";
-import Fade from "@mui/material/Fade";
 import Button from "@mui/material/Button";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
+import { Calendar, BookCheck, Users, BookOpen } from 'lucide-react';
+import maestroImg from '../../../assets/ProfesorT.png';
 
-import { Calendar } from 'lucide-react'
-
-import { FooterMaestro }  from '../../layout/footer';
 import { SessionErrorHandler } from '../SessionErrorHandler';
 import { apiService } from '../../../services/api';
-// import { getMaestroSession } from '../../utils/sessionManager';
+import { API_BASE_URL } from '../../../constants';
+import { testAssignmentService, type TestAssignment } from '../../../services/testAssignmentService';
+import { getSessionToken } from '../../../utils/authUtils';
+import type { AgendaSemana } from '../../../services/agendaService';
 
-//Secciones del maestro
-import Navbar from "./navbar";
+import MaestroShell from "./MaestroShell";
 import Agenda from "./agenda";
 import Alumno from "./alumnos";
 import Historial from "./historial";
 import Test from "./test";
-
-//Logo de los cursos
-import LogoMatematica from "../../../assets/TortuMate.png";
-import LogoComunicacion from "../../../assets/TortuLenguaje.png";
 
 interface UserData {
     Usuario: string;
@@ -41,6 +34,383 @@ interface UserData {
 
 interface IndexMaestroProps {
     userData?: UserData | null;
+}
+
+const card = {
+    bgcolor: '#ffffff',
+    borderRadius: '20px',
+    boxShadow: '0 10px 30px rgba(80, 70, 140, 0.06)',
+    border: '1px solid #F3F4F8',
+};
+
+const tooltipStyle = {
+    borderRadius: 12,
+    border: 'none',
+    boxShadow: '0 8px 24px rgba(80, 70, 140, 0.12)',
+    fontSize: 13,
+};
+
+function ir(href: string) {
+    window.location.href = href;
+}
+
+function esComunicacion(nombre?: string) {
+    return (nombre || '').toLowerCase().includes('comun');
+}
+
+function InicioMaestro({ user }: { user: UserData | null }) {
+    const [agendas, setAgendas] = useState<AgendaSemana[]>([]);
+    const [tests, setTests] = useState<TestAssignment[]>([]);
+    const [alumnos, setAlumnos] = useState<string[]>([]);
+    const [loadingTests, setLoadingTests] = useState(true);
+    const [loadingAlumnos, setLoadingAlumnos] = useState(true);
+
+    const nombre = user ? `${user.Nombre} ${user.Apellido}`.trim() : 'Maestro';
+    const institucion = user?.Nombre_Institución || 'tu institución';
+
+    useEffect(() => {
+        try {
+            const userKey = user?.Usuario || 'unknown';
+            const saved = localStorage.getItem(`maestro_agenda_${userKey}`);
+            setAgendas(saved ? JSON.parse(saved) : []);
+        } catch {
+            setAgendas([]);
+        }
+    }, [user?.Usuario]);
+
+    useEffect(() => {
+        let activo = true;
+        (async () => {
+            try {
+                const response = await testAssignmentService.getAssignedTestsForTeacher();
+                if (!activo) return;
+                if (response.success && Array.isArray(response.data)) {
+                    const vistos = new Set<string>();
+                    setTests(response.data.filter((item) => {
+                        if (!item?.testId || vistos.has(item.testId)) return false;
+                        vistos.add(item.testId);
+                        return true;
+                    }));
+                } else {
+                    setTests([]);
+                }
+            } catch {
+                if (activo) setTests([]);
+            } finally {
+                if (activo) setLoadingTests(false);
+            }
+        })();
+        return () => { activo = false; };
+    }, []);
+
+    useEffect(() => {
+        let activo = true;
+        (async () => {
+            try {
+                const token = getSessionToken() || localStorage.getItem('token');
+                const codigo = user?.Código_Institución;
+                if (!token || !codigo) {
+                    setAlumnos([]);
+                    return;
+                }
+                const response = await fetch(`${API_BASE_URL}/alumnos/institucion/${encodeURIComponent(codigo)}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!response.ok) {
+                    setAlumnos([]);
+                    return;
+                }
+                const data = await response.json();
+                if (!activo) return;
+                const lista = Array.isArray(data.data) ? data.data : [];
+                setAlumnos(lista.map((alumno: { Nombre?: string; Apellido?: string; Usuario?: string }) => (
+                    [alumno.Nombre, alumno.Apellido].filter(Boolean).join(' ') || alumno.Usuario || 'Alumno'
+                )));
+            } catch {
+                if (activo) setAlumnos([]);
+            } finally {
+                if (activo) setLoadingAlumnos(false);
+            }
+        })();
+        return () => { activo = false; };
+    }, [user?.Código_Institución]);
+
+    const temas = agendas.reduce((total, agenda) => total + (agenda.temas?.length || 0), 0);
+    const barrasAgenda = agendas.map((agenda) => ({
+        nombre: `S${agenda.semana}`,
+        temas: agenda.temas?.length || 0,
+        fill: esComunicacion(agenda.nombre) ? '#3DDC97' : '#4C78F0',
+    }));
+    const barrasTests = [
+        { nombre: 'Matemáticas', total: tests.filter((test) => test.testType === 'matematicas').length, fill: '#7B61FF' },
+        { nombre: 'Comunicación', total: tests.filter((test) => test.testType === 'comunicacion').length, fill: '#F5C14A' },
+    ];
+    const kpis = [
+        { valor: agendas.length, etiqueta: 'Agendas', detalle: 'semanas listas', bg: '#FDE8EE', color: '#E15B86', icon: <Calendar size={16} /> },
+        { valor: loadingTests ? '…' : tests.length, etiqueta: 'Tests', detalle: 'pruebas del curso', bg: '#FFF4D4', color: '#E0A322', icon: <BookCheck size={16} /> },
+        { valor: loadingAlumnos ? '…' : alumnos.length, etiqueta: 'Alumnos', detalle: 'en la institución', bg: '#E4F8EA', color: '#2EBE78', icon: <Users size={16} /> },
+        { valor: temas, etiqueta: 'Temas', detalle: 'en las agendas', bg: '#EDE7FE', color: '#7A62F0', icon: <BookOpen size={16} /> },
+    ];
+    return (
+        <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 2.5 }}>
+                <Typography sx={{ fontSize: { xs: 26, md: 30 }, fontWeight: 700, letterSpacing: '-0.04em', color: '#1B1B3A' }}>
+                    Inicio
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                    <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+                        <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#1B1B3A', lineHeight: 1.2 }}>{nombre}</Typography>
+                        <Typography sx={{ fontSize: 12, color: '#8E93A8' }}>{institucion}</Typography>
+                    </Box>
+                    <Box
+                        component="img"
+                        src={maestroImg}
+                        alt="Maestro"
+                        sx={{ width: 52, height: 52, objectFit: 'contain' }}
+                    />
+                </Box>
+            </Box>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1.45fr 0.85fr' }, gap: 2, mb: 2 }}>
+                <Box sx={{ ...card, p: 2.25 }}>
+                    <Typography sx={{ fontWeight: 700, color: '#1B1B3A', fontSize: 16 }}>Resumen del aula</Typography>
+                    <Typography sx={{ color: '#8E93A8', fontSize: 13, mb: 2 }}>Agendas, tests y alumnos</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 1.25 }}>
+                        {kpis.map((item) => (
+                            <Box key={item.etiqueta} sx={{ bgcolor: item.bg, borderRadius: '16px', p: 1.6, minHeight: 124 }}>
+                                <Box sx={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: '10px',
+                                    bgcolor: 'rgba(255,255,255,0.72)',
+                                    color: item.color,
+                                    display: 'grid',
+                                    placeItems: 'center',
+                                    mb: 1.25,
+                                }}>
+                                    {item.icon}
+                                </Box>
+                                <Typography sx={{ fontSize: 26, fontWeight: 700, color: '#1B1B3A', lineHeight: 1 }}>{item.valor}</Typography>
+                                <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#1B1B3A', mt: 0.6 }}>{item.etiqueta}</Typography>
+                                <Typography sx={{ fontSize: 12, color: item.color, mt: 0.15 }}>{item.detalle}</Typography>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
+
+                <Box sx={{ ...card, p: 2.25 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                        <Box>
+                            <Typography sx={{ fontWeight: 700, color: '#1B1B3A', fontSize: 16 }}>Tests asignados</Typography>
+                            <Typography sx={{ color: '#8E93A8', fontSize: 13 }}>Por curso</Typography>
+                        </Box>
+                        <Abrir href="/maestro/tests" />
+                    </Box>
+                    {loadingTests ? (
+                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 4 }}>Cargando…</Typography>
+                    ) : tests.length === 0 ? (
+                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 4, lineHeight: 1.5 }}>
+                            Cuando asignes un test al curso, la comparación aparece aquí.
+                        </Typography>
+                    ) : (
+                        <Box sx={{ height: 210 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={barrasTests} barSize={36}>
+                                    <CartesianGrid vertical={false} stroke="#F1F2F6" />
+                                    <XAxis dataKey="nombre" tick={{ fill: '#8E93A8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                                    <YAxis allowDecimals={false} tick={{ fill: '#8E93A8', fontSize: 12 }} axisLine={false} tickLine={false} width={28} />
+                                    <Tooltip cursor={{ fill: 'rgba(109,94,246,0.06)' }} contentStyle={tooltipStyle} />
+                                    <Bar dataKey="total" radius={[8, 8, 0, 0]} name="Tests">
+                                        {barrasTests.map((item, index) => (
+                                            <Cell key={`${item.nombre}-${index}`} fill={item.fill} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </Box>
+                    )}
+                </Box>
+            </Box>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1.35fr 0.8fr 0.8fr' }, gap: 2 }}>
+                <Box sx={{ ...card, p: 2.25 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                        <Box>
+                            <Typography sx={{ fontWeight: 700, color: '#1B1B3A', fontSize: 16 }}>Agendas generadas</Typography>
+                            <Typography sx={{ color: '#8E93A8', fontSize: 13 }}>Temas por semana</Typography>
+                        </Box>
+                        <Abrir href="/maestro/agenda" />
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+                        <Leyenda color="#4C78F0" texto="Matemáticas" />
+                        <Leyenda color="#3DDC97" texto="Comunicación" />
+                    </Box>
+                    {agendas.length === 0 ? (
+                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 3, lineHeight: 1.5 }}>
+                            Genera la primera semana y el gráfico se llena con sus temas.
+                        </Typography>
+                    ) : (
+                        <Box sx={{ height: 210 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={barrasAgenda} barSize={22}>
+                                    <CartesianGrid vertical={false} stroke="#F1F2F6" />
+                                    <XAxis dataKey="nombre" tick={{ fill: '#8E93A8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                                    <YAxis allowDecimals={false} tick={{ fill: '#8E93A8', fontSize: 12 }} axisLine={false} tickLine={false} width={28} />
+                                    <Tooltip cursor={{ fill: 'rgba(76,120,240,0.06)' }} contentStyle={tooltipStyle} />
+                                    <Bar dataKey="temas" radius={[8, 8, 0, 0]} name="Temas">
+                                        {barrasAgenda.map((item, index) => (
+                                            <Cell key={`${item.nombre}-${index}`} fill={item.fill} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </Box>
+                    )}
+                </Box>
+
+                <Lista
+                    titulo="Tests"
+                    href="/maestro/tests"
+                    cargando={loadingTests}
+                    vacio="Todavía no hay tests asignados."
+                    total={tests.length}
+                >
+                    {tests.slice(0, 5).map((test) => (
+                        <Fila key={test.testId} titulo={test.test?.titulo || 'Test'} detalle={
+                            `${test.testType === 'matematicas' ? 'Matemáticas' : 'Comunicación'}${test.test?.semana ? ` · Semana ${test.test.semana}` : ''}`
+                        } extra={test.estado} extraColor={test.estado === 'completado' ? '#2EBE78' : '#6D5EF6'} />
+                    ))}
+                </Lista>
+
+                <Lista
+                    titulo="Alumnos"
+                    href="/maestro/alumnos"
+                    cargando={loadingAlumnos}
+                    vacio="Los alumnos de tu institución aparecen aquí."
+                    total={alumnos.length}
+                >
+                    {alumnos.slice(0, 5).map((alumno, index) => (
+                        <Fila key={`${alumno}-${index}`} titulo={alumno} pastilla={['#FDE8EE', '#FFF4D4', '#E4F8EA', '#EDE7FE'][index % 4]} tinta={['#E15B86', '#E0A322', '#2EBE78', '#7A62F0'][index % 4]} />
+                    ))}
+                </Lista>
+            </Box>
+        </Box>
+    );
+}
+
+function Abrir({ href }: { href: string }) {
+    return (
+        <Button
+            onClick={() => ir(href)}
+            sx={{
+                textTransform: 'none',
+                color: '#1B1B3A',
+                bgcolor: '#F4F5F8',
+                borderRadius: '12px',
+                px: 1.5,
+                py: 0.4,
+                minWidth: 0,
+                fontSize: 13,
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': { bgcolor: '#E9EBF2' },
+            }}
+        >
+            Abrir
+        </Button>
+    );
+}
+
+function Leyenda({ color, texto }: { color: string; texto: string }) {
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
+            <Box sx={{ width: 8, height: 8, borderRadius: '99px', bgcolor: color }} />
+            <Typography sx={{ fontSize: 12, color: '#8E93A8' }}>{texto}</Typography>
+        </Box>
+    );
+}
+
+function Fila({
+    titulo,
+    detalle,
+    extra,
+    extraColor,
+    pastilla,
+    tinta,
+}: {
+    titulo: string;
+    detalle?: string;
+    extra?: string;
+    extraColor?: string;
+    pastilla?: string;
+    tinta?: string;
+}) {
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, py: 1.1, borderTop: '1px solid #F3F4F8' }}>
+            {pastilla && (
+                <Box sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '10px',
+                    bgcolor: pastilla,
+                    color: tinta,
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                }}>
+                    {titulo.trim().charAt(0).toUpperCase()}
+                </Box>
+            )}
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography sx={{ fontWeight: 600, color: '#1B1B3A', fontSize: 14 }} noWrap>{titulo}</Typography>
+                {detalle && <Typography sx={{ color: '#8E93A8', fontSize: 12 }} noWrap>{detalle}</Typography>}
+            </Box>
+            {extra && (
+                <Typography sx={{ color: extraColor || '#6D5EF6', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', flexShrink: 0 }}>
+                    {extra}
+                </Typography>
+            )}
+        </Box>
+    );
+}
+
+function Lista({
+    titulo,
+    href,
+    cargando,
+    vacio,
+    total,
+    children,
+}: {
+    titulo: string;
+    href: string;
+    cargando: boolean;
+    vacio: string;
+    total: number;
+    children: React.ReactNode;
+}) {
+    return (
+        <Box sx={{ ...card, p: 2.25 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography sx={{ fontWeight: 700, color: '#1B1B3A', fontSize: 16 }}>{titulo}</Typography>
+                <Abrir href={href} />
+            </Box>
+            {cargando ? (
+                <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 1.5 }}>Cargando…</Typography>
+            ) : total === 0 ? (
+                <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 1.5, lineHeight: 1.5 }}>{vacio}</Typography>
+            ) : (
+                <Box>
+                    {children}
+                    {total > 5 && (
+                        <Typography sx={{ color: '#8E93A8', fontSize: 12, mt: 1.25 }}>y {total - 5} más</Typography>
+                    )}
+                </Box>
+            )}
+        </Box>
+    );
 }
 
 const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
@@ -124,234 +494,39 @@ const IndexMaestro: React.FC<IndexMaestroProps> = ({ userData }) => {
         setSessionError(null);
     };
 
-    // Definir información de cursos disponibles
-    const cursosDisponibles = {
-        'Matemáticas': {
-            titulo: 'Matemáticas',
-            descripcion: 'Curso de matemáticas básicas',
-            imagen: LogoMatematica,
-            url: 'https://es.khanacademy.org/math'
-        },
-        'Comunicación y lenguaje': {
-            titulo: 'Comunicación y Lenguaje',
-            descripcion: 'Curso de lectura y escritura',
-            imagen: LogoComunicacion,
-            url: 'https://es.khanacademy.org/humanities/grammar'
-        }
-    };
-
-    // Obtener solo los cursos asignados al maestro
-    const cursosAsignados = userData?.CURSO || [];
-
     const renderContent = () => {
         switch (currentSection) {
             case 'agenda':
-                return (
-                    <Box sx={{ p: 1, textAlign: 'center' }}>
-                        <Agenda />
-                    </Box>
-                );
+                return <Agenda />;
             case 'alumnos':
-                return (
-                    <Box sx={{ p: 1, textAlign: 'center' }}>
-                        <Alumno />
-                    </Box>
-                );
+                return <Alumno />;
             case 'historial':
                 return (
-                    <Box sx={{ p: 1, textAlign: 'center' }}>
-                        <Historial 
-                            refreshTrigger={historialRefreshTrigger} 
-                            onNotificationCountChange={updateNotificationCount}
-                        />
-                    </Box>
+                    <Historial
+                        refreshTrigger={historialRefreshTrigger}
+                        onNotificationCountChange={updateNotificationCount}
+                    />
                 );
             case 'tests':
-                return (
-                    <Box sx={{ p: 1, textAlign: 'center' }}>
-                        <Test onTestsCleared={refreshHistorial} />
-                    </Box>
-                );
-                return (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 3 }}>
-                            Curso de Comunicación y Lenguaje
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: "#666", mb: 4 }}>
-                            Gestiona el contenido y actividades del curso de Comunicación y Lenguaje
-                        </Typography>
-                        {/* Aquí puedes agregar más contenido específico para comunicación */}
-                        <Box sx={{ 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            gap: 2, 
-                            flexWrap: 'wrap' 
-                        }}>
-                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6">Lectura</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Materiales de lectura
-                                </Typography>
-                            </Card>
-                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6">Escritura</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Ejercicios de escritura
-                                </Typography>
-                            </Card>
-                            <Card sx={{ width: 200, p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6">Comprensión</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Actividades de comprensión
-                                </Typography>
-                            </Card>
-                        </Box>
-                    </Box>
-                );
+                return <Test onTestsCleared={refreshHistorial} />;
             default:
-                return (
-                    <Box sx={{flexGrow: 1, p: 7 }}>
-                        {/* Saludo */}
-                        <Box sx={{ mb: 4, textAlign: 'center' }}>
-                            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#333", mb: 1 }}>
-                                Bienvenido, Prof. {userData ? `${userData.Nombre} ${userData.Apellido}` : 'Maestro'}
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: "#666" }}>
-                                {userData?.Nombre_Institución || 'tu institución'}
-                            </Typography>
-                        </Box>
-
-                        {/* Grid de cursos dinámico */}
-                        {cursosAsignados.length > 0 ? (
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    justifyContent: "center",
-                                    gap: 5,
-                                }}
-                            >
-                                {cursosAsignados.map((cursoNombre, index) => {
-                                    const cursoInfo = cursosDisponibles[cursoNombre as keyof typeof cursosDisponibles];
-                                    if (!cursoInfo) return null;
-                                    
-                                    return (
-                                        <Card 
-                                            key={index} 
-                                            elevation={0}
-                                            sx={{ 
-                                                width: {xs: '300px', sm: '700px', md: '700px'}, 
-                                                minHeight: {xs: '450px', sm: '300px', md: '300px'}, 
-                                                borderRadius: 4,
-                                                border: 1,
-                                                borderColor: '#00000019',
-                                                mb: {xs: 8, sm: 4, md: 4},
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                bgcolor: '#ededed77'
-                                            }} 
-                                            >
-                                            <CardActionArea
-                                                onClick={() => {
-                                                    // Determinar qué caso activar basado en el nombre del curso
-                                                    if (cursoNombre === 'Matemáticas') {
-                                                        setCurrentSection('agenda');
-                                                    } else if (cursoNombre === 'Comunicación y lenguaje') {
-                                                        setCurrentSection('agenda');
-                                                    }
-                                                }}
-                                                sx={{
-                                                    display: 'flex',
-                                                    flexDirection: {xs: 'column', sm: 'row', md: 'row'},
-                                                    width: {xs: '300px', sm: '700px', md: '700px'},
-                                                    height: {xs: '450px', sm: '300px', md: '300px'},
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    cursor: 'pointer',
-                                                    p: 2
-                                                }}
-                                            >
-                                                <CardMedia
-                                                    component="img"
-                                                    image={cursoInfo.imagen}
-                                                    alt={cursoInfo.titulo}
-                                                    sx={{ 
-                                                        height: {xs: '60%', sm: '100%'}, 
-                                                        objectFit: 'contain',
-                                                        p: 2,
-                                                    }}
-                                                />
-                                                <CardContent    
-                                                    sx={{
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'start',
-                                                        p: 2
-                                                    }}
-                                                >
-                                                    <Typography 
-                                                        variant="h6"
-                                                        sx={{
-                                                            fontWeight: 'bold',
-                                                            fontSize: {xs: '1.1rem', sm: '1.5rem'}
-                                                        }}
-                                                    >
-                                                        {cursoInfo.titulo}
-                                                    </Typography>
-                                                    <Typography color="text.secondary">
-                                                        {cursoInfo.descripcion}
-                                                    </Typography>
-                                                    <Button
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        color="success"
-                                                        startIcon={<Calendar />}
-                                                        sx={{
-                                                            mt: 2
-                                                        }}
-                                                    >
-                                                        Agenda
-                                                    </Button>
-                                                </CardContent>
-                                            </CardActionArea>
-                                        </Card>
-                                    );
-                                })}
-                            </Box>
-                        ) : (
-                            <Box sx={{ textAlign: 'center', py: 4 }}>
-                                <Typography variant="h6" color="text.secondary">
-                                    No tienes cursos asignados aún
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                    Contacta con tu administrador para asignarte cursos
-                                </Typography>
-                            </Box>
-                        )}
-                    </Box>
-                );
+                return <InicioMaestro user={userData ?? null} />;
         }
     };
 
+    const shellSection = (['inicio', 'alumnos', 'agenda', 'historial', 'tests'].includes(currentSection)
+        ? currentSection
+        : 'inicio') as 'inicio' | 'alumnos' | 'agenda' | 'historial' | 'tests';
+
     return (
         <>
-            <Fade in={true} timeout={800}>
-                <Box sx={{display: "flex", flexDirection: "column", minHeight: '100vh'}}>
-                    <Navbar 
-                        onLogout={handleLogout} 
-                        currentSection={currentSection}
-                        notificationCount={notificationCount}
-                    />
-                    {renderContent()}
-                    <FooterMaestro />
-                </Box>
-            </Fade>
-            
+            <MaestroShell
+                section={shellSection}
+                onLogout={handleLogout}
+                notificationCount={notificationCount}
+            >
+                {renderContent()}
+            </MaestroShell>
             <SessionErrorHandler
                 error={sessionError}
                 onRetry={() => {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MaestroPage } from './MaestroShell';
 import {
     Box,
     Typography,
@@ -9,17 +10,12 @@ import {
     ListItemText,
     ListItemIcon,
     Chip,
-    IconButton,
     Button,
     Alert,
     CircularProgress,
     Divider,
-    Badge,
-    Tooltip
 } from '@mui/material';
 import {
-    Notifications,
-    NotificationsActive,
     CheckCircle,
     Quiz,
     School,
@@ -173,77 +169,57 @@ export default function Historial({ refreshTrigger, onNotificationCountChange }:
 
     if (error) {
         return (
-            <Box sx={{ p: 2 }}>
-                <Alert severity="error">{error}</Alert>
-            </Box>
+            <MaestroPage
+                kicker="ACTIVIDAD"
+                title="Historial"
+                description="Cada vez que un alumno termina una evaluación, el aviso queda aquí para que lo revises."
+            >
+                <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
+            </MaestroPage>
         );
     }
 
     return (
-        <Box sx={{ p: 4, minHeight: '100vh'}}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Typography
-                    variant="h4"
-                    sx={{
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        letterSpacing: '-0.5px'
-                    }}
+        <MaestroPage
+            kicker="ACTIVIDAD"
+            title="Historial"
+            description="Cada vez que un alumno termina una evaluación, el aviso queda aquí para que lo revises."
+            meta={notifications.length === 0 ? 'Bandeja en cero' : `${notifications.length} pendientes`}
+            actions={notifications.length > 0 ? (
+                <Button
+                    variant="outlined"
+                    startIcon={<ClearAll />}
+                    onClick={clearAllNotifications}
+                    disabled={clearingNotifications}
+                    sx={{ textTransform: 'none', borderColor: '#D9D4F8', color: '#1B1B3A', borderRadius: '999px' }}
                 >
-                    Historial y Notificaciones
-                </Typography>
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    {notifications.length > 0 && (
-                        <Button
-                            variant="outlined"
-                            color="warning"
-                            startIcon={<ClearAll />}
-                            onClick={clearAllNotifications}
-                            disabled={clearingNotifications}
-                            sx={{
-                                textTransform: 'none',
-                                fontWeight: 500
-                            }}
-                        >
-                            {clearingNotifications ? 'Limpiando...' : 'Limpiar Notificaciones'}
-                        </Button>
-                    )}
-                    
-                    <Tooltip title="Notificaciones">
-                        <IconButton 
-                            sx={{ 
-                                color: notifications.length > 0 ? '#f59e0b' : '#6b7280',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(245, 158, 11, 0.1)'
-                                }
-                            }}
-                        >
-                            <Badge badgeContent={notifications.length} color="error">
-                                {notifications.length > 0 ? <NotificationsActive /> : <Notifications />}
-                            </Badge>
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box>
+                    {clearingNotifications ? 'Limpiando...' : 'Marcar todo'}
+                </Button>
+            ) : undefined}
+        >
 
             {notifications.length === 0 ? (
-                <Card sx={{ textAlign: 'center', py: 6 }}>
-                    <CardContent>
-                        <Notifications sx={{ fontSize: 64, color: '#94a3b8', mb: 2 }} />
-                        <Typography variant="h6" color="text.secondary" gutterBottom>
-                            No hay notificaciones nuevas
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5 }}>
+                    <Box sx={{ bgcolor: '#ffffff', border: '1px solid #EEF0F6', borderRadius: '24px', p: 2.5 }}>
+                        <Typography sx={{ fontWeight: 600, color: '#1B1B3A' }}>Nada nuevo por ahora</Typography>
+                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 0.75, lineHeight: 1.55 }}>
+                            La bandeja se llena sola. No hace falta recargar el aula: cuando haya un resultado, el contador del menú también cambia.
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Te notificaremos cuando los estudiantes completen sus tests
-                        </Typography>
-                    </CardContent>
-                </Card>
+                    </Box>
+                    <Box sx={{ bgcolor: '#ffffff', border: '1px solid #E6E0FB', borderRadius: '24px', overflow: 'hidden' }}>
+                        {['Asignas una evaluación', 'El alumno la responde', 'El resultado llega a esta lista'].map((step, index) => (
+                            <Box key={step} sx={{ px: 2.5, py: 1.75, display: 'flex', gap: 1.5, borderTop: index === 0 ? 0 : '1px solid #F3F4F8' }}>
+                                <Typography sx={{ color: '#6D5EF6', fontSize: 13, fontWeight: 700, width: 16 }}>{index + 1}</Typography>
+                                <Typography sx={{ color: '#1B1B3A', fontSize: 14 }}>{step}</Typography>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
             ) : (
-                <Card sx={{ borderRadius: 2, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+                <Card sx={{ borderRadius: '24px', boxShadow: 'none', border: '1px solid #EEF0F6', bgcolor: '#ffffff' }}>
                     <CardContent sx={{ p: 0 }}>
-                        <Box sx={{ p: 3, borderBottom: '1px solid #e2e8f0' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                        <Box sx={{ p: 3, borderBottom: '1px solid #EEF0F6' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: '#1B1B3A' }}>
                                 Notificaciones Recientes
                             </Typography>
                         </Box>
@@ -318,6 +294,6 @@ export default function Historial({ refreshTrigger, onNotificationCountChange }:
                     </CardContent>
                 </Card>
             )}
-        </Box>
+        </MaestroPage>
     );
 }

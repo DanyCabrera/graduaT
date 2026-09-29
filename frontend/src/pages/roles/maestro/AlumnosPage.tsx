@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import { FooterMaestro } from "../../../components/layout/footer";
-import Navbar from "../../../components/common/Maestro/navbar";
 import Alumno from "../../../components/common/Maestro/alumnos";
+import MaestroShell from "../../../components/common/Maestro/MaestroShell";
 import { SessionErrorHandler } from '../../../components/common/SessionErrorHandler';
 import { apiService } from '../../../services/api';
 
@@ -75,17 +73,9 @@ export default function AlumnosPage({ userData }: AlumnosPageProps) {
 
     return (
         <>
-            <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
-                <Navbar
-                    onLogout={handleLogout}
-                    currentSection="alumnos"
-                />
-                <Box sx={{ p: 1, textAlign: 'center' }}>
-                    <Alumno />
-                </Box>
-                <FooterMaestro />
-            </Box>
-            
+            <MaestroShell section="alumnos" onLogout={handleLogout}>
+                <Alumno />
+            </MaestroShell>
             <SessionErrorHandler
                 error={sessionError}
                 onRetry={() => {

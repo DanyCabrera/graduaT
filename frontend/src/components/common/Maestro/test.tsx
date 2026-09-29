@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../../../constants";
+import { MaestroPage } from './MaestroShell';
 import { useState, useEffect } from 'react';
 import {
     Box,
@@ -7,7 +8,6 @@ import {
     CardContent,
     Checkbox,
     Button,
-    Fade,
     Tabs,
     Tab,
     Dialog,
@@ -117,17 +117,19 @@ export default function Test({ onTestsCleared }: TestProps) {
                     return;
                 }
 
-                // Obtener cursos del maestro desde los datos del usuario
                 const cursos = user.CURSO || [];
                 setMaestroCursos(cursos);
-                console.log('✅ Cursos del maestro cargados desde sesión aislada:', cursos);
+                if (cursos.length === 0) {
+                    setLoading(false);
+                }
             } else {
-                console.log('❌ No se encontraron datos de usuario en la sesión aislada');
                 setError('No se encontraron datos de usuario. Por favor, inicia sesión nuevamente.');
+                setLoading(false);
             }
         } catch (error) {
             console.error('Error loading maestro data:', error);
             setError('Error al cargar los datos del maestro.');
+            setLoading(false);
         }
     };
 
@@ -442,98 +444,58 @@ export default function Test({ onTestsCleared }: TestProps) {
 
     return (
         <>
-            <Fade in={true} timeout={800}>
-                <Box sx={{ p: 2, minHeight: '100vh'}}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                        <Typography
-                            variant="h4"
-                            sx={{
-                                fontWeight: 500,
-                                color: '#1e293b',
-                                letterSpacing: '-0.5px'
-                            }}
-                        >
-                            Asignar Evaluaciones
-                        </Typography>
-
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<Delete />}
-                            onClick={handleClearAllTests}
-                            sx={{
-                                textTransform: 'none',
-                                borderRadius: 2,
-                                px: 3,
-                                py: 1
-                            }}
-                        >
-                            Limpiar Tests
-                        </Button>
-
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            startIcon={<Refresh />}
-                            onClick={handleReassignTests}
-                            disabled={reassigning}
-                            sx={{
-                                textTransform: 'none',
-                                borderRadius: 2,
-                                px: 3,
-                                py: 1,
-                                ml: 2,
-                                display: 'none'
-                            }}
-                        >
-                            {reassigning ? 'Reasignando...' : 'Reasignar Tests'}
-                        </Button>
-                    </Box>
-
-                    {/* Botón de asignar */}
-                    <Box sx={{ mt: 4, textAlign: 'center' }}>
-                        <Button
-                            variant="contained"
-                            disabled={getSelectedCount() === 0}
-                            onClick={handleAssignTests}
-                            startIcon={<Assignment />}
-                            sx={{
-                                px: 4,
-                                py: 1.5,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                fontSize: '1rem',
-                                backgroundColor: getSelectedCount() > 0 ? '#3b82f6' : '#cbd5e1',
-                                '&:hover': {
-                                    backgroundColor: getSelectedCount() > 0 ? '#2563eb' : '#cbd5e1'
-                                },
-                                '&:disabled': {
-                                    backgroundColor: '#cbd5e1',
-                                    color: '#94a3b8'
-                                }
-                            }}
-                        >
-                            {getSelectedCount() > 0
-                                ? `Asignar ${getSelectedCount()} evaluaciones seleccionadas`
-                                : 'Selecciona al menos una evaluación'
-                            }
-                        </Button>
-                    </Box>
+                <MaestroPage
+                    kicker="EVALUACIÓN"
+                    title="Tests"
+                    description="Marca las pruebas de la semana y asígnalas al grupo. Las que ya están asignadas se quedan visibles para no repetirlas."
+                    meta={getSelectedCount() > 0 ? `${getSelectedCount()} seleccionadas` : 'Ninguna seleccionada'}
+                    actions={
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            <Button
+                                variant="text"
+                                startIcon={<Delete />}
+                                onClick={handleClearAllTests}
+                                sx={{ textTransform: 'none', color: '#6D5EF6', borderRadius: '12px' }}
+                            >
+                                Quitar asignaciones
+                            </Button>
+                            <Button
+                                variant="contained"
+                                disableElevation
+                                disabled={getSelectedCount() === 0}
+                                onClick={handleAssignTests}
+                                startIcon={<Assignment />}
+                                sx={{
+                                    textTransform: 'none',
+                                    bgcolor: '#6D5EF6',
+                                    color: '#ffffff',
+                                    borderRadius: '12px',
+                                    boxShadow: 'none',
+                                    '&:hover': { bgcolor: '#5B4DE0' },
+                                }}
+                            >
+                                {getSelectedCount() > 0 ? `Asignar ${getSelectedCount()}` : 'Asignar'}
+                            </Button>
+                        </Box>
+                    }
+                >
 
 
                     {error && (
-                        <Alert severity="error" sx={{ mb: 3 }}>
+                        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
                             {error}
                         </Alert>
                     )}
 
-                    {maestroCursos.length === 0 && (
-                        <Alert severity="info" sx={{ mb: 3 }}>
-                            No tienes cursos asignados. Contacta al administrador para asignarte cursos.
-                        </Alert>
+                    {!error && maestroCursos.length === 0 && (
+                        <Box sx={{ bgcolor: '#ffffff', border: '1px solid #EEF0F6', borderRadius: '24px', p: 2.5 }}>
+                            <Typography sx={{ fontWeight: 600, color: '#1B1B3A' }}>Todavía no hay cursos en esta cuenta</Typography>
+                            <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 0.75, maxWidth: 520 }}>
+                                Cuando dirección te asigne Matemáticas o Comunicación, las pruebas de cada semana aparecen aquí para marcarlas y enviarlas al grupo.
+                            </Typography>
+                        </Box>
                     )}
 
-                    {/* Tabs para seleccionar curso */}
                     {maestroCursos.length > 0 && (
                         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                             <Tabs value={selectedTab} onChange={handleTabChange} centered>
@@ -557,7 +519,7 @@ export default function Test({ onTestsCleared }: TestProps) {
                         </Box>
                     )}
 
-                    {/* Lista de tests */}
+                    {maestroCursos.length > 0 && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {(() => {
                             // Determinar qué curso mostrar basado en los cursos del maestro
@@ -570,9 +532,12 @@ export default function Test({ onTestsCleared }: TestProps) {
 
                             if (currentTests.length === 0) {
                                 return (
-                                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                                        <Typography variant="h6" color="text.secondary">
-                                            No hay tests disponibles para {currentCourse === 'matematicas' ? 'Matemáticas' : 'Comunicación'}
+                                    <Box sx={{ bgcolor: '#ffffff', border: '1px solid #EEF0F6', borderRadius: '24px', p: 2.5 }}>
+                                        <Typography sx={{ fontWeight: 600, color: '#1B1B3A' }}>
+                                            No hay pruebas de {currentCourse === 'matematicas' ? 'Matemáticas' : 'Comunicación'} en esta cuenta
+                                        </Typography>
+                                        <Typography sx={{ color: '#8E93A8', fontSize: 14, mt: 0.75, maxWidth: 520 }}>
+                                            Si el curso está asignado, las evaluaciones de cada semana aparecen en esta lista para marcarlas y enviarlas al grupo.
                                         </Typography>
                                     </Box>
                                 );
@@ -583,9 +548,10 @@ export default function Test({ onTestsCleared }: TestProps) {
                                     key={test._id}
                                     sx={{
                                         display: 'flex',
-                                        borderRadius: 2,
-                                        border: '1px solid #e2e8f0',
-                                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                        border: '1px solid #EEF0F6',
+                                        borderRadius: '22px',
+                                        bgcolor: '#ffffff',
+                                        boxShadow: 'none',
                                         transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                                         '&:hover': {
                                             transform: 'translateY(-2px)',
@@ -598,7 +564,7 @@ export default function Test({ onTestsCleared }: TestProps) {
                                             display: 'flex',
                                             alignItems: 'center',
                                             p: 2,
-                                            color: currentCourse === 'matematicas' ? '#3b82f6' : '#10b981'
+                                            color: currentCourse === 'matematicas' ? '#6D5EF6' : '#7A62F0'
                                         }}
                                     >
                                         <Box sx={{ fontSize: '2rem' }}>
@@ -612,7 +578,7 @@ export default function Test({ onTestsCleared }: TestProps) {
                                                 variant="h6"
                                                 sx={{
                                                     fontWeight: 500,
-                                                    color: assignedTests.has(test._id) ? '#94a3b8' : '#334155',
+                                                    color: assignedTests.has(test._id) ? '#8E93A8' : '#1B1B3A',
                                                     mb: 0.5,
                                                     textDecoration: assignedTests.has(test._id) ? 'line-through' : 'none',
                                                     opacity: assignedTests.has(test._id) ? 0.7 : 1
@@ -633,7 +599,7 @@ export default function Test({ onTestsCleared }: TestProps) {
                                                 sx={{
                                                     display: 'flex',
                                                     gap: 2,
-                                                    color: '#94a3b8',
+                                                    color: '#8E93A8',
                                                     fontSize: '0.875rem',
                                                     alignItems: 'center'
                                                 }}
@@ -685,12 +651,12 @@ export default function Test({ onTestsCleared }: TestProps) {
                                             onChange={() => handleTestSelect(test._id)}
                                             disabled={assignedTests.has(test._id)}
                                             sx={{
-                                                color: assignedTests.has(test._id) ? '#e2e8f0' : '#cbd5e1',
+                                                color: '#C9C4F0',
                                                 '&.Mui-checked': {
-                                                    color: '#3b82f6'
+                                                    color: '#6D5EF6'
                                                 },
                                                 '&.Mui-disabled': {
-                                                    color: '#e2e8f0'
+                                                    color: 'rgba(142,147,168,0.45)'
                                                 }
                                             }}
                                         />
@@ -699,10 +665,10 @@ export default function Test({ onTestsCleared }: TestProps) {
                             ));
                         })()}
                     </Box>
+                    )}
 
 
-                </Box>
-            </Fade>
+                </MaestroPage>
 
             {/* Dialog para vista previa del test */}
             <Dialog

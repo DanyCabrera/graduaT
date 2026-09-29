@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import { FooterMaestro } from "../../../components/layout/footer";
-import Navbar from "../../../components/common/Maestro/navbar";
 import Test from "../../../components/common/Maestro/test";
+import MaestroShell from "../../../components/common/Maestro/MaestroShell";
 import { SessionErrorHandler } from '../../../components/common/SessionErrorHandler';
 import { apiService } from '../../../services/api';
 
@@ -75,17 +73,9 @@ export default function TestsPage({ userData }: TestsPageProps) {
 
     return (
         <>
-            <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
-                <Navbar
-                    onLogout={handleLogout}
-                    currentSection="tests"
-                />
-                <Box sx={{ p: 1, textAlign: 'center' }}>
-                    <Test onTestsCleared={() => {}} />
-                </Box>
-                <FooterMaestro />
-            </Box>
-            
+            <MaestroShell section="tests" onLogout={handleLogout}>
+                <Test onTestsCleared={() => {}} />
+            </MaestroShell>
             <SessionErrorHandler
                 error={sessionError}
                 onRetry={() => {

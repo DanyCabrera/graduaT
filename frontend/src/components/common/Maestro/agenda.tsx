@@ -26,6 +26,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Masonry from '@mui/lab/Masonry';
 import { useState, useEffect } from 'react';
 import { agendaService, type AgendaSemana, type EstructuraTema } from '../../../services/agendaService';
+import { MaestroPage } from './MaestroShell';
 
 export default function Agenda() {
     const [agenda, setAgenda] = useState<AgendaSemana[]>([]);
@@ -210,74 +211,60 @@ export default function Agenda() {
 
     return (
         <Fade in={true} timeout={800}>
-            <Container maxWidth="xl" sx={{ py: 2, minHeight: '100vh' }}>
-                {/* Header Section */}
-                <Box sx={{ mb: 6, textAlign: 'center' }}>
-                    <Typography variant="h3" sx={{ fontWeight: 300, mb: 3, color: 'text.primary' }}>
-                        Agenda Semanal
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+            <Container maxWidth={false} disableGutters>
+                <MaestroPage
+                    kicker="PLAN DE CLASE"
+                    title="Agenda"
+                    description="Cada semana reúne cinco temas. Ábrelos cuando quieras llevar la clase, o genera la siguiente cuando termines esta."
+                    meta={agenda.length > 0 ? `${agenda.length} ${agenda.length === 1 ? 'semana' : 'semanas'}` : 'Sin semanas todavía'}
+                    actions={
+                        <>
                         <Button
                             variant="contained"
-                            startIcon={generating ? <CircularProgress size={20} /> : <CalendarTodayIcon />}
+                            disableElevation
+                            startIcon={generating ? <CircularProgress size={16} color="inherit" /> : <CalendarTodayIcon />}
                             onClick={handleGenerarNuevaAgenda}
                             disabled={generating || limiteAlcanzado}
                             sx={{
-                                borderRadius: 2,
-                                py: 1.5,
-                                px: 4,
                                 textTransform: 'none',
-                                fontSize: '1rem'
+                                bgcolor: '#6D5EF6',
+                                color: '#ffffff',
+                                borderRadius: '12px',
+                                px: 2.25,
+                                boxShadow: 'none',
+                                '&:hover': { bgcolor: '#5B4DE0' },
                             }}
                         >
-                            {generating ? 'Generando...' : 
+                            {generating ? 'Generando...' :
                                 limiteAlcanzado ? 'Límite alcanzado' :
-                                agenda.length === 0 ? 'Comenzar Agenda' : 'Generar Agenda semanal'}
+                                agenda.length === 0 ? 'Comenzar agenda' : 'Siguiente semana'}
                         </Button>
-
                         {agenda.length > 0 && (
                             <Button
-                                variant="contained"
-                                color="warning"
                                 onClick={() => {
                                     try {
-                                        // Obtener datos del usuario desde la sesión aislada
                                         const maestroSession = getMaestroSession();
                                         const user = maestroSession.getCurrentUser();
-                                        if (!user) {
-                                            console.error('❌ No se encontraron datos del usuario para resetear agenda');
-                                            return;
-                                        }
-
+                                        if (!user) return;
                                         const userKey = user.Usuario || user.email || 'unknown';
-
                                         setAgenda([]);
                                         setSiguienteSemana(1);
                                         setError('');
                                         setLimiteAlcanzado(false);
-
-                                        // Limpiar localStorage con claves únicas
                                         localStorage.removeItem(`maestro_agenda_${userKey}`);
                                         localStorage.removeItem(`maestro_siguiente_semana_${userKey}`);
-                                        console.log('🗑️ Agenda reseteada y localStorage limpiado para usuario:', userKey);
                                     } catch (error) {
                                         console.error('Error resetting agenda:', error);
                                     }
                                 }}
-                                sx={{
-                                    borderRadius: 2,
-                                    py: 1.5,
-                                    px: 4,
-                                    textTransform: 'none',
-                                    fontSize: '1rem'
-                                }}
+                                sx={{ textTransform: 'none', color: '#6D5EF6', borderRadius: '12px' }}
                             >
-                                Resetear
+                                Reiniciar
                             </Button>
                         )}
-                    </Box>
-                </Box>
+                    </>
+                    }
+                >
 
                 {/* Error Alert */}
                 {error && (
@@ -297,39 +284,35 @@ export default function Agenda() {
                 {/* Grid con Masonry */}
                 <Box sx={{ width: '100%' }}>
                     {agenda.length === 0 ? (
-                        <Box sx={{ textAlign: 'center', py: 8 }}>
-                            <Typography variant="h6" color="text.secondary">
-                                Tu agenda está vacía
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                Haz clic en "Comenzar Agenda" para agregar la primera semana
-                            </Typography>
+                        <Box sx={{ bgcolor: '#ffffff', border: '1px solid #EEF0F6', borderRadius: '24px', overflow: 'hidden' }}>
+                            <Box sx={{ px: 2.5, py: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid #EEF0F6' }}>
+                                <Typography sx={{ fontWeight: 600, color: '#1B1B3A' }}>Semana 1</Typography>
+                                <Typography sx={{ fontSize: 13, color: '#8E93A8' }}>Se llena al comenzar</Typography>
+                            </Box>
+                            {['Repaso de la semana anterior', 'Tema nuevo', 'Práctica guiada', 'Práctica independiente', 'Cierre y evidencias'].map((label, day) => (
+                                <Box key={label} sx={{ px: 2.5, py: 1.6, display: 'flex', gap: 2, alignItems: 'center', borderTop: day === 0 ? 0 : '1px solid #F3F4F8' }}>
+                                    <Typography sx={{ width: 52, fontSize: 12, letterSpacing: '0.08em', color: '#6D5EF6', fontWeight: 700 }}>
+                                        DÍA {day + 1}
+                                    </Typography>
+                                    <Typography sx={{ color: '#8E93A8' }}>{label}</Typography>
+                                </Box>
+                            ))}
                         </Box>
                     ) : (
                         <Masonry columns={{ xs: 1, sm: 2, md: 3 }} spacing={3}>
-                            {agenda.map((semana, index) => (
+                            {agenda.map((semana) => (
                                 <Paper
                                     key={semana.semana}
                                     elevation={0}
                                     sx={{
                                         border: '1px solid',
                                         borderColor: 'divider',
-                                        borderRadius: 2,
                                         overflow: 'hidden',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-4px)',
-                                            boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                                        }
+                                        bgcolor: '#ffffff',
+                                        borderRadius: '24px',
                                     }}
                                 >
-                                    <Box sx={{
-                                        p: 3,
-                                        height: index % 2 === 0 ? '320px' : '310px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'space-between'
-                                    }}>
+                                    <Box sx={{ p: 2.5, display: 'flex', flexDirection: 'column' }}>
                                         <Box>
                                             <Box sx={{
                                                 display: 'flex',
@@ -366,8 +349,8 @@ export default function Agenda() {
 
                                             <Divider sx={{ my: 2 }} />
 
-                                            <Box sx={{ maxHeight: '120px', overflow: 'hidden' }}>
-                                                {semana.temas.slice(0, 2).map((tema, temaIndex) => (
+                                            <Box>
+                                                {semana.temas.map((tema, temaIndex) => (
                                                     <Typography
                                                         key={temaIndex}
                                                         variant="body2"
@@ -382,15 +365,6 @@ export default function Agenda() {
                                                         Día {tema.dia}: {tema.titulo}
                                                     </Typography>
                                                 ))}
-                                                {semana.temas.length > 2 && (
-                                                    <Typography
-                                                        variant="caption"
-                                                        color="text.secondary"
-                                                        sx={{ fontStyle: 'italic' }}
-                                                    >
-                                                        ... y {semana.temas.length - 2} temas más
-                                                    </Typography>
-                                                )}
                                             </Box>
                                         </Box>
 
@@ -418,6 +392,7 @@ export default function Agenda() {
                         </Masonry>
                     )}
                 </Box>
+                </MaestroPage>
 
                 {/* Modal para mostrar detalles de la semana */}
                 <Dialog

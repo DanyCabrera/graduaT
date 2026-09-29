@@ -1,12 +1,12 @@
 # Backend graduaT - Sistema Escolar
 
-Backend completo para el sistema escolar graduaT desarrollado con Node.js, Express y MongoDB.
+Backend completo para el sistema escolar graduaT desarrollado con Node.js, Express y PostgreSQL (Neon).
 
 ## 🚀 Características
 
 - **API RESTful** completa para gestión escolar
 - **Autenticación JWT** con encriptación de contraseñas
-- **Validación de esquemas** en MongoDB
+- **Datos en PostgreSQL** (Neon)
 - **CORS** configurado para frontend
 - **Manejo de errores** centralizado
 - **Estructura modular** con modelos, controladores y rutas
@@ -32,6 +32,7 @@ npm install
 2. **Configurar variables de entorno:**
 Crea un archivo `.env` en la raíz del backend con:
 ```env
+DATABASE_URL=postgresql://<usuario>:<contraseña>@<host>.neon.tech/<base>?sslmode=require
 MONGODB_URL=mongodb+srv://<usuario>:<contraseña>@<cluster>.mongodb.net/?retryWrites=true&w=majority
 DB_NAME=dbgraduat
 PORT=5000
@@ -138,7 +139,9 @@ npm start
 
 ## 🗄️ Base de Datos
 
-El sistema utiliza MongoDB Atlas con las siguientes colecciones:
+El sistema utiliza PostgreSQL en Neon. Los documentos de cada colección se guardan en la tabla `documents` (JSONB) y el catálogo de colecciones en `app_collections`.
+
+Colecciones:
 
 - **Alumnos**: Información de estudiantes
 - **Maestros**: Información de profesores
@@ -149,7 +152,11 @@ El sistema utiliza MongoDB Atlas con las siguientes colecciones:
 - **Colegio**: Información de instituciones
 - **Login**: Credenciales de acceso
 
-Cada colección tiene validación de esquema para garantizar la integridad de los datos.
+Para copiar los datos desde MongoDB Atlas (solo si `MONGODB_URL` sigue configurada):
+
+```bash
+npm run migrate:mongo
+```
 
 ## 🔧 Scripts Disponibles
 
@@ -159,7 +166,7 @@ Cada colección tiene validación de esquema para garantizar la integridad de lo
 
 ## 📝 Notas Importantes
 
-1. **Configuración de MongoDB**: Asegúrate de tener la URI correcta de MongoDB Atlas
+1. **Configuración de Neon**: Asegúrate de tener `DATABASE_URL` en `backend/.env`
 2. **Variables de entorno**: Nunca subas el archivo `.env` al repositorio
 3. **JWT Secret**: Usa un secret fuerte y único para producción
 4. **CORS**: Configurado para el frontend en `http://localhost:5173`
